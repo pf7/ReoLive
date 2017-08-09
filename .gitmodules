@@ -1,0 +1,6 @@
+[submodule "parameterised-connectors"]
+	path = parameterised-connectors
+	url = git@github.com:joseproenca/parameterised-connectors.git
+[submodule "picc"]
+	path = picc
+	url = git@github.com:joseproenca/picc.git
