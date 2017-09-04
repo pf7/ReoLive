@@ -2,6 +2,7 @@ Reo Tools
 ========================
 
 This project is the home of *Reo Live*, and aims at compiling a set of Java/Scala based Reo related tools.
+A snapshot of Reo Live can be found temporarily in http://jose.proenca.org/reolive/. 
 
 It uses ScalaJS to generate JavaScript, and imports independent Reo related tools using git submodules feature.
 
