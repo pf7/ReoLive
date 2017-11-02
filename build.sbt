@@ -19,5 +19,7 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %%% "scalatags" % "0.6.1"
 )
 
+libraryDependencies += "org.singlespaced" %%% "scalajs-d3" % "0.3.4"
+
 // including source code from preo (needed for JavaScript compilation)
 unmanagedSourceDirectories in Compile += baseDirectory.value / "lib/preo/src/main/scala"
