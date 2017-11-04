@@ -41,12 +41,50 @@ object WebReoD3 {
 
   @JSExport
   def main(content: html.Div) = {
+    val svg = d3.select(content).append("svg").attr("width", "960").attr("height", "600")
+
+    svg.append("g")
+      .attr("class", "nodes");
+
+    svg.append("g")
+      .attr("class", "links");
+
+    //inserting regular arrow at the end
+    svg.append("defs")
+      .append("marker")
+      .attr("id","arrowhead")
+      .attr("viewBox","-0 -5 10 10")
+      .attr("refX",15)
+      .attr("refY",0)
+      .attr("orient","auto")
+      .attr("markerWidth",6)
+      .attr("markerHeight",6)
+      .attr("xoverflow","visible")
+      .append("svg:path")
+      .attr("d", "M 0,-5 L 10 ,0 L 0,5")
+      .attr("fill", "#000")
+      .style("stroke","none");
+
+    //arrowhead inverted for sync drains
+    svg.append("defs")
+      .append("marker")
+      .attr("id","invertedarrowhead")
+      .attr("viewBox","-0 -5 10 10")
+      .attr("refX",15)
+      .attr("refY",0)
+      .attr("orient","auto")
+      .attr("markerWidth",6)
+      .attr("markerHeight",6)
+      .attr("xoverflow","visible")
+      .append("svg:path")
+      .attr("d", "M 10,-5 L 0 ,0 L 10,5")
+      .attr("fill", "#000")
+      .style("stroke","none");
+
 
 
     scalajs.js.eval(GraphsToJS(this.graph))
   }
 }
 
-//todo-1: Vamos começar por dar a martelada nisto e resolver o problema do D3 inicial.
-//todo-1: Vamos começar por procurar remover a martelada. Fazemos clone do scalajsD3 e vamos implementar o force
-//todo-2: vamos ver se conseguimos juntar isso aqui e fazer o código funcionar
+//todo: criar todos os tipos de setas que podem haver.

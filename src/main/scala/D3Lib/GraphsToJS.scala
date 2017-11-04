@@ -7,81 +7,122 @@ object GraphsToJS {
   def apply(graph: Graph): String = {
     val nodes = getNodes(graph);
     val links = getLinks(graph);
-
     s"""
         var svg = d3.select("svg");
         var width = svg.attr("width");
         var height = svg.attr("height");
-        var color = d3.scaleOrdinal(d3.schemeCategory20);
 
-        var graph = {"nodes": $nodes, "links": $links
+        var graph = {"nodes": $nodes, "links": $links};
+
+        var simulation = d3.forceSimulation(graph.nodes)
+          .force('charge', d3.forceManyBody().strength(-100))
+          .force('center', d3.forceCenter(width / 2, height / 2))
+          .force('collision', d3.forceCollide().radius(function(d) {
+            return d.radius}))
+          .force("link", d3.forceLink().links(graph.links).id(function(d) { return d.id; }))
+          .force("forcepos", forcepos)
+          .on('tick', ticked);
+
+        init(graph.nodes, graph.links);
+
+        function init(nodes, links){
+            //add nodes
+            var node = d3.select(".nodes")
+                .selectAll("circle")
+                .data(nodes);
 
 
-};
-
-        var simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(function(d) { return d.id; }))
-            .force("charge", d3.forceManyBody())
-            .force("center", d3.forceCenter(width / 2, height / 2))
-
-
-
-          var link = svg.append("g")
-              .attr("class", "links")
-            .selectAll("line")
-            .data(graph.links)
-            .enter().append("line")
-              .attr("stroke",linkColour);
-
-
-          var node = svg.append("g")
-              .attr("class", "nodes")
-            .selectAll("circle")
-            .data(graph.nodes)
-            .enter().append("circle")
-              .attr("r", 5)
-              .attr("fill", function(d) { return color(d.group); })
-              .call(d3.drag()
+            node.enter()
+                .append("circle")
+                .merge(node)
+                .attr("r", 5)
+                .attr("id", function (d) {return d.id;})
+                .call(d3.drag()
                   .on("start", dragstarted)
                   .on("drag", dragged)
                   .on("end", dragended));
 
-          node.append("title")
-              .text(function(d) { return d.id; });
+            node.exit().remove();
 
-          simulation
-          	  .force("forcepos", forcepos)
-              .nodes(graph.nodes)
-              .on("tick", ticked);
-
-
-          simulation.force("link")
-              .links(graph.links);
+            //add links
+            var link = d3.select(".links")
+                .selectAll("line")
+                .data(links);
 
 
 
-        //Vai atribuir a cor ao link conforme o tipo de link que é
-        function linkColour(d){
-            console.log(d);
-            if(d.type == "fifo")
-                return "green";
-            if(d.type == "dup")
-            	return "blue";
-            if(d.type=="merger")
-            	return "yellow";
-            else return "red";
-            }
+            link.enter().append("line")
+                .style("stroke", "black")
+                .merge(link)
+                .attr('marker-end','url(#arrowhead)');
 
-          function ticked() {
-            link
+            link.append("title")
+                .text(function (d) {return d.type;});
+
+
+            link.exit().remove();
+
+            //add labels to graph
+            var edgepaths = svg.selectAll(".edgepath")
+                .data(links)
+                .enter()
+                .append('path')
+                .attr('class', 'edgepath')
+                .attr('fill-opacity', 0)
+                .attr('stroke-opacity', 0)
+                .attr('id', function (d, i) {return 'edgepath' + i})
+                .style("pointer-events", "none");
+
+            var edgelabels = svg.selectAll(".edgelabel")
+                .data(links)
+                .enter()
+                .append('text')
+                .style("pointer-events", "none")
+                .attr('class', 'edgelabel')
+                .attr('id', function (d, i) {return 'edgelabel' + i})
+                .attr('font-size', 12)
+                .attr('fill', 'black');
+
+            d3.selectAll(".edgelabel").append('textPath')
+                .attr('xlink:href', function (d, i) {return '#edgepath' + i})
+                .style("text-anchor", "middle")
+                .style("pointer-events", "none")
+                .attr("startOffset", "50%")
+                .text(function (d) {return d.type});
+
+        }
+
+
+        function ticked() {
+            var node = d3.select(".nodes")
+                .selectAll("circle")
+                .attr('cx', function(d) {return d.x})
+                .attr('cy', function(d) {return d.y});
+
+            var link = d3.select(".links")
+                .selectAll("line")
                 .attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
-            node
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; });
-          }
+
+            d3.selectAll(".edgepath").attr('d', function (d) {
+                return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+            });
+
+            d3.selectAll(".edgelabel").attr('transform', function (d) {
+                if (d.target.x < d.source.x) {
+                    var bbox = this.getBBox();
+
+                    rx = bbox.x + bbox.width / 2;
+                    ry = bbox.y + bbox.height / 2;
+                    return 'rotate(180 ' + rx + ' ' + ry + ')';
+                }
+                else {
+                    return 'rotate(0)';
+                }
+            });
+        }
 
         //vai forçar a posição no eixo dos xx do nodo
         //pode ser atribuido um valor fixo
@@ -114,8 +155,10 @@ object GraphsToJS {
 
         function dragended(d) {
           if (!d3.event.active) simulation.alphaTarget(0);
-          d.fx = null;
-          d.fy = null;
+          if (d.group == 3 || d.group == 1){
+            d.fx = null;
+            d.fy = null;
+          }
         }"""
     }
 
