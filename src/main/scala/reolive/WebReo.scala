@@ -154,7 +154,7 @@ sequencer =
               clearCanvas(canvas)
 //              outputInfo.appendChild(genError(Springy.script(reduc)))
               scalajs.js.eval(Springy.script(Eval.unsafeReduce(reduc)))
-              println(Eval.unsafeReduce(reduc))
+              println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
               scalajs.js.eval(GraphsToJS(Graph(Eval.unsafeReduce(reduc))))
               //mudar esta linha para utilizar d3 com novo grafo
               //e parametros em scala.js

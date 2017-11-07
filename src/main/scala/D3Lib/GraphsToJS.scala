@@ -11,6 +11,7 @@ object GraphsToJS {
         var svg = d3.select("svg");
         var width = svg.attr("width");
         var height = svg.attr("height");
+        var radius = 5.75;
 
         var graph = {"nodes": $nodes, "links": $links};
 
@@ -35,7 +36,7 @@ object GraphsToJS {
             node.enter()
                 .append("circle")
                 .merge(node)
-                .attr("r", 5)
+                .attr("r", radius - 0.75)
                 .attr("id", function (d) {return d.id;})
                 .call(d3.drag()
                   .on("start", dragstarted)
@@ -105,8 +106,8 @@ object GraphsToJS {
         function ticked() {
             var node = d3.select(".nodes")
                 .selectAll("circle")
-                .attr('cx', function(d) {return d.x})
-                .attr('cy', function(d) {return d.y});
+                .attr('cx', function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
+                .attr('cy', function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
 
             var link = d3.select(".links")
                 .selectAll("line")
