@@ -1,10 +1,12 @@
 package reolive
 
+import D3Lib.GraphsToJS
 import org.scalajs.dom
 import dom.{MouseEvent, html}
+import org.singlespaced.d3js.d3
 import preo.frontend.{Eval, Show, Simplify}
 import preo.common.TypeCheckException
-import preo.backend.Springy
+import preo.backend.{Graph, Springy}
 import preo.DSL
 import preo.lang.Parser
 import preo.ast.Type
@@ -44,6 +46,9 @@ object WebReo extends{
 
     val canvasDiv = div(`class`:="col-sm-5",canvasBox).render
 
+    val svgDiv = div.render
+
+    appendSvg(svgDiv)
     fgenerate("dupl & (fifo * lossy)",outputBox,canvasDiv)
 
     /**
@@ -102,6 +107,7 @@ sequencer =
 
     val header = div(id:="header",h1("Build Reo Families"))
 
+
     val contentDiv = div(
       id:="content",
 //        p(
@@ -114,12 +120,16 @@ sequencer =
           div(id:="outputBox",outputBox),
           div(id:="buttons",buttons)
         ),
-        canvasDiv
+        div(`class` := "row",
+        canvasDiv,
+        svgDiv
+        )
       )
     )
 
     content.appendChild(header.render)
     content.appendChild(contentDiv.render)
+
   }
 
 
@@ -144,6 +154,8 @@ sequencer =
               clearCanvas(canvas)
 //              outputInfo.appendChild(genError(Springy.script(reduc)))
               scalajs.js.eval(Springy.script(Eval.unsafeReduce(reduc)))
+              println(Eval.unsafeReduce(reduc))
+              scalajs.js.eval(GraphsToJS(Graph(Eval.unsafeReduce(reduc))))
               //mudar esta linha para utilizar d3 com novo grafo
               //e parametros em scala.js
             case _ =>
@@ -180,6 +192,60 @@ sequencer =
       fgenerate(ss._2,outputInfo,canvas)
     }
     b
+  }
+
+  private def appendSvg(div: html.Div) = {
+    val svg = d3.select(div).append("svg")
+      .attr("width", "600")
+      .attr("height", "450")
+      .style("border", "black")
+      .style("border-width", "thin")
+      .style("border-style", "solid")
+      .style("margin", "auto")
+
+    svg.append("g")
+      .attr("class", "nodes");
+
+    svg.append("g")
+      .attr("class", "links");
+
+    svg.append("g")
+      .attr("class", "labels");
+
+    svg.append("g")
+      .attr("class", "paths");
+
+    //inserting regular arrow at the end
+    svg.append("defs")
+      .append("marker")
+      .attr("id","arrowhead")
+      .attr("viewBox","-0 -5 10 10")
+      .attr("refX",15)
+      .attr("refY",0)
+      .attr("orient","auto")
+      .attr("markerWidth",6)
+      .attr("markerHeight",6)
+      .attr("xoverflow","visible")
+      .append("svg:path")
+      .attr("d", "M 0,-5 L 10 ,0 L 0,5")
+      .attr("fill", "#000")
+      .style("stroke","none");
+
+    //arrowhead inverted for sync drains
+    svg.append("defs")
+      .append("marker")
+      .attr("id","invertedarrowhead")
+      .attr("viewBox","-0 -5 10 10")
+      .attr("refX",15)
+      .attr("refY",0)
+      .attr("orient","auto")
+      .attr("markerWidth",6)
+      .attr("markerHeight",6)
+      .attr("xoverflow","visible")
+      .append("svg:path")
+      .attr("d", "M 10,-5 L 0 ,0 L 10,5")
+      .attr("fill", "#000")
+      .style("stroke","none");
   }
 }
 

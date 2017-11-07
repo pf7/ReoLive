@@ -12,8 +12,6 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExport
 import org.singlespaced.d3js.d3
 
-//todo-tomorrow: create the example that the student did in this lang
-
 
 
 @JSExport
@@ -41,7 +39,7 @@ object WebReoD3 {
 
   @JSExport
   def main(content: html.Div) = {
-    val svg = d3.select(content).append("svg").attr("width", "960").attr("height", "600")
+    val svg = d3.select(content).append("svg").attr("width", "600").attr("height", "450")
 
     svg.append("g")
       .attr("class", "nodes");

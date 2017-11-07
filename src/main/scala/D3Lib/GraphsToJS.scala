@@ -15,7 +15,7 @@ object GraphsToJS {
         var graph = {"nodes": $nodes, "links": $links};
 
         var simulation = d3.forceSimulation(graph.nodes)
-          .force('charge', d3.forceManyBody().strength(-100))
+          .force('charge', d3.forceManyBody().strength(-50))
           .force('center', d3.forceCenter(width / 2, height / 2))
           .force('collision', d3.forceCollide().radius(function(d) {
             return d.radius}))
@@ -62,10 +62,12 @@ object GraphsToJS {
 
             link.exit().remove();
 
+
             //add labels to graph
-            var edgepaths = svg.selectAll(".edgepath")
-                .data(links)
-                .enter()
+            var edgepaths = svg.select(".paths").selectAll(".edgepath")
+                .data(links);
+
+            edgepaths.enter()
                 .append('path')
                 .attr('class', 'edgepath')
                 .attr('fill-opacity', 0)
@@ -73,9 +75,12 @@ object GraphsToJS {
                 .attr('id', function (d, i) {return 'edgepath' + i})
                 .style("pointer-events", "none");
 
-            var edgelabels = svg.selectAll(".edgelabel")
-                .data(links)
-                .enter()
+            edgepaths.exit().remove();
+
+            var edgelabels = svg.select(".labels").selectAll(".edgelabel")
+                .data(links);
+
+            edgelabels.enter()
                 .append('text')
                 .style("pointer-events", "none")
                 .attr('class', 'edgelabel')
@@ -83,7 +88,11 @@ object GraphsToJS {
                 .attr('font-size', 12)
                 .attr('fill', 'black');
 
-            d3.selectAll(".edgelabel").append('textPath')
+            edgelabels.exit().remove();
+
+            d3.select(".labels").selectAll("textPath").remove();
+
+            var textpath = d3.select(".labels").selectAll(".edgelabel").append('textPath')
                 .attr('xlink:href', function (d, i) {return '#edgepath' + i})
                 .style("text-anchor", "middle")
                 .style("pointer-events", "none")
@@ -106,9 +115,12 @@ object GraphsToJS {
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
 
+
+
             d3.selectAll(".edgepath").attr('d', function (d) {
                 return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
             });
+
 
             d3.selectAll(".edgelabel").attr('transform', function (d) {
                 if (d.target.x < d.source.x) {
@@ -133,7 +145,7 @@ object GraphsToJS {
              //curr_node.attr("cx", newPos);
             if(curr_node.group == 3){
                 //curr_node.x += 0.4;
-                curr_node.x = 750;
+                curr_node.x = 590;
             } else if(curr_node.group == 1){
                 curr_node.x = 10;
                 //curr_node.x -= 0.4;
@@ -194,3 +206,7 @@ object GraphsToJS {
     case Nil => ""
   }
 }
+
+//todo: fix the bug with the textPath
+//todo: add borders
+
