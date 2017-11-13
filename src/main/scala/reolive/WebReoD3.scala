@@ -12,7 +12,9 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExport
 import org.singlespaced.d3js.d3
 
-
+/**
+  * This file if made for experiments which are added later on the file WebReo
+  */
 
 @JSExport
 object WebReoD3 {
@@ -85,4 +87,3 @@ object WebReoD3 {
   }
 }
 
-//todo: criar todos os tipos de setas que podem haver.

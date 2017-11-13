@@ -203,6 +203,4 @@ object GraphsToJS {
   }
 }
 
-//todo: fix the bug with the textPath
-//todo: add borders
 

@@ -116,10 +116,11 @@ sequencer =
 //        fgenerate(inputBox.value,outputBox,canvasDiv)
 //      }
 
-    inputArea.on("keyup", {(e: EventTarget, a: Int, b:UndefOr[Int]) => fgenerate(inputArea.attr("text"),outputBox)} : inputArea.DatumFunction[Unit])
+    val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
+    inputArea.on("keyup", {(e: EventTarget, a: Int, b:UndefOr[Int]) => fgenerate(inputAreaDom.value,outputBox)} : inputArea.DatumFunction[Unit])
 
-    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox)
+    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, inputAreaDom)
 
   }
 
@@ -130,6 +131,9 @@ sequencer =
     */
   private def fgenerate(input:String,outputInfo:Selection[dom.EventTarget]): Unit={
     // clear output
+
+
+
     outputInfo.text("")
 
     // update output and run script
@@ -167,12 +171,12 @@ sequencer =
   }
 
 
-  private def genButton(ss:(String,String),buttonsDiv:Selection[dom.EventTarget], inputBox:Selection[dom.EventTarget],outputInfo:Selection[dom.EventTarget]): Unit = {
+  private def genButton(ss:(String,String),buttonsDiv:Selection[dom.EventTarget], inputBox:Selection[dom.EventTarget],outputInfo:Selection[dom.EventTarget], inputAreaDom: html.TextArea): Unit = {
     val button = buttonsDiv.append("button")
         .text(ss._1)
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
-      inputBox.attr("value", ss._2)
+      inputAreaDom.value = ss._2
       fgenerate(ss._2,outputInfo)
     }} : button.DatumFunction[Unit])
 
@@ -205,11 +209,11 @@ sequencer =
       .append("marker")
       .attr("id","endarrowout")
       .attr("viewBox","-0 -5 10 10")
-      .attr("refX",15)
+      .attr("refX",13)
       .attr("refY",0)
       .attr("orient","auto")
-      .attr("markerWidth",7)
-      .attr("markerHeight",7)
+      .attr("markerWidth",5)
+      .attr("markerHeight",5)
       .attr("xoverflow","visible")
       .append("svg:path")
       .attr("d", "M 0,-5 L 10 ,0 L 0,5")
@@ -221,11 +225,11 @@ sequencer =
       .append("marker")
       .attr("id","endarrowin")
       .attr("viewBox","-0 -5 10 10")
-      .attr("refX",18)
+      .attr("refX",14)
       .attr("refY",0)
       .attr("orient","auto")
-      .attr("markerWidth",7)
-      .attr("markerHeight",7)
+      .attr("markerWidth",5)
+      .attr("markerHeight",5)
       .attr("xoverflow","visible")
       .append("svg:path")
       .attr("d", "M 10,-5 L 0 ,0 L 10,5")
@@ -236,11 +240,11 @@ sequencer =
       .append("marker")
       .attr("id","startarrowout")
       .attr("viewBox","-10 -10 16 16")
-      .attr("refX",-18)
+      .attr("refX",-14)
       .attr("refY",0)
       .attr("orient","auto")
-      .attr("markerWidth",11)
-      .attr("markerHeight",11)
+      .attr("markerWidth",8)
+      .attr("markerHeight",8)
       .attr("xoverflow","visible")
       .append("svg:path")
       .attr("d", "M 0,-5 L -10 ,0 L 0,5")
@@ -251,11 +255,11 @@ sequencer =
       .append("marker")
       .attr("id","startarrowin")
       .attr("viewBox","-10 -10 16 16")
-      .attr("refX",-18)
+      .attr("refX",-14)
       .attr("refY",0)
       .attr("orient","auto")
-      .attr("markerWidth",11)
-      .attr("markerHeight",11)
+      .attr("markerWidth",8)
+      .attr("markerHeight",8)
       .attr("xoverflow","visible")
       .append("svg:path")
       .attr("d", "M -10,-5 L 0 ,0 L -10,5")
