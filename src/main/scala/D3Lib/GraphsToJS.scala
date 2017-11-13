@@ -7,7 +7,6 @@ object GraphsToJS {
   def apply(graph: Graph): String = {
     val nodes = getNodes(graph);
     val links = getLinks(graph);
-    println(links)
     s"""
         var svg = d3.select("svg");
         var width = svg.attr("width");
