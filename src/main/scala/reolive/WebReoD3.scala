@@ -14,6 +14,7 @@ import org.singlespaced.d3js.d3
 
 /**
   * This file if made for experiments which are added later on the file WebReo
+  * Deprecated
   */
 
 @JSExport

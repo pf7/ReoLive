@@ -4,6 +4,7 @@ import org.singlespaced.d3js.Ops._
 import D3Lib.GraphsToJS
 import org.scalajs.dom
 import dom.{EventTarget, MouseEvent, html}
+import org.scalajs.dom.raw.KeyboardEvent
 import org.singlespaced.d3js
 import org.singlespaced.d3js.{Selection, d3}
 import preo.frontend.{Eval, Show, Simplify}
@@ -89,8 +90,8 @@ sequencer =
     val inputArea = inputDiv.append("textarea")
       .attr("id", "inputArea")
       .attr("rows", "10")
-      .attr("width", "100%")
-      .attr("placeholder", "dupl & (fifo * lossy)")
+      .attr("style", "width: 100%")
+      .attr("placeholder", "press Shift+Enter to update")
 
     val outputBox = colDiv1.append("div")
       .attr("id", "outputBox")
@@ -102,8 +103,14 @@ sequencer =
       .style("display:block; padding:2pt")
 
 
+    val mcrl2Box = colDiv1.append("div")
+      .attr("id", "mcrl2Box")
+      .style("margin-top", "4px")
+      .style("border", "1px solid black")
+        .text("coiso")
+
     val svgDiv = rowDiv.append("div")
-      .attr("class", "col-sm-5")
+      .attr("class", "col-sm-8")
 
     appendSvg(svgDiv)
 
@@ -118,7 +125,14 @@ sequencer =
 
     val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
-    inputArea.on("keyup", {(e: EventTarget, a: Int, b:UndefOr[Int]) => fgenerate(inputAreaDom.value,outputBox)} : inputArea.DatumFunction[Unit])
+    inputAreaDom.onkeydown = {(e: dom.KeyboardEvent) =>
+      if(e.keyCode.toInt == 13 && e.shiftKey) fgenerate(inputAreaDom.value,outputBox)
+      else ()
+    }
+
+    //inputArea.on("keyup", {(e: EventTarget, a: Int, b:UndefOr[Int]) =>println(e);fgenerate(inputAreaDom.value,outputBox)} : inputArea.DatumFunction[Unit])
+
+
 
     for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, inputAreaDom)
 
