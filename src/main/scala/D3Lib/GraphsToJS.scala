@@ -20,7 +20,7 @@ object GraphsToJS {
           .force('center', d3.forceCenter(width / 2, height / 2))
           .force('collision', d3.forceCollide().radius(function(d) {
             return d.radius}))
-          .force("link", d3.forceLink().links(graph.links).id(function(d) { return d.id; }).distance(200))
+          .force("link", d3.forceLink().links(graph.links).id(function(d) { return d.id; }))
           .force("forcepos", forcepos)
           .on('tick', ticked);
 
