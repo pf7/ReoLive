@@ -18,10 +18,20 @@ object GraphsToJS {
         var simulation = d3.forceSimulation(graph.nodes)
           .force('charge', d3.forceManyBody().strength(-500))
           .force('center', d3.forceCenter(width / 2, height / 2))
+          .force('y', d3.forceY().y(function(d) { return 0;}))
+          .force('x', d3.forceX().x(function(d) {
+            if (d.group == 3){
+              return width/2;
+            }
+            if (d.group ==1){
+              return -width/2;
+            }
+            return 0;
+          }))
           .force('collision', d3.forceCollide().radius(function(d) {
             return d.radius}))
-          .force("link", d3.forceLink().links(graph.links).id(function(d) { return d.id; }))
-          .force("forcepos", forcepos)
+          .force("link", d3.forceLink().links(graph.links).id(function(d) { return d.id; }).distance(40))
+          //.force("forcepos", forcepos)
           .on('tick', ticked);
 
         init(graph.nodes, graph.links);
