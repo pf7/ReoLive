@@ -51,12 +51,20 @@ object GraphsToJS {
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended))
-                .style("stroke", "white")
                 .style("stroke-opacity" , "1")
                 .style("stroke-width", "2px")
+                .style("stroke", function(d){
+                   if(d.group == 1 || d.group == 3){
+                     return "black";
+                   }
+                   else{
+                     return "white";
+                   }
+                   }
+                )
                 .style("fill", function(d){
                   if(d.group == 1 || d.group == 3){
-                    return "#5bc0de";
+                    return "white";
                   }
                   else{
                     return "black";
@@ -120,7 +128,14 @@ object GraphsToJS {
                 .style("text-anchor", "middle")
                 .style("pointer-events", "none")
                 .attr("startOffset", "50%")
-                .text(function (d) {return d.type});
+                .text(function (d) {
+                  if(d.type === "drain" || d.type === "lossy" || d.type === "merger" || d.type === "sync"){
+                    return "";
+                  }
+                  else{
+                    return d.type;
+                  }
+                });
         }
 
         function ticked() {
