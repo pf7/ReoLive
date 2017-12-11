@@ -11,12 +11,12 @@ object GraphsToJS {
         var svg = d3.select("svg");
         var width = svg.attr("width");
         var height = svg.attr("height");
-        var radius = 5.75;
+        var radius = 7.75;
 
         var graph = {"nodes": $nodes, "links": $links};
 
         var simulation = d3.forceSimulation(graph.nodes)
-          .force('charge', d3.forceManyBody().strength(-500))
+          .force('charge', d3.forceManyBody().strength(-700))
           .force('center', d3.forceCenter(width / 2, height / 2))
           .force('y', d3.forceY().y(function(d) { return 0;}))
           .force('x', d3.forceX().x(function(d) {
@@ -30,7 +30,7 @@ object GraphsToJS {
           }))
           .force('collision', d3.forceCollide().radius(function(d) {
             return d.radius}))
-          .force("link", d3.forceLink().links(graph.links).id(function(d) { return d.id; }).distance(40))
+          .force("link", d3.forceLink().links(graph.links).id(function(d) { return d.id; }).distance(45))
           //.force("forcepos", forcepos)
           .on('tick', ticked);
 
@@ -47,16 +47,27 @@ object GraphsToJS {
                 .attr("r", radius - 0.75)
                 .attr("id", function (d) {return d.id;})
                 .call(d3.drag()
-                  .on("start", dragstarted)
-                  .on("drag", dragged)
-                  .on("end", dragended));
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended))
+                .style("stroke", "white")
+                .style("stroke-width", "2px")
+                .style("fill-opacity", "1")
+                .style("fill", function(d){
+                  if(d.group == 1 || d.group == 3){
+                    return "#5bc0de";
+                  }
+                  else{
+                    return "black";
+                  }
+                });
             node.exit().remove();
 
-            //add links
-            var link = d3.select(".links")
+             //add links
+             var link = d3.select(".links")
                 .selectAll("line")
                 .data(links);
-            link.enter().append("line")
+             link.enter().append("line")
                 .style("stroke", "black")
                 .merge(link)
                 .attr('marker-end', function(d){
@@ -64,7 +75,14 @@ object GraphsToJS {
                 })
                 .attr('marker-start', function(d){
                   return 'url(#' + d.start + ')'
-                });
+                })
+                .style('stroke-dasharray', function(d){
+                  if(d.type === "lossy"){
+                    return ("3, 3");
+                  }
+                  else {
+                    return ("1, 0");
+                  }}) ;
 
 
             link.append("title")
@@ -90,7 +108,7 @@ object GraphsToJS {
                 .style("pointer-events", "none")
                 .attr('class', 'edgelabel')
                 .attr('id', function (d, i) {return 'edgelabel' + i})
-                .attr('font-size', 12)
+                .attr('font-size', 14)
                 .attr('fill', 'black');
             edgelabels.exit().remove();
 
