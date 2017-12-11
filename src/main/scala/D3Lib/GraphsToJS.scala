@@ -10,6 +10,7 @@ object GraphsToJS {
     s"""
         var svg = d3.select("svg");
         var width = svg.attr("width");
+        console.log(width);
         var height = svg.attr("height");
         var radius = 7.75;
 
@@ -51,8 +52,8 @@ object GraphsToJS {
                 .on("drag", dragged)
                 .on("end", dragended))
                 .style("stroke", "white")
+                .style("stroke-opacity" , "1")
                 .style("stroke-width", "2px")
-                .style("fill-opacity", "1")
                 .style("fill", function(d){
                   if(d.group == 1 || d.group == 3){
                     return "#5bc0de";

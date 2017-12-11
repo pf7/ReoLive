@@ -205,10 +205,10 @@ sequencer =
       .style("margin", "auto")
 
     svg.append("g")
-      .attr("class", "nodes");
+      .attr("class", "links");
 
     svg.append("g")
-      .attr("class", "links");
+      .attr("class", "nodes");
 
     svg.append("g")
       .attr("class", "labels");
@@ -221,7 +221,7 @@ sequencer =
       .append("marker")
       .attr("id","endarrowout")
       .attr("viewBox","-0 -5 10 10")
-      .attr("refX",13)
+      .attr("refX",14)
       .attr("refY",0)
       .attr("orient","auto")
       .attr("markerWidth",7)
@@ -252,7 +252,7 @@ sequencer =
       .append("marker")
       .attr("id","startarrowout")
       .attr("viewBox","-10 -10 16 16")
-      .attr("refX",-14)
+      .attr("refX",-15)
       .attr("refY",0)
       .attr("orient","auto")
       .attr("markerWidth",10)
