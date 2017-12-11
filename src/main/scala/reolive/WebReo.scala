@@ -175,7 +175,7 @@ sequencer =
         catch {
           // type error
           case e: TypeCheckException => outputInfo.append("p").text(Show(result)+" - Type error: " + e.getMessage)
-          case e: JavaScriptException => outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e.getMessage+" - "+e.getClass)
+          case e: JavaScriptException => outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e+" - "+e.getClass)
         }
     }
 
