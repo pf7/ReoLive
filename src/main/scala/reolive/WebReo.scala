@@ -151,7 +151,7 @@ sequencer =
     outputInfo.text("")
 
     // update output and run script
-    DSL.parse(input) match {
+    DSL.parseWithError(input) match {
       case Parser.Success(result, _) =>
         try {
           outputInfo.append("p")
@@ -175,7 +175,7 @@ sequencer =
         catch {
           // type error
           case e: TypeCheckException => outputInfo.append("p").text(Show(result)+" - Type error: " + e.getMessage)
-          case e: JavaScriptException => outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e.getMessage+" - "+e.getClass)
+          case e: JavaScriptException => outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e+" - "+e.getClass)
         }
         // parse error
       case f: Parser.NoSuccess => outputInfo.append("p").text("Parser error: " + f.msg)
