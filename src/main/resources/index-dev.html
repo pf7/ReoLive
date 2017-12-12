@@ -8,13 +8,13 @@
     <meta name="description" content="Live website with Reo connectors generated in JavaScript">
     <meta name="author" content="">
 
-    <title>Build your Reo Connectors</title>
+    <title>Online Tools for Reo Connector Families</title>
 
-    <link href="css/style.css" rel="stylesheet">
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap theme -->
     <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <!-- <link href="theme.css" rel="stylesheet"> -->
@@ -28,18 +28,137 @@
 
   <body>
 
-  <div id="contentWrap"></div>
-  
+  <div class="navbar navbar-inverse"> <!-- navbar-fixed-top -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">
+        <!-- <img id="reolivelogo" src="....png" alt="ReoLive logo"> -->
+      Reo Live
+    </a>
+    </div>
+    <div class="navbar-collapse collapse navbar-responsive-collapse">
+      <ul class="nav navbar-nav" id="myTab">
+        <!--~~~~~~~~~~~~~~~~~
+          CHANGE TABS HERE
+        ~~~~~~~~~~~~~~~~~~-->
+        <li class="active"><a href="#families" data-toggle="tab" aria-expanded="true">Families</a></li>
+        <li><a href="#about" data-toggle="tab" aria-expanded="false">About</a></li>
+        <!--~~~~~~~~~~~~~~-->
+
+      </ul>
+    </div>
+  </div>
+
+
+  <div id="myTabContent" class="container">
+  <div class="row"> 
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~-->
+  <!--~~~~~~ FAMILIES ~~~~~~~-->
+  <!--~~~~~~~~~~~~~~~~~~~~~~~-->
+
+  <div class="tab-pane fade active in" id="families">
+  <div class="bs-component">
+    
+    <div id="contentWrap"></div>
+
+  </div>
+  </div>
+
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- ~~~~~~  Members  ~~~~~~ -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <div class="tab-pane fade" id="about">
+  <div class="bs-component">
+  <div class="col-sm-12">
+
+    <h3>About</h3>
+    More details about this project can be found in GitHub:
+    <ul>
+      <li> <a href="https://github.com/joseproenca/reotools">
+      https://github.com/joseproenca/reotools</a></li>
+      <li> <a href="https://github.com/ReoLanguage/Preo">
+      https://github.com/ReoLanguage/Preo</a></li>
+
+  </div>  
+  </div>
+  </div>
+
+  </div>
+  </div>
+
+  <!-- ~~~~~~~~~~~~~~~~~ -->
+  <!-- ~~~~ FOOTERS ~~~~ -->
+  <!-- ~~~~~~~~~~~~~~~~~ -->
+
+  <div class="panel-footer" id="wrapper-footer">
+    <div id="footer">
+      Copyright 2017 – Rúben Cruz and José Proença 
+    </div>
+  </div>
+
   </body>
 
+  <style>
+
+    .links line {
+      stroke: #999;
+      stroke-opacity: 0.6;
+      stroke-width: 2.0px;
+    }
+
+    .nodes circle {
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+
+  </style>
+
   <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>-->
-  <script type="text/javascript" src="js/jquery.min.js"> </script>
+  <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
   <script type="text/javascript" src="js/springy.min.js"> </script>
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script type="text/javascript" src="../../../target/scala-2.11/reotools-fastopt.js"></script>
+  <script type="text/javascript" src="js/reotools-fastopt.js"></script>
 
   <script>
-    reolive.WebReo().main(document.getElementById('contentWrap'));
+      ////////////////////
+      // ACTIVATING TABS BASED ON URL
+      ////////////////////
+      $(function () {
+       var activeTab = $('[href=' + location.hash + ']');
+    //    activeTab && activeTab.tab('show');
+       activeTab.tab('show');
+      });
+
+      ////////////////////
+      // ACTIVATING TABS BY CLICKING
+      ////////////////////
+      $('#myTab a').click(function (e) {
+          e.preventDefault();
+          $(this).tab('show');
+          var id = $(e.target).attr("href").substr(1);
+          window.location.hash = id;
+          $('html,body').scrollTop(0); // go to top!
+          //$('html, body').animate({ scrollTop: 0 }, 'fast'); // animate and go to top
+    //       $(".navbar-toggle").click() //bootstrap 3.x by Richard
+      });
+
+      $(document).on('click','.navbar-collapse.in',function(e) {
+        if( $(e.target).is('a') && $(e.target).attr('class') != 'dropdown-toggle' ) {
+            $(this).collapse('hide');
+        }
+      });
+  </script>
+
+  <script>
+    reolive.WebReo.main(document.getElementById('contentWrap'));
   </script>
 
 </html>

@@ -1,86 +1,55 @@
 package reolive
 
+import org.singlespaced.d3js.Ops._
+import D3Lib.GraphsToJS
 import org.scalajs.dom
-import dom.{MouseEvent, html}
+import dom.{EventTarget, MouseEvent, html}
+import org.scalajs.dom.raw.KeyboardEvent
+import org.singlespaced.d3js
+import org.singlespaced.d3js.{Selection, d3}
 import preo.frontend.{Eval, Show, Simplify}
 import preo.common.TypeCheckException
-import preo.backend.Springy
+import preo.backend.{Graph, Springy}
 import preo.DSL
 import preo.lang.Parser
-import preo.ast.Type
 
-import scala.scalajs.js.JavaScriptException
-import scalajs.js.annotation.JSExport
+import scala.scalajs.js.{JavaScriptException, UndefOr}
+import scalajs.js.annotation.JSExportTopLevel
 import scalatags.JsDom.all._
 
 
 /**
   * Created by jose on 27/04/2017.
   */
-@JSExport
 object WebReo extends{
 
-  private val canvasBox = canvas(
-    style:="border: 'black'; border-width: thin;border-style: solid;margin: auto;",
-//    width:="600px",
-//    height:="450px",
-    attr("width"):="600px",
-    attr("height"):="450px",
-    id:="springydemo"
-  )
+  type Block = Selection[dom.EventTarget]
+  val width = 900
+  val height = 600
 
-
-  @JSExport
-  def main(content: html.Div) = {
-
-//      val inputBox = input(
-//        `type`:="text",
-//        placeholder:="Type Here!",
-//        width:="400px"
-//      ).render
-//val inputArea = textarea(rows:="10",cols:="36",placeholder:="dupl & (fifo * lossy)").render
-    val inputArea = textarea(rows:="10",width:="100%",placeholder:="dupl & (fifo * lossy)").render
-    val outputBox = div.render
-
-    val canvasDiv = div(`class`:="col-sm-5",canvasBox).render
-
-    fgenerate("dupl & (fifo * lossy)",outputBox,canvasDiv)
-
-    /**
-    Will evaluate the expression being written in the input box
-      */
-//      inputBox.onkeyup = (e: dom.Event) => {
-//        fgenerate(inputBox.value,outputBox,canvasDiv)
-//      }
-    inputArea.onkeyup = (e: dom.Event) => {
-      fgenerate(inputArea.value,outputBox,canvasDiv)
-    }
-
-
-    val buttons = div( style:="display:block; padding:2pt", //ul(
-      for (ops <- Seq(
-        "writer"->"writer", "reader"->"reader",
-        "fifo"->"fifo",     "merger"->"merger",
-        "dupl"->"dupl",     "drain"->"drain",
-        "(fifo*writer) & drain"->"(fifo*writer) & drain",
-        "\\x . ((fifo^x)*writer) & (drain^3)" -> "\\x . ((fifo^x)*writer) & (drain^3)",
-        "(\\x.fifo^x) & (\\n.drain^n)" -> "(\\x.fifo^x) & (\\n.drain^n)",
-        "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
-        "(\\x .drain^(x-1)) 3" -> "(\\x .drain^(x-1)) 3",
-        ".. & merger!" -> "(writer^8) & merger! & merger! & reader!",
-        "x=..;y=..;x&y" -> "x = lossy * fifo ; y = merger; x & y",
-        "exrouter=.."->"writer & dupl & (dupl*id) & (((lossy*lossy) & (dupl*dupl) & (id*swap*id) & (id*id*merger))*id) & (id*id*drain) & (reader^2)",
-        "zip=.."-> """zip =
+  private val buttons = Seq(
+    "writer"->"writer", "reader"->"reader",
+    "fifo"->"fifo",     "merger"->"merger",
+    "dupl"->"dupl",     "drain"->"drain",
+    "(fifo*writer) & drain"->"(fifo*writer) & drain",
+    "\\x . ((fifo^x)*writer) & (drain^3)" -> "\\x . ((fifo^x)*writer) & (drain^3)",
+    "(\\x.fifo^x) & (\\n.drain^n)" -> "(\\x.fifo^x) & (\\n.drain^n)",
+    "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
+    "(\\x .drain^(x-1)) 3" -> "(\\x .drain^(x-1)) 3",
+    ".. & merger!" -> "(writer^8) & merger! & merger! & reader!",
+    "x=..;y=..;x&y" -> "x = lossy * fifo ; y = merger; x & y",
+    "exrouter=.."->"writer & dupl & (dupl*id) & (((lossy*lossy) & (dupl*dupl) & (id*swap*id) & (id*id*merger))*id) & (id*id*drain) & (reader^2)",
+    "zip=.."-> """zip =
   \n.Tr_((2*n)*(n-1))
   (((((id^(n-x))*(sym(1,1)^x))*(id^(n-x)))^(x<--n))&
    sym((2*n)*(n-1),2*n));
 zip 3""",
-        "unzip=.." -> """unzip =
+    "unzip=.." -> """unzip =
   \n.Tr_((2*n)*(n - 1))
   (((((id^(x+1))*(sym(1,1)^((n-x)-1)))*(id^(x+1)))^(x<--n))&
    sym((2*n)*(n-1),2*n));
 unzip 3""",
-        "sequencer=.."-> """zip =
+    "sequencer=.."-> """zip =
   \n.Tr_((2*n)*(n-1))
   (((((id^(n-x))*(sym(1,1)^x))*(id^(n-x)))^(x<--n))&
    sym((2*n)*(n-1),2*n));
@@ -97,29 +66,105 @@ sequencer =
     ((id^n)*((zip(n:I)) & (drain^n)));
 
 (writer^3) & sequencer 3 & (reader^3)"""
-      )) yield genButton(ops,inputArea,outputBox,canvasDiv)
-    ).render
+  )
 
-    val header = div(id:="header",h1("Build Reo Families"))
 
-    val contentDiv = div(
-      id:="content",
-//        p(
-//          "Write the structure you want to see: "
-//        ),
-//        div(id:="inputBox",marginBottom:="2pt",inputBox),
-      div(`class`:="row",
-        div(`class`:="col-sm-3",
-          div(id:="textBox",inputArea),
-          div(id:="outputBox",outputBox),
-          div(id:="buttons",buttons)
-        ),
-        canvasDiv
-      )
-    )
+  @JSExportTopLevel("reolive.WebReo.main")
+  def main(content: html.Div) = {
 
-    content.appendChild(header.render)
-    content.appendChild(contentDiv.render)
+//    // add header
+//    d3.select(content).append("div")
+//      .attr("id", "header")
+//      .append("h1").text("Reo Live - Connector Families")
+
+    val contentDiv = d3.select(content).append("div")
+      .attr("id", "content")
+
+    val rowDiv = contentDiv.append("div")
+      .attr("class", "row")
+
+    val colDiv1 = rowDiv.append("div")
+      .attr("class", "col-sm-3")
+
+    // add InputArea
+    val inputDiv = panelBox(colDiv1,"Input (Shift-Enter to update)").append("div")
+      .attr("id", "textBox")
+
+    val inputArea = inputDiv.append("textarea")
+      .attr("id", "inputArea")
+      .attr("class","my-textarea")
+      .attr("rows", "10")
+      .attr("style", "width: 100%")
+      .attr("placeholder", "dupl & (fifo * lossy)")
+
+    val outputBox = panelBox(colDiv1,"Type and instance").append("div")
+      .attr("id", "outputBox")
+
+    val buttonsDiv = panelBox(colDiv1,"examples").append("div")
+      .attr("id", "buttons")
+      .attr("style","padding: 2pt;")
+
+    buttonsDiv
+      .style("display:block; padding:2pt")
+
+
+    val mcrl2Box = panelBox(colDiv1,"Extra",visible = false).append("div")
+      .attr("id", "mcrl2Box")
+//      .style("margin-top", "4px")
+//      .style("border", "1px solid black")
+        .text("output")
+
+    val svgDiv = rowDiv.append("div")
+      .attr("class", "col-sm-9")
+
+    appendSvg(panelBox(svgDiv,"Circuit of the instance"),width,height)
+
+    fgenerate("dupl & (fifo * lossy)",outputBox)
+
+    /**
+    Will evaluate the expression being written in the input box
+      */
+//      inputBox.onkeyup = (e: dom.Event) => {
+//        fgenerate(inputBox.value,outputBox,canvasDiv)
+//      }
+
+    val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
+
+    inputAreaDom.onkeydown = {(e: dom.KeyboardEvent) =>
+      if(e.keyCode.toInt == 13 && e.shiftKey) fgenerate(inputAreaDom.value,outputBox)
+      else ()
+    }
+
+    //inputArea.on("keyup", {(e: EventTarget, a: Int, b:UndefOr[Int]) =>println(e);fgenerate(inputAreaDom.value,outputBox)} : inputArea.DatumFunction[Unit])
+
+
+
+    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, inputAreaDom)
+
+  }
+
+
+  /**
+    * Creates a collapsable pannel
+    * */
+  private def panelBox(parent:Block
+                       ,title:String
+                       ,visible:Boolean=true) : Block = {
+    val wrap = parent.append("div").attr("class","panel-group")
+      .append("div").attr("class","panel panel-default")
+    val header = wrap
+      .append("div").attr("class","panel-heading my-panel-heading")
+      .append("h4").attr("class","panel-title")
+      .append("a").attr("data-toggle","collapse")
+      .attr("href","#collapse-1"+title.hashCode)
+      .attr("aria-expanded",visible.toString)
+      .text(title)
+    wrap
+      .append("div").attr("id","collapse-1"+title.hashCode)
+      .attr("class",if (visible) "panel-collapse collapse in" else "panel-collapse collapse")
+      .attr("style",if (visible) "" else "height: 0px;")
+      .attr("aria-expanded",visible.toString)
+      .append("div").attr("class","panel-body my-panel-body")
   }
 
 
@@ -127,59 +172,144 @@ sequencer =
     * Function that parses the expressions written in the input box and
     * tests if they're valid and generates the output if they are.
     */
-  private def fgenerate(input:String,outputInfo:html.Div,canvas:html.Div): Unit ={
+  private def fgenerate(input:String,outputInfo:Block): Unit={
     // clear output
-    outputInfo.innerHTML = ""
+
+    outputInfo.text("")
 
     // update output and run script
-    DSL.parse(input) match {
-      case Parser.Success(result, _) =>
+    DSL.parseWithError(input) match {
+      case preo.lang.Parser.Success(result,_) =>
         try {
-          outputInfo.appendChild(genType("[ "+Show(DSL.unsafeTypeOf(result))+" ]"))
+          outputInfo.append("p")
+            .text("[ "+Show(DSL.unsafeTypeOf(result))+" ]")
           Eval.unsafeInstantiate(result) match {
             case Some(reduc) =>
               // GOT A TYPE
-              outputInfo.appendChild(genType(Show(reduc)+":\n  "+
-                                             Show(DSL.unsafeTypeOf(result))))
-              clearCanvas(canvas)
-//              outputInfo.appendChild(genError(Springy.script(reduc)))
-              scalajs.js.eval(Springy.script(Eval.unsafeReduce(reduc)))
+              outputInfo.append("p")
+                .text(Show(reduc)+":\n  "+
+                  Show(DSL.unsafeTypeOf(result)))
+              //println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
+              scalajs.js.eval(GraphsToJS(Graph(Eval.unsafeReduce(reduc))))
               //mudar esta linha para utilizar d3 com novo grafo
               //e parametros em scala.js
             case _ =>
               // Failed to simplify
-              outputInfo.appendChild(genError("Failed to reduce connector: "+Show(Simplify.unsafe(result))))
+              outputInfo.append("p")
+                .text("Failed to reduce connector: "+Show(Simplify.unsafe(result)))
           }
         }
         catch {
           // type error
-          case e: TypeCheckException => outputInfo.appendChild(genError(Show(result)+" - Type error: " + e.getMessage))
-          case e: JavaScriptException => outputInfo.appendChild(genError(Show(result)+" - JavaScript error : "+e.getMessage+" - "+e.getClass))
+          case e: TypeCheckException => outputInfo.append("p").text(Show(result)+" - Type error: " + e.getMessage)
+          case e: JavaScriptException => outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e+" - "+e.getClass)
         }
-        // parse error
-      case f: Parser.NoSuccess => outputInfo.appendChild(genError("Parser error: " + f))
+      case preo.lang.Parser.Failure(msg,_) => outputInfo.append("p").text("Parser error: " + msg)
     }
 
 
   }
 
-  private def clearCanvas(c:html.Div) = {
-    c.innerHTML = ""
-    c.appendChild(canvasBox.render)
+
+  private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,outputInfo:Block, inputAreaDom: html.TextArea): Unit = {
+    val button = buttonsDiv.append("button")
+        .text(ss._1)
+
+    button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
+      inputAreaDom.value = ss._2
+      fgenerate(ss._2,outputInfo)
+    }} : button.DatumFunction[Unit])
+
   }
 
-  private def genType(s:String): html.Paragraph =
-    p(s).render
-  private def genError(s:String): html.Paragraph =
-    p(s).render
 
-  private def genButton(ss:(String,String),inputBox:html.TextArea,outputInfo:html.Div,canvas:html.Div): html.Button = {
-    val b = button(ss._1).render
-    b.onclick = (_:MouseEvent) => {
-      inputBox.value = ss._2
-      fgenerate(ss._2,outputInfo,canvas)
-    }
-    b
+  private def appendSvg(div: Block,width: Int, height: Int) = {
+    val svg = div.append("svg")
+//      .attr("width", "900")
+//      .attr("height", "600")
+//      .style("border", "black")
+//      .style("border-width", "thin")
+//      .style("border-style", "solid")
+      .attr("style","margin: auto;")
+      .attr("viewBox",s"0 0 $width $height")
+      .attr("preserveAspectRatio","xMinYMin meet")
+      .attr("id","svg-diagram")
+      .style("margin", "auto")
+
+    svg.append("g")
+      .attr("class", "links");
+
+    svg.append("g")
+      .attr("class", "nodes");
+
+    svg.append("g")
+      .attr("class", "labels");
+
+    svg.append("g")
+      .attr("class", "paths");
+
+    //inserting regular arrow at the end
+    svg.append("defs")
+      .append("marker")
+      .attr("id","endarrowout")
+      .attr("viewBox","-0 -5 10 10")
+      .attr("refX",14)
+      .attr("refY",0)
+      .attr("orient","auto")
+      .attr("markerWidth",7)
+      .attr("markerHeight",7)
+      .attr("xoverflow","visible")
+      .append("svg:path")
+      .attr("d", "M 0,-5 L 10 ,0 L 0,5")
+      .attr("fill", "#000")
+      .style("stroke","none");
+
+    //arrowhead inverted for sync drains
+    svg.append("defs")
+      .append("marker")
+      .attr("id","endarrowin")
+      .attr("viewBox","-0 -5 10 10")
+      .attr("refX",14)
+      .attr("refY",0)
+      .attr("orient","auto")
+      .attr("markerWidth",7)
+      .attr("markerHeight",7)
+      .attr("xoverflow","visible")
+      .append("svg:path")
+      .attr("d", "M 10,-5 L 0 ,0 L 10,5")
+      .attr("fill", "#000")
+      .style("stroke","none");
+
+    svg.append("defs")
+      .append("marker")
+      .attr("id","startarrowout")
+      .attr("viewBox","-10 -10 16 16")
+      .attr("refX",-15)
+      .attr("refY",0)
+      .attr("orient","auto")
+      .attr("markerWidth",10)
+      .attr("markerHeight",10)
+      .attr("xoverflow","visible")
+      .append("svg:path")
+      .attr("d", "M 0,-5 L -10 ,0 L 0,5")
+      .attr("fill", "#000")
+      .style("stroke","none");
+
+    svg.append("defs")
+      .append("marker")
+      .attr("id","startarrowin")
+      .attr("viewBox","-10 -10 16 16")
+      .attr("refX",-14)
+      .attr("refY",0)
+      .attr("orient","auto")
+      .attr("markerWidth",10)
+      .attr("markerHeight",10)
+      .attr("xoverflow","visible")
+      .append("svg:path")
+      .attr("d", "M -10,-5 L 0 ,0 L -10,5")
+      .attr("fill", "#000")
+      .style("stroke","none");
   }
+
 }
 
