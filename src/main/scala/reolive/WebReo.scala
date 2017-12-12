@@ -24,6 +24,8 @@ import scalatags.JsDom.all._
 @JSExport
 object WebReo extends{
 
+  type Block = Selection[dom.EventTarget]
+
   private val buttons = Seq(
     "writer"->"writer", "reader"->"reader",
     "fifo"->"fifo",     "merger"->"merger",
@@ -69,10 +71,10 @@ sequencer =
   @JSExport
   def main(content: html.Div) = {
 
-    // add header
-    d3.select(content).append("div")
-      .attr("id", "header")
-      .append("h1").text("Build Reo Families")
+//    // add header
+//    d3.select(content).append("div")
+//      .attr("id", "header")
+//      .append("h1").text("Reo Live - Connector Families")
 
     val contentDiv = d3.select(content).append("div")
       .attr("id", "content")
@@ -84,35 +86,37 @@ sequencer =
       .attr("class", "col-sm-3")
 
     // add InputArea
-    val inputDiv = colDiv1.append("div")
+    val inputDiv = panelBox(colDiv1,"Input (Shift-Enter to update)").append("div")
       .attr("id", "textBox")
 
     val inputArea = inputDiv.append("textarea")
       .attr("id", "inputArea")
+      .attr("class","my-textarea")
       .attr("rows", "10")
       .attr("style", "width: 100%")
-      .attr("placeholder", "press Shift+Enter to update")
+      .attr("placeholder", "dupl & (fifo * lossy)")
 
-    val outputBox = colDiv1.append("div")
+    val outputBox = panelBox(colDiv1,"Type and instance").append("div")
       .attr("id", "outputBox")
 
-    val buttonsDiv = colDiv1.append("div")
+    val buttonsDiv = panelBox(colDiv1,"examples").append("div")
       .attr("id", "buttons")
+      .attr("style","padding: 2pt;")
 
     buttonsDiv
       .style("display:block; padding:2pt")
 
 
-    val mcrl2Box = colDiv1.append("div")
+    val mcrl2Box = panelBox(colDiv1,"Extra",visible = false).append("div")
       .attr("id", "mcrl2Box")
-      .style("margin-top", "4px")
-      .style("border", "1px solid black")
-        .text("coiso")
+//      .style("margin-top", "4px")
+//      .style("border", "1px solid black")
+        .text("output")
 
     val svgDiv = rowDiv.append("div")
-      .attr("class", "col-sm-8")
+      .attr("class", "col-sm-9")
 
-    appendSvg(svgDiv)
+    appendSvg(panelBox(svgDiv,"Circuit of the instance"))
 
     fgenerate("dupl & (fifo * lossy)",outputBox)
 
@@ -136,6 +140,30 @@ sequencer =
 
     for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, inputAreaDom)
 
+  }
+
+
+  /**
+    * Creates a collapsable pannel
+    * */
+  private def panelBox(parent:Block
+                       ,title:String
+                       ,visible:Boolean=true) : Block = {
+    val wrap = parent.append("div").attr("class","panel-group")
+      .append("div").attr("class","panel panel-default")
+    val header = wrap
+      .append("div").attr("class","panel-heading my-panel-heading")
+      .append("h4").attr("class","panel-title")
+      .append("a").attr("data-toggle","collapse")
+      .attr("href","#collapse-1"+title.hashCode)
+      .attr("aria-expanded",visible.toString)
+      .text(title)
+    wrap
+      .append("div").attr("id","collapse-1"+title.hashCode)
+      .attr("class",if (visible) "panel-collapse collapse in" else "panel-collapse collapse")
+      .attr("style",if (visible) "" else "height: 0px;")
+      .attr("aria-expanded",visible.toString)
+      .append("div").attr("class","panel-body my-panel-body")
   }
 
 
@@ -183,7 +211,7 @@ sequencer =
   }
 
 
-  private def genButton(ss:(String,String),buttonsDiv:Selection[dom.EventTarget], inputBox:Selection[dom.EventTarget],outputInfo:Selection[dom.EventTarget], inputAreaDom: html.TextArea): Unit = {
+  private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,outputInfo:Block, inputAreaDom: html.TextArea): Unit = {
     val button = buttonsDiv.append("button")
         .text(ss._1)
 
@@ -195,13 +223,13 @@ sequencer =
   }
 
 
-  private def appendSvg(div: Selection[dom.EventTarget]) = {
+  private def appendSvg(div: Block) = {
     val svg = div.append("svg")
       .attr("width", "900")
       .attr("height", "600")
-      .style("border", "black")
-      .style("border-width", "thin")
-      .style("border-style", "solid")
+//      .style("border", "black")
+//      .style("border-width", "thin")
+//      .style("border-style", "solid")
       .style("margin", "auto")
 
     svg.append("g")
