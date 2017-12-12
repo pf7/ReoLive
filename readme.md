@@ -2,7 +2,7 @@ Reo Live
 ========================
 
 This project aims at compiling a set of Java/Scala based Reo related tools, using a web frontend to interact with them.
-A snapshot of Reo Live can be found in http://reolanguage.github.io/reolive/snapshot/index.html. 
+A snapshot of Reo Live can be found in http://reolanguage.github.io/reolive/snapshot. 
 
 It uses ScalaJS to generate JavaScript, and imports independent Reo related tools using git submodules feature.
 
