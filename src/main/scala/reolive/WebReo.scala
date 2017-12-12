@@ -14,17 +14,18 @@ import preo.DSL
 import preo.lang.Parser
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
-import scalajs.js.annotation.JSExport
+import scalajs.js.annotation.JSExportTopLevel
 import scalatags.JsDom.all._
 
 
 /**
   * Created by jose on 27/04/2017.
   */
-@JSExport
 object WebReo extends{
 
   type Block = Selection[dom.EventTarget]
+  val width = 900
+  val height = 600
 
   private val buttons = Seq(
     "writer"->"writer", "reader"->"reader",
@@ -68,7 +69,7 @@ sequencer =
   )
 
 
-  @JSExport
+  @JSExportTopLevel("reolive.WebReo.main")
   def main(content: html.Div) = {
 
 //    // add header
@@ -116,7 +117,7 @@ sequencer =
     val svgDiv = rowDiv.append("div")
       .attr("class", "col-sm-9")
 
-    appendSvg(panelBox(svgDiv,"Circuit of the instance"))
+    appendSvg(panelBox(svgDiv,"Circuit of the instance"),width,height)
 
     fgenerate("dupl & (fifo * lossy)",outputBox)
 
@@ -171,10 +172,8 @@ sequencer =
     * Function that parses the expressions written in the input box and
     * tests if they're valid and generates the output if they are.
     */
-  private def fgenerate(input:String,outputInfo:Selection[dom.EventTarget]): Unit={
+  private def fgenerate(input:String,outputInfo:Block): Unit={
     // clear output
-
-
 
     outputInfo.text("")
 
@@ -223,13 +222,17 @@ sequencer =
   }
 
 
-  private def appendSvg(div: Block) = {
+  private def appendSvg(div: Block,width: Int, height: Int) = {
     val svg = div.append("svg")
-      .attr("width", "900")
-      .attr("height", "600")
+//      .attr("width", "900")
+//      .attr("height", "600")
 //      .style("border", "black")
 //      .style("border-width", "thin")
 //      .style("border-style", "solid")
+      .attr("style","margin: auto;")
+      .attr("viewBox",s"0 0 $width $height")
+      .attr("preserveAspectRatio","xMinYMin meet")
+      .attr("id","svg-diagram")
       .style("margin", "auto")
 
     svg.append("g")

@@ -9,9 +9,10 @@ object GraphsToJS {
     val links = getLinks(graph);
     s"""
         var svg = d3.select("svg");
-        var width = svg.attr("width");
+        var vbox = svg.attr('viewBox').split(" ")
+        var width = vbox[2]; //svg.attr("width");
         console.log(width);
-        var height = svg.attr("height");
+        var height = vbox[3];  //svg.attr("height");
         var radius = 7.75;
 
         var graph = {"nodes": $nodes, "links": $links};
