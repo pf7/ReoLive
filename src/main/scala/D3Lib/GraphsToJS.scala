@@ -5,15 +5,17 @@ import preo.backend._
 
 object GraphsToJS {
   def apply(graph: Graph): String = {
+    println(graph)
     val nodes = getNodes(graph);
     val links = getLinks(graph);
     s"""
         var svg = d3.select("svg");
         var vbox = svg.attr('viewBox').split(" ")
         var width = vbox[2]; //svg.attr("width");
-        console.log(width);
         var height = vbox[3];  //svg.attr("height");
         var radius = 7.75;
+        var rectangle_width = 40;
+        var rectangle_height = 20;
 
         var graph = {"nodes": $nodes, "links": $links};
 
@@ -22,10 +24,10 @@ object GraphsToJS {
           .force('center', d3.forceCenter(width / 2, height / 2))
           .force('y', d3.forceY().y(function(d) { return 0;}))
           .force('x', d3.forceX().x(function(d) {
-            if (d.group == 3){
+            if (d.group >= 3){
               return width/2;
             }
-            if (d.group ==1){
+            if (d.group <=1){
               return -width/2;
             }
             return 0;
@@ -42,7 +44,7 @@ object GraphsToJS {
             //add nodes
             var node = d3.select(".nodes")
                 .selectAll("circle")
-                .data(nodes);
+                .data(nodes.filter(function(d){return d.group >0 && d.group < 4}));
             node.enter()
                 .append("circle")
                 .merge(node)
@@ -72,6 +74,28 @@ object GraphsToJS {
                   }
                 });
             node.exit().remove();
+
+            var rects = d3.select(".nodes")
+              .selectAll("rect")
+              .data(nodes.filter(function(d){
+                return d.group == 0 || d.group == 4
+              }));
+
+            rects.enter()
+                .append("rect")
+                .merge(rects)
+                 .attr('width', rectangle_width)
+                 .attr('height', rectangle_height)
+                 .attr("id", function (d) {return d.id;})
+                 .call(d3.drag()
+                   .on("start", dragstarted)
+                   .on("drag", dragged)
+                   .on("end", dragended))
+                 .style("stroke", "black")
+                 .attr("fill", "#ffd896");
+
+            rects.exit().remove();
+
 
              //add links
              var link = d3.select(".links")
@@ -144,6 +168,19 @@ object GraphsToJS {
                 .selectAll("circle")
                 .attr('cx', function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
                 .attr('cy', function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+
+            var rect = d3.select(".nodes")
+               .selectAll("rect")
+               .attr('x', function(d) {
+                  if(d.group == 0){
+                    return d.x - rectangle_width;
+                  }
+                  else{
+                    return d.x -rectangle_width /10;
+                  }
+               })
+               .attr('y', function(d) {return d.y- rectangle_height/2;});
+
             var link = d3.select(".links")
                 .selectAll("line")
                 .attr("x1", function(d) { return d.source.x; })
@@ -166,22 +203,7 @@ object GraphsToJS {
             });
         }
 
-        //vai forçar a posição no eixo dos xx do nodo
-        //pode ser atribuido um valor fixo
-        //ou usar uma incrementação em relação ao valor atual.
-        function forcepos(){
-          for (var i = 0, n = graph.nodes.length; i < n; ++i) {
-            curr_node = graph.nodes[i];
-             //curr_node.attr("cx", newPos);
-            if(curr_node.group == 3){
-                //curr_node.x += 0.4;
-                curr_node.x = 590;
-            } else if(curr_node.group == 1){
-                curr_node.x = 10;
-                //curr_node.x -= 0.4;
-            }
-          }
-        }
+
         function dragstarted(d) {
           if (!d3.event.active) simulation.alphaTarget(0.3).restart();
           d.fx = d.x;
@@ -210,20 +232,22 @@ object GraphsToJS {
 
   private def processNodes(nodes: List[ReoNode]): String = nodes match{
     case ReoNode(id, name, nodeType, style) :: Nil => {
-      val nodeGroup = typeToGroup(nodeType);
+      val nodeGroup = typeToGroup(nodeType, style);
       s"""{"id": "$id", "group": $nodeGroup }"""
     }
     case ReoNode(id, name, nodeType, style) :: y :: rest => {
-      val nodeGroup = typeToGroup(nodeType);
+      val nodeGroup = typeToGroup(nodeType, style);
       s"""{"id": "$id", "group": $nodeGroup },""" + processNodes(y::rest)
     }
     case Nil => ""
   }
 
-  private def typeToGroup(nodeType: NodeType):String = nodeType match{
-    case Source => "1"
-    case Sink => "3"
-    case Mixed => "2"
+  private def typeToGroup(nodeType: NodeType, style: Option[String]):String = (nodeType, style) match{
+    case (Source, Some(s)) => if(s.contains("component")) "0" else "1"
+    case (Source, None) => "1"
+    case (Sink, None) => "3"
+    case (Sink, Some(s)) => if(s.contains("component")) "4" else "3"
+    case (Mixed, _) => "2"
   }
 
   private def processEdges(channels: List[ReoChannel]): String = channels match{
