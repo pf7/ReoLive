@@ -178,8 +178,8 @@ sequencer =
     outputInfo.text("")
 
     // update output and run script
-    DSL.parse(input) match {
-      case result =>
+    DSL.parseWithError(input) match {
+      case preo.lang.Parser.Success(result,_) =>
         try {
           outputInfo.append("p")
             .text("[ "+Show(DSL.unsafeTypeOf(result))+" ]")
@@ -204,6 +204,7 @@ sequencer =
           case e: TypeCheckException => outputInfo.append("p").text(Show(result)+" - Type error: " + e.getMessage)
           case e: JavaScriptException => outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e+" - "+e.getClass)
         }
+      case preo.lang.Parser.Failure(msg,_) => outputInfo.append("p").text("Parser error: " + msg)
     }
 
 
