@@ -1,9 +1,6 @@
 [submodule "parameterised-connectors"]
 	path = parameterised-connectors
 	url = https://github.com/joseproenca/parameterised-connectors.git
-[submodule "picc"]
-	path = lib/picc
-	url = https://github.com/joseproenca/picc.git
 [submodule "preo"]
 	path = lib/preo
 	url = https://github.com/joseproenca/preo.git
