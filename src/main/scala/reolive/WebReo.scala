@@ -1,17 +1,15 @@
 package reolive
 
-import org.singlespaced.d3js.Ops._
+import org.scalajs.jquery.jQuery
 import D3Lib.GraphsToJS
 import org.scalajs.dom
-import dom.{EventTarget, MouseEvent, html}
-import org.scalajs.dom.raw.KeyboardEvent
-import org.singlespaced.d3js
+import dom.{EventTarget, html}
 import org.singlespaced.d3js.{Selection, d3}
 import preo.frontend.{Eval, Show, Simplify}
 import preo.common.TypeCheckException
-import preo.backend.{Graph, Springy}
+import preo.backend.Graph
 import preo.DSL
-import preo.lang.Parser
+import preo.modelling.Mcrl2Program
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 import scalajs.js.annotation.JSExportTopLevel
@@ -108,11 +106,10 @@ sequencer =
       .style("display:block; padding:2pt")
 
 
-    val mcrl2Box = panelBox(colDiv1,"Extra",visible = false).append("div")
+    val mcrl2Box = panelBox(colDiv1,"mCRL2 of the instance",visible = false).append("div")
       .attr("id", "mcrl2Box")
 //      .style("margin-top", "4px")
 //      .style("border", "1px solid black")
-        .text("output")
 
     val svgDiv = rowDiv.append("div")
       .attr("class", "col-sm-9")
@@ -191,8 +188,7 @@ sequencer =
                   Show(DSL.unsafeTypeOf(result)))
               //println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
               scalajs.js.eval(GraphsToJS(Graph(Eval.unsafeReduce(reduc))))
-              //mudar esta linha para utilizar d3 com novo grafo
-              //e parametros em scala.js
+              d3.select("#mcrl2Box").html(Mcrl2Program(Eval.unsafeReduce(reduc)).webString)
             case _ =>
               // Failed to simplify
               outputInfo.append("p")
