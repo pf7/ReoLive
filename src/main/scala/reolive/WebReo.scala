@@ -211,7 +211,8 @@ sequencer =
           case e: TypeCheckException => outputInfo.append("p").text(Show(result)+" - Type error: " + e.getMessage)
           case e: JavaScriptException => outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e+" - "+e.getClass)
         }
-      case preo.lang.Parser.Failure(msg,_) => outputInfo.append("p").text("Parser error: " + msg)
+      case preo.lang.Parser.Failure(msg,_) => outputInfo.append("p").text("Parser failure: " + msg)
+      case preo.lang.Parser.Error(msg,_) => outputInfo.append("p").text("Parser error: " + msg)
     }
 
 
