@@ -22,8 +22,9 @@ import scalatags.JsDom.all._
 object WebReo extends{
 
   type Block = Selection[dom.EventTarget]
-  val width = 900
-  val height = 600
+  var width = 700
+  var height = 500
+  val density = 0.5 // nodes per 100x100 px
 
   private val buttons = Seq(
     "writer"->"writer", "reader"->"reader",
@@ -114,9 +115,9 @@ sequencer =
     val svgDiv = rowDiv.append("div")
       .attr("class", "col-sm-9")
 
-    appendSvg(panelBox(svgDiv,"Circuit of the instance"),width,height)
+    val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),width,height)
 
-    fgenerate("dupl & (fifo * lossy)",outputBox)
+    fgenerate("dupl & (fifo * lossy)",outputBox,svg)
 
     /**
     Will evaluate the expression being written in the input box
@@ -128,7 +129,7 @@ sequencer =
     val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
     inputAreaDom.onkeydown = {(e: dom.KeyboardEvent) =>
-      if(e.keyCode.toInt == 13 && e.shiftKey) fgenerate(inputAreaDom.value,outputBox)
+      if(e.keyCode.toInt == 13 && e.shiftKey) fgenerate(inputAreaDom.value,outputBox,svg)
       else ()
     }
 
@@ -136,7 +137,7 @@ sequencer =
 
 
 
-    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, inputAreaDom)
+    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, inputAreaDom,svg)
 
   }
 
@@ -169,7 +170,7 @@ sequencer =
     * Function that parses the expressions written in the input box and
     * tests if they're valid and generates the output if they are.
     */
-  private def fgenerate(input:String,outputInfo:Block): Unit={
+  private def fgenerate(input:String,outputInfo:Block,svg:Block): Unit={
     // clear output
 
     outputInfo.text("")
@@ -187,8 +188,18 @@ sequencer =
                 .text(Show(reduc)+":\n  "+
                   Show(DSL.unsafeTypeOf(result)))
               //println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
-              scalajs.js.eval(GraphsToJS(Graph(Eval.unsafeReduce(reduc))))
-              d3.select("#mcrl2Box").html(Mcrl2Program(Eval.unsafeReduce(reduc)).webString)
+
+              val ccon = Eval.unsafeReduce(reduc)
+              val graph = Graph(ccon)
+              val size = graph.nodes.size
+              val factor = Math.sqrt(size*10000/(density*9*6))
+              width =  (9*factor).toInt
+              height = (6*factor).toInt
+              svg.attr("viewBox",s"00 00 $width $height")
+              scalajs.js.eval(GraphsToJS(graph))
+              d3.select("#mcrl2Box").html(Mcrl2Program(ccon).webString)
+              //mudar esta linha para utilizar d3 com novo grafo
+              //e parametros em scala.js
             case _ =>
               // Failed to simplify
               outputInfo.append("p")
@@ -200,26 +211,27 @@ sequencer =
           case e: TypeCheckException => outputInfo.append("p").text(Show(result)+" - Type error: " + e.getMessage)
           case e: JavaScriptException => outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e+" - "+e.getClass)
         }
-      case preo.lang.Parser.Failure(msg,_) => outputInfo.append("p").text("Parser error: " + msg)
+      case preo.lang.Parser.Failure(msg,_) => outputInfo.append("p").text("Parser failure: " + msg)
+      case preo.lang.Parser.Error(msg,_) => outputInfo.append("p").text("Parser error: " + msg)
     }
 
 
   }
 
 
-  private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,outputInfo:Block, inputAreaDom: html.TextArea): Unit = {
+  private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,outputInfo:Block, inputAreaDom: html.TextArea,svg:Block): Unit = {
     val button = buttonsDiv.append("button")
         .text(ss._1)
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
       inputAreaDom.value = ss._2
-      fgenerate(ss._2,outputInfo)
+      fgenerate(ss._2,outputInfo,svg)
     }} : button.DatumFunction[Unit])
 
   }
 
 
-  private def appendSvg(div: Block,width: Int, height: Int) = {
+  private def appendSvg(div: Block,width: Int, height: Int): Block = {
     val svg = div.append("svg")
 //      .attr("width", "900")
 //      .attr("height", "600")
@@ -233,16 +245,16 @@ sequencer =
       .style("margin", "auto")
 
     svg.append("g")
-      .attr("class", "links");
+      .attr("class", "links")
 
     svg.append("g")
-      .attr("class", "nodes");
+      .attr("class", "nodes")
 
     svg.append("g")
-      .attr("class", "labels");
+      .attr("class", "labels")
 
     svg.append("g")
-      .attr("class", "paths");
+      .attr("class", "paths")
 
     //inserting regular arrow at the end
     svg.append("defs")
@@ -305,6 +317,8 @@ sequencer =
       .attr("d", "M -10,-5 L 0 ,0 L -10,5")
       .attr("fill", "#000")
       .style("stroke","none");
+
+    svg
   }
 
 }
