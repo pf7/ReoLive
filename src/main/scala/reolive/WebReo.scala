@@ -1,6 +1,6 @@
 package reolive
 
-import org.scalajs.jquery.jQuery
+import D3Lib.CopytoClipboard._
 import D3Lib.GraphsToJS
 import org.scalajs.dom
 import dom.{EventTarget, html}
@@ -147,22 +147,50 @@ sequencer =
     * */
   private def panelBox(parent:Block
                        ,title:String
-                       ,visible:Boolean=true) : Block = {
+                       ,visible:Boolean=true
+                       ,copy: Boolean= false) : Block = {
     val wrap = parent.append("div").attr("class","panel-group")
       .append("div").attr("class","panel panel-default")
-    val header = wrap
-      .append("div").attr("class","panel-heading my-panel-heading")
-      .append("h4").attr("class","panel-title")
-      .append("a").attr("data-toggle","collapse")
-      .attr("href","#collapse-1"+title.hashCode)
-      .attr("aria-expanded",visible.toString)
-      .text(title)
+    if(!copy) {
+      val header = wrap
+        .append("div").attr("class", "panel-heading my-panel-heading")
+        .append("h4").attr("class", "panel-title")
+        .append("a").attr("data-toggle", "collapse")
+        .attr("href", "#collapse-1" + title.hashCode)
+        .attr("aria-expanded", visible.toString)
+        .text(title)
+    }
+    else{
+      val header = wrap
+        .append("div").attr("class", "panel-heading my-panel-heading")
+        .append("div").attr("class", "row").attr("style","padding-left: 0px")
+
+      header
+        .append("div").attr("class", "col-sm-10")
+        .append("h4").attr("class", "panel-title")
+        .append("a").attr("data-toggle", "collapse")
+        .attr("href", "#collapse-1" + title.hashCode)
+        .attr("aria-expanded", visible.toString)
+        .text(title)
+
+      header
+        .append("div").attr("class", "col-sm-1")
+        .append("button").attr("class", "btn btn-link btn-xs").attr("style", "height:18px")
+          .text("Copy")
+        .on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
+        copyFunction
+      }})
+    }
     wrap
       .append("div").attr("id","collapse-1"+title.hashCode)
       .attr("class",if (visible) "panel-collapse collapse in" else "panel-collapse collapse")
       .attr("style",if (visible) "" else "height: 0px;")
       .attr("aria-expanded",visible.toString)
       .append("div").attr("class","panel-body my-panel-body")
+  }
+
+  private def copyFunction: Unit = {
+    println("useless so far")
   }
 
 
