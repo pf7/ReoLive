@@ -11,6 +11,7 @@ import preo.frontend.{Eval, Show, Simplify}
 import preo.common.TypeCheckException
 import preo.backend.{Graph, Springy}
 import preo.DSL
+import preo.ast.BVal
 import preo.lang.Parser
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
@@ -35,8 +36,10 @@ object WebReo extends{
     "(fifo*writer) & drain"->"(fifo*writer) & drain",
     "\\x . ((fifo^x)*writer) & (drain^3)" -> "\\x . ((fifo^x)*writer) & (drain^3)",
     "(\\x.fifo^x) & (\\n.drain^n)" -> "(\\x.fifo^x) & (\\n.drain^n)",
-    "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
+//    "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
+    "\\b:B . (b? fifo + (lossy*lossy)) & merger" -> "\\b:B . (b? fifo + (lossy*lossy)) & merger",
     "(\\x .drain^(x-1)) 3" -> "(\\x .drain^(x-1)) 3",
+    "(\\x.(lossy^x)|x>4) & ..." -> "(\\x.(lossy^x)|x>4) & (\\n.(merger^n)| (n>2)&(n<6))",
     ".. & merger!" -> "(writer^8) & merger! & merger! & reader!",
     "x=..;y=..;x&y" -> "x = lossy * fifo ; y = merger; x & y",
     "exrouter=.."->"writer & dupl & (dupl*id) & (((lossy*lossy) & (dupl*dupl) & (id*swap*id) & (id*id*merger))*id) & (id*id*drain) & (reader^2)",
@@ -182,14 +185,18 @@ sequencer =
     DSL.parseWithError(input) match {
       case preo.lang.Parser.Success(result,_) =>
         try {
+          val (typ,rest) = DSL.unsafeTypeOf(result)
           outputInfo.append("p")
-            .text("[ "+Show(DSL.unsafeTypeOf(result))+" ]")
+            .text("[ "+Show(typ)+" ]")
+          if (rest != BVal(true))
+            outputInfo.append("p")
+            .text(s"[  WARNING - did not check if ${Show(rest)} ]")
           Eval.unsafeInstantiate(result) match {
             case Some(reduc) =>
               // GOT A TYPE
               outputInfo.append("p")
                 .text(Show(reduc)+":\n  "+
-                  Show(DSL.unsafeTypeOf(result)))
+                  Show(DSL.unsafeTypeOf(reduc)._1))
               //println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
               val graph = Graph(Eval.unsafeReduce(reduc))
               val size = graph.nodes.size
