@@ -67,7 +67,26 @@ sequencer =
          unzip(n:I)))&
     ((id^n)*((zip(n:I)) & (drain^n)));
 
-(writer^3) & sequencer 3 & (reader^3)"""
+(writer^3) & sequencer 3 & (reader^3)""",
+  "nexrouters = ..." -> """unzip =
+  \n.Tr_((2*n)*(n - 1))
+  (((((id^(x+1))*(sym(1,1)^((n-x)-1)))*(id^(x+1)))^(x<--n))&
+   sym((2*n)*(n-1),2*n));
+
+dupls =
+  \n.Tr_(n-1)(id*(dupl^(n-1))) & sym(1,(n-1)*2);
+
+mergers =
+  \n.Tr_(n-1)(sym((n-1)*2,1) & (id*(merger^(n-1))));
+
+nexrouter =
+  \n. (
+    (dupls(n+1)) &
+    ((((lossy & dupl)^n) & (unzip(n)))*id) &
+    ((id^n)*(mergers(n))*id) &
+    ((id^n)*drain));
+
+writer & nexrouter(3) & reader!"""
   )
 
 
@@ -110,15 +129,15 @@ sequencer =
       .style("display:block; padding:2pt")
 
 
-    val mcrl2Box = panelBox(colDiv1,"mCRL2 of the instance",visible = false).append("div")
-      .attr("id", "mcrl2Box")
-//      .style("margin-top", "4px")
-//      .style("border", "1px solid black")
-
     val svgDiv = rowDiv.append("div")
       .attr("class", "col-sm-9")
 
     val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),width,height)
+
+    val mcrl2Box = panelBox(svgDiv,"mCRL2 of the instance",visible = false).append("div")
+      .attr("id", "mcrl2Box")
+    //      .style("margin-top", "4px")
+    //      .style("border", "1px solid black")
 
     fgenerate("dupl & (fifo * lossy)",outputBox,svg)
 
