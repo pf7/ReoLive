@@ -100,14 +100,22 @@ object GraphsToJS {
 
              //add links
              var link = d3.select(".links")
-                .selectAll("line")
+                .selectAll("polyline")
                 .data(links);
-             link.enter().append("line")
+             link.enter().append("polyline")
                 .style("stroke", "black")
                 .merge(link)
                 .attr('marker-end', function(d){
                   return 'url(#' + d.end + ')'
                 })
+                .attr('marker-mid', function(d) {
+                  if (d.type === "fifo"){
+                     return 'url(#boxmarker)'
+                  } else if (d.type === "fifofull"){
+                     return 'url(#boxfullmarker)'
+                  } else {
+                   return ("");
+                }})
                 .attr('marker-start', function(d){
                   return 'url(#' + d.start + ')'
                 })
@@ -155,7 +163,8 @@ object GraphsToJS {
                 .style("pointer-events", "none")
                 .attr("startOffset", "50%")
                 .text(function (d) {
-                  if(d.type === "drain" || d.type === "lossy" || d.type === "merger" || d.type === "sync"){
+                  if(d.type === "drain" || d.type === "lossy" || d.type === "merger" ||
+                     d.type === "sync" || d.type === "fifo" || d.type === "fifofull"){
                     return "";
                   }
                   else{
@@ -185,11 +194,15 @@ object GraphsToJS {
                .attr('y', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;});
 
             var link = d3.select(".links")
-                .selectAll("line")
-                .attr("x1", function(d) { return d.source.x; })
-                .attr("y1", function(d) { return d.source.y; })
-                .attr("x2", function(d) { return d.target.x; })
-                .attr("y2", function(d) { return d.target.y; });
+                .selectAll("polyline")
+                .attr("points", function(d) {
+                    return d.source.x + "," + d.source.y + " " +
+                    (d.source.x + d.target.x)/2 + "," + (d.source.y + d.target.y)/2 + " " +
+                    d.target.x + "," + d.target.y; });
+//                .attr("x1", function(d) { return d.source.x; })
+//                .attr("y1", function(d) { return d.source.y; })
+//                .attr("x2", function(d) { return d.target.x; })
+//                .attr("y2", function(d) { return d.target.y; });
             d3.selectAll(".edgepath").attr('d', function (d) {
                 return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
             });
