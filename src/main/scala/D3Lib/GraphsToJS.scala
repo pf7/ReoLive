@@ -3,9 +3,10 @@ package D3Lib
 import org.singlespaced.d3js.d3
 import preo.backend._
 
+
+//todo: add rectangle colision colision
 object GraphsToJS {
   def apply(graph: Graph): String = {
-    println(graph)
     val nodes = getNodes(graph);
     val links = getLinks(graph);
     s"""
@@ -33,7 +34,7 @@ object GraphsToJS {
             return 0;
           }))
           .force('collision', d3.forceCollide().radius(function(d) {
-            return d.radius}))
+                       return d.radius}))
           .force("link", d3.forceLink().links(graph.links).id(function(d) { return d.id; }).distance(45))
           //.force("forcepos", forcepos)
           .on('tick', ticked);
@@ -173,13 +174,15 @@ object GraphsToJS {
                .selectAll("rect")
                .attr('x', function(d) {
                   if(d.group == 0){
+                    d.x = Math.max(rectangle_width, Math.min(width-1, d.x))
                     return d.x - rectangle_width;
                   }
                   else{
+                    d.x = Math.max(5, Math.min(width - rectangle_width, d.x))
                     return d.x -rectangle_width /10;
                   }
                })
-               .attr('y', function(d) {return d.y- rectangle_height/2;});
+               .attr('y', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;});
 
             var link = d3.select(".links")
                 .selectAll("line")
@@ -219,7 +222,8 @@ object GraphsToJS {
             d.fx = null;
             d.fy = null;
           }
-        }"""
+        }
+      """
   }
 
   private def getNodes(graph: Graph): String = graph match{

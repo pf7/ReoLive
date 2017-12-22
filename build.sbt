@@ -10,6 +10,7 @@ scalaVersion := "2.12.4"
 scalacOptions ++= Seq("-unchecked", "-deprecation","-feature")
 
 libraryDependencies ++= Seq(
+  "be.doeraene" %%% "scalajs-jquery" % "0.9.1",
   "junit" % "junit" % "4.12",
   "org.choco-solver" % "choco-solver" % "3.3.1-j7",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,

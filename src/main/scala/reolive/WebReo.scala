@@ -1,18 +1,16 @@
 package reolive
 
-import org.singlespaced.d3js.Ops._
+import D3Lib.CopytoClipboard._
 import D3Lib.GraphsToJS
 import org.scalajs.dom
-import dom.{EventTarget, MouseEvent, html}
-import org.scalajs.dom.raw.KeyboardEvent
-import org.singlespaced.d3js
+import dom.{EventTarget, html}
 import org.singlespaced.d3js.{Selection, d3}
 import preo.frontend.{Eval, Show, Simplify}
 import preo.common.TypeCheckException
-import preo.backend.{Graph, Springy}
+import preo.backend.Graph
 import preo.DSL
 import preo.ast.BVal
-import preo.lang.Parser
+import preo.modelling.Mcrl2Program
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 import scalajs.js.annotation.JSExportTopLevel
@@ -112,11 +110,10 @@ sequencer =
       .style("display:block; padding:2pt")
 
 
-    val mcrl2Box = panelBox(colDiv1,"Extra",visible = false).append("div")
+    val mcrl2Box = panelBox(colDiv1,"mCRL2 of the instance",visible = false).append("div")
       .attr("id", "mcrl2Box")
 //      .style("margin-top", "4px")
 //      .style("border", "1px solid black")
-        .text("output")
 
     val svgDiv = rowDiv.append("div")
       .attr("class", "col-sm-9")
@@ -153,22 +150,50 @@ sequencer =
     * */
   private def panelBox(parent:Block
                        ,title:String
-                       ,visible:Boolean=true) : Block = {
+                       ,visible:Boolean=true
+                       ,copy: Boolean= false) : Block = {
     val wrap = parent.append("div").attr("class","panel-group")
       .append("div").attr("class","panel panel-default")
-    val header = wrap
-      .append("div").attr("class","panel-heading my-panel-heading")
-      .append("h4").attr("class","panel-title")
-      .append("a").attr("data-toggle","collapse")
-      .attr("href","#collapse-1"+title.hashCode)
-      .attr("aria-expanded",visible.toString)
-      .text(title)
+    if(!copy) {
+      val header = wrap
+        .append("div").attr("class", "panel-heading my-panel-heading")
+        .append("h4").attr("class", "panel-title")
+        .append("a").attr("data-toggle", "collapse")
+        .attr("href", "#collapse-1" + title.hashCode)
+        .attr("aria-expanded", visible.toString)
+        .text(title)
+    }
+    else{
+      val header = wrap
+        .append("div").attr("class", "panel-heading my-panel-heading")
+        .append("div").attr("class", "row").attr("style","padding-left: 0px")
+
+      header
+        .append("div").attr("class", "col-sm-10")
+        .append("h4").attr("class", "panel-title")
+        .append("a").attr("data-toggle", "collapse")
+        .attr("href", "#collapse-1" + title.hashCode)
+        .attr("aria-expanded", visible.toString)
+        .text(title)
+
+      header
+        .append("div").attr("class", "col-sm-1")
+        .append("button").attr("class", "btn btn-link btn-xs").attr("style", "height:18px")
+          .text("Copy")
+        .on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
+        copyFunction
+      }})
+    }
     wrap
       .append("div").attr("id","collapse-1"+title.hashCode)
       .attr("class",if (visible) "panel-collapse collapse in" else "panel-collapse collapse")
       .attr("style",if (visible) "" else "height: 0px;")
       .attr("aria-expanded",visible.toString)
       .append("div").attr("class","panel-body my-panel-body")
+  }
+
+  private def copyFunction: Unit = {
+    println("useless so far")
   }
 
 
@@ -198,13 +223,16 @@ sequencer =
                 .text(Show(reduc)+":\n  "+
                   Show(DSL.unsafeTypeOf(reduc)._1))
               //println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
-              val graph = Graph(Eval.unsafeReduce(reduc))
+
+              val ccon = Eval.unsafeReduce(reduc)
+              val graph = Graph(ccon)
               val size = graph.nodes.size
               val factor = Math.sqrt(size*10000/(density*9*6))
               width =  (9*factor).toInt
               height = (6*factor).toInt
               svg.attr("viewBox",s"00 00 $width $height")
               scalajs.js.eval(GraphsToJS(graph))
+              d3.select("#mcrl2Box").html(Mcrl2Program(ccon).webString)
               //mudar esta linha para utilizar d3 com novo grafo
               //e parametros em scala.js
             case _ =>
