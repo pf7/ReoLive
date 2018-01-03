@@ -151,7 +151,7 @@ writer & nexrouter(3) & reader!"""
     val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
     inputAreaDom.onkeydown = {(e: dom.KeyboardEvent) =>
-      if(e.keyCode.toInt == 13 && e.shiftKey) fgenerate(inputAreaDom.value,outputBox,svg)
+      if(e.keyCode == 13 && e.shiftKey){e.preventDefault() ; fgenerate(inputAreaDom.value,outputBox,svg)}
       else ()
     }
 
