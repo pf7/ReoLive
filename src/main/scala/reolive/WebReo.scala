@@ -10,7 +10,7 @@ import preo.common.TypeCheckException
 import preo.backend.Graph
 import preo.DSL
 import preo.ast.BVal
-import preo.modelling.Mcrl2Program
+import preo.modelling.Mcrl2Model
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 import scalajs.js.annotation.JSExportTopLevel
@@ -251,7 +251,7 @@ writer & nexrouter(3) & reader!"""
               height = (6*factor).toInt
               svg.attr("viewBox",s"00 00 $width $height")
               scalajs.js.eval(GraphsToJS(graph))
-              d3.select("#mcrl2Box").html(Mcrl2Program(ccon).webString)
+              d3.select("#mcrl2Box").html(Mcrl2Model(ccon).webString)
               //mudar esta linha para utilizar d3 com novo grafo
               //e parametros em scala.js
             case _ =>
