@@ -31,62 +31,70 @@ object WebReo extends{
     "writer"->"writer", "reader"->"reader",
     "fifo"->"fifo",     "merger"->"merger",
     "dupl"->"dupl",     "drain"->"drain",
-    "(fifo*writer) & drain"->"(fifo*writer) & drain",
-    "\\x . ((fifo^x)*writer) & (drain^3)" -> "\\x . ((fifo^x)*writer) & (drain^3)",
-    "(\\x.fifo^x) & (\\n.drain^n)" -> "(\\x.fifo^x) & (\\n.drain^n)",
+    "fifo*writer ; drain"->"fifo*writer ; drain",
+    "\\x . fifo^x*writer ; drain^3" -> "\\x . fifo^x*writer ; drain^3",
+    "(\\x.fifo^x) ; (\\n.drain^n)" -> "(\\x.fifo^x) ; (\\n.drain^n)",
 //    "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
-    "\\b:B . (b? fifo + (lossy*lossy)) & merger" -> "\\b:B . (b? fifo + (lossy*lossy)) & merger",
+    "\\b:B . (b? fifo + lossy*lossy) ; merger" -> "\\b:B . (b? fifo + lossy*lossy) ; merger",
     "(\\x .drain^(x-1)) 3" -> "(\\x .drain^(x-1)) 3",
-    "(\\x.(lossy^x)|x>4) & ..." -> "(\\x.(lossy^x)|x>4) & (\\n.(merger^n)| (n>2)&(n<6))",
-    ".. & merger!" -> "(writer^8) & merger! & merger! & reader!",
-    "x=..;y=..;x&y" -> "x = lossy * fifo ; y = merger; x & y",
-    "exrouter=.."->"writer & dupl & (dupl*id) & (((lossy*lossy) & (dupl*dupl) & (id*swap*id) & (id*id*merger))*id) & (id*id*drain) & (reader^2)",
-    "zip=.."-> """zip =
-  \n.Tr_((2*n)*(n-1))
-  (((((id^(n-x))*(sym(1,1)^x))*(id^(n-x)))^(x<--n))&
-   sym((2*n)*(n-1),2*n));
-zip 3""",
-    "unzip=.." -> """unzip =
-  \n.Tr_((2*n)*(n - 1))
-  (((((id^(x+1))*(sym(1,1)^((n-x)-1)))*(id^(x+1)))^(x<--n))&
-   sym((2*n)*(n-1),2*n));
-unzip 3""",
-    "sequencer=.."-> """zip =
-  \n.Tr_((2*n)*(n-1))
-  (((((id^(n-x))*(sym(1,1)^x))*(id^(n-x)))^(x<--n))&
-   sym((2*n)*(n-1),2*n));
-
+    "(\\x. lossy^x |x>4) ; ..." -> "(\\x. lossy^x |x>4) ; (\\n. merger^n | n>2 & n<6)",
+    ".. ; merger!" -> "writer^8 ; merger! ; merger! ; reader!",
+    "x;y{x=..,y=..}" -> "x ; y {x = lossy * fifo , y = merger}",
+    "exrouter=.."->"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2",
+    "zip=.."-> """zip 3
+{
+zip =
+  \n.Tr((2*n)*(n-1))
+    ((id^(n-x)*sym(1,1)^x*id^(n-x))^x<--n;
+     sym((2*n)*(n-1),2*n))
+}""",
+    "unzip=.." -> """unzip 3
+{
 unzip =
-  \n.Tr_((2*n)*(n - 1))
-  (((((id^(x+1))*(sym(1,1)^((n-x)-1)))*(id^(x+1)))^(x<--n))&
-   sym((2*n)*(n-1),2*n));
-
-sequencer =
-  \n.(((dupl^n)&unzip(n:I)) *
-    Tr_n(sym(n-1,1)&((fifofull&dupl)*((fifo & dupl)^(n-1)))&
-         unzip(n:I)))&
-    ((id^n)*((zip(n:I)) & (drain^n)));
-
-(writer^3) & sequencer 3 & (reader^3)""",
-  "nexrouters = ..." -> """unzip =
-  \n.Tr_((2*n)*(n - 1))
-  (((((id^(x+1))*(sym(1,1)^((n-x)-1)))*(id^(x+1)))^(x<--n))&
-   sym((2*n)*(n-1),2*n));
-
-dupls =
-  \n.Tr_(n-1)(id*(dupl^(n-1))) & sym(1,(n-1)*2);
-
-mergers =
-  \n.Tr_(n-1)(sym((n-1)*2,1) & (id*(merger^(n-1))));
-
-nexrouter =
-  \n. (
-    (dupls(n+1)) &
-    ((((lossy & dupl)^n) & (unzip(n)))*id) &
-    ((id^n)*(mergers(n))*id) &
-    ((id^n)*drain));
-
-writer & nexrouter(3) & reader!"""
+ \n.Tr((2*n)*(n-1))
+   (((id^(x+1)*sym(1,1)^((n-x)-1)*id^(x+1))^x<--n);
+    sym((2*n)*(n-1),2*n))
+}""",
+    "sequencer=.."-> """writer^3 ; sequencer 3 ; reader^3
+                       |
+                       |{
+                       |zip =
+                       |  \n.Tr((2*n)*(n-1))
+                       |  ((id^(n-x)*sym(1,1)^x*id^(n-x))^x<--n;
+                       |   sym((2*n)*(n-1),2*n)),
+                       |
+                       |unzip =
+                       |  \n.Tr((2*n)*(n-1))
+                       |  (((id^(x+1)*sym(1,1)^((n-x)-1)*id^(x+1))^x<--n);
+                       |   sym((2*n)*(n-1),2*n)),
+                       |
+                       |sequencer =
+                       |  \n.((dupl^n;unzip(n:I)) *
+                       |    Tr(n)(sym(n-1,1);((fifofull;dupl)*((fifo ; dupl)^(n-1)));
+                       |         unzip(n:I))) ;
+                       |    (id^n*(zip(n:I) ; drain^n))
+                       |}""".stripMargin,
+  "nexrouters = ..." -> """writer ; nexrouter(3) ; reader!
+                          |{
+                          |  unzip =
+                          |    \n.Tr((2*n)*(n - 1))
+                          |    (((((id^(x+1))*(sym(1,1)^((n-x)-1)))*(id^(x+1)))^(x<--n));
+                          |     sym((2*n)*(n-1),2*n))
+                          |  ,
+                          |  dupls =
+                          |    \n.Tr(n-1)(id*(dupl^(n-1)) ; sym(1,(n-1)*2))
+                          |  ,
+                          |  mergers =
+                          |    \n.Tr(n-1)(sym((n-1)*2,1) ; (id*(merger^(n-1))))
+                          |  ,
+                          |  nexrouter =
+                          |    \n. (
+                          |      (dupls(n+1)) ;
+                          |      ((((lossy ; dupl)^n) ; (unzip(n)))*id) ;
+                          |      ((id^n)*(mergers(n))*id) ;
+                          |      ((id^n)*drain))
+                          |}
+                          |""".stripMargin
   )
 
 
@@ -116,7 +124,7 @@ writer & nexrouter(3) & reader!"""
       .attr("class","my-textarea")
       .attr("rows", "10")
       .attr("style", "width: 100%")
-      .attr("placeholder", "dupl & (fifo * lossy)")
+      .attr("placeholder", "dupl  ;  fifo * lossy")
 
     val outputBox = panelBox(colDiv1,"Type and instance").append("div")
       .attr("id", "outputBox")
@@ -139,7 +147,7 @@ writer & nexrouter(3) & reader!"""
     //      .style("margin-top", "4px")
     //      .style("border", "1px solid black")
 
-    fgenerate("dupl & (fifo * lossy)",outputBox,svg)
+    fgenerate("dupl  ;  fifo * lossy",outputBox,svg)
 
     /**
     Will evaluate the expression being written in the input box
