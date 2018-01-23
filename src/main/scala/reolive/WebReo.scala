@@ -40,7 +40,12 @@ object WebReo extends{
     "(\\x. lossy^x |x>4) ; ..." -> "(\\x. lossy^x |x>4) ; (\\n. merger^n | n>2 & n<6)",
     ".. ; merger!" -> "writer^8 ; merger! ; merger! ; reader!",
     "x;y{x=..,y=..}" -> "x ; y {x = lossy * fifo , y = merger}",
-    "exrouter=.."->"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2",
+    "exrouter=.."->"""dupl ; dupl*id ;
+                     |(lossy;dupl)*(lossy;dupl)*id ;
+                     |id*merger*id*id ;
+                     |id*id*swap ;
+                     |id*drain*id""".stripMargin,
+//    "exrouter=.."->"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2",
     "zip=.."-> """zip 3
 {
 zip =

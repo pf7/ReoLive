@@ -1,6 +1,7 @@
 package D3Lib
 
 import org.singlespaced.d3js.d3
+import preo.backend.Graph._
 import preo.backend._
 
 
