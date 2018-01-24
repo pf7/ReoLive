@@ -131,8 +131,11 @@ unzip =
       .attr("style", "width: 100%")
       .attr("placeholder", "dupl  ;  fifo * lossy")
 
-    val outputBox = panelBox(colDiv1,"Type and instance").append("div")
+    val outputBox = panelBox(colDiv1,"Type").append("div")
       .attr("id", "outputBox")
+
+    val instanceBox = panelBox(colDiv1,"Concrete instance").append("div")
+      .attr("id", "instanceBox")
 
     val buttonsDiv = panelBox(colDiv1,"examples").append("div")
       .attr("id", "buttons")
@@ -152,7 +155,7 @@ unzip =
     //      .style("margin-top", "4px")
     //      .style("border", "1px solid black")
 
-    fgenerate("dupl  ;  fifo * lossy",outputBox,svg)
+    fgenerate("dupl  ;  fifo * lossy",outputBox,instanceBox,svg)
 
     /**
     Will evaluate the expression being written in the input box
@@ -164,7 +167,7 @@ unzip =
     val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
     inputAreaDom.onkeydown = {(e: dom.KeyboardEvent) =>
-      if(e.keyCode == 13 && e.shiftKey){e.preventDefault() ; fgenerate(inputAreaDom.value,outputBox,svg)}
+      if(e.keyCode == 13 && e.shiftKey){e.preventDefault() ; fgenerate(inputAreaDom.value,outputBox,instanceBox,svg)}
       else ()
     }
 
@@ -172,7 +175,7 @@ unzip =
 
 
 
-    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, inputAreaDom,svg)
+    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, instanceBox, inputAreaDom,svg)
 
   }
 
@@ -233,10 +236,11 @@ unzip =
     * Function that parses the expressions written in the input box and
     * tests if they're valid and generates the output if they are.
     */
-  private def fgenerate(input:String,outputInfo:Block,svg:Block): Unit={
+  private def fgenerate(input:String,outputInfo:Block,instanceInfo:Block,svg:Block): Unit={
     // clear output
 
     outputInfo.text("")
+    instanceInfo.text("")
 
     // update output and run script
     DSL.parseWithError(input) match {
@@ -244,14 +248,14 @@ unzip =
         try {
           val (typ,rest) = DSL.unsafeTypeOf(result)
           outputInfo.append("p")
-            .text("[ "+Show(typ)+" ]")
+            .text(Show(typ))
           if (rest != BVal(true))
             outputInfo.append("p")
             .text(s"[  WARNING - did not check if ${Show(rest)} ]")
           Eval.unsafeInstantiate(result) match {
             case Some(reduc) =>
               // GOT A TYPE
-              outputInfo.append("p")
+              instanceInfo.append("p")
                 .text(Show(reduc)+":\n  "+
                   Show(DSL.unsafeTypeOf(reduc)._1))
               //println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
@@ -269,30 +273,39 @@ unzip =
               //e parametros em scala.js
             case _ =>
               // Failed to simplify
-              outputInfo.append("p")
+              instanceInfo.append("p")
                 .text("Failed to reduce connector: "+Show(Simplify.unsafe(result)))
           }
         }
         catch {
           // type error
-          case e: TypeCheckException => outputInfo.append("p").text(Show(result)+" - Type error: " + e.getMessage)
-          case e: JavaScriptException => outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e+" - "+e.getClass)
+          case e: TypeCheckException =>
+            outputInfo.append("p").text(Show(result)+" - Type error: " + e.getMessage)
+//            instanceInfo.append("p").text("-")
+          case e: JavaScriptException =>
+            outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e+" - "+e.getClass)
+//            instanceInfo.append("p").text("-")
         }
-      case preo.lang.Parser.Failure(msg,_) => outputInfo.append("p").text("Parser failure: " + msg)
-      case preo.lang.Parser.Error(msg,_) => outputInfo.append("p").text("Parser error: " + msg)
+      case preo.lang.Parser.Failure(msg,_) =>
+        outputInfo.append("p").text("Parser failure: " + msg)
+//        instanceInfo.append("p").text("-")
+      case preo.lang.Parser.Error(msg,_) =>
+        outputInfo.append("p").text("Parser error: " + msg)
+//        instanceInfo.append("p").text("-")
     }
 
 
   }
 
 
-  private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,outputInfo:Block, inputAreaDom: html.TextArea,svg:Block): Unit = {
+  private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,outputInfo:Block,
+                        instanceInfo:Block,inputAreaDom: html.TextArea,svg:Block): Unit = {
     val button = buttonsDiv.append("button")
         .text(ss._1)
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
       inputAreaDom.value = ss._2
-      fgenerate(ss._2,outputInfo,svg)
+      fgenerate(ss._2,outputInfo,instanceInfo,svg)
     }} : button.DatumFunction[Unit])
 
   }
