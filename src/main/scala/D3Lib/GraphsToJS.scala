@@ -11,7 +11,7 @@ object GraphsToJS {
     val nodes = getNodes(graph);
     val links = getLinks(graph);
     s"""
-        var svg = d3.select("svg");
+        var svg = d3.select("#circuit");
         var vbox = svg.attr('viewBox').split(" ")
         var width = vbox[2]; //svg.attr("width");
         var height = vbox[3];  //svg.attr("height");
@@ -19,9 +19,9 @@ object GraphsToJS {
         var rectangle_width = 40;
         var rectangle_height = 20;
 
-        var graph = {"nodes": $nodes, "links": $links};
+        var graph = {"nodescircuit": $nodes, "linkscircuit": $links};
 
-        var simulation = d3.forceSimulation(graph.nodes)
+        var simulation = d3.forceSimulation(graph.nodescircuit)
           .force('charge', d3.forceManyBody().strength(-700))
           .force('center', d3.forceCenter(width / 2, height / 2))
           .force('y', d3.forceY().y(function(d) { return 0;}))
@@ -36,15 +36,15 @@ object GraphsToJS {
           }))
           .force('collision', d3.forceCollide().radius(function(d) {
                        return d.radius}))
-          .force("link", d3.forceLink().links(graph.links).id(function(d) { return d.id; }).distance(45))
+          .force("link", d3.forceLink().links(graph.linkscircuit).id(function(d) { return d.id; }).distance(45))
           //.force("forcepos", forcepos)
           .on('tick', ticked);
 
-        init(graph.nodes, graph.links);
+        init(graph.nodescircuit, graph.linkscircuit);
 
         function init(nodes, links){
-            //add nodes
-            var node = d3.select(".nodes")
+            //add nodes (nodes "circle" with group in {1,2,3})
+            var node = d3.select(".nodescircuit")
                 .selectAll("circle")
                 .data(nodes.filter(function(d){return d.group >0 && d.group < 4}));
             node.enter()
@@ -77,7 +77,8 @@ object GraphsToJS {
                 });
             node.exit().remove();
 
-            var rects = d3.select(".nodes")
+            // add components (nodes "rect" with group in {0,4})
+            var rects = d3.select(".nodescircuit")
               .selectAll("rect")
               .data(nodes.filter(function(d){
                 return d.group == 0 || d.group == 4
@@ -100,7 +101,7 @@ object GraphsToJS {
 
 
              //add links
-             var link = d3.select(".links")
+             var link = d3.select(".linkscircuit")
                 .selectAll("polyline")
                 .data(links);
              link.enter().append("polyline")
@@ -134,7 +135,7 @@ object GraphsToJS {
             link.exit().remove();
 
             //add labels to graph
-            var edgepaths = svg.select(".paths").selectAll(".edgepath")
+            var edgepaths = svg.select(".pathscircuit").selectAll(".edgepath")
                 .data(links);
             edgepaths.enter()
                 .append('path')
@@ -145,7 +146,7 @@ object GraphsToJS {
                 .style("pointer-events", "none");
             edgepaths.exit().remove();
 
-            var edgelabels = svg.select(".labels").selectAll(".edgelabel")
+            var edgelabels = svg.select(".labelscircuit").selectAll(".edgelabel")
                 .data(links);
             edgelabels.enter()
                 .append('text')
@@ -156,9 +157,9 @@ object GraphsToJS {
                 .attr('fill', 'black');
             edgelabels.exit().remove();
 
-            d3.select(".labels").selectAll("textPath").remove();
+            d3.select(".labelscircuit").selectAll("textPath").remove();
 
-            var textpath = d3.select(".labels").selectAll(".edgelabel").append('textPath')
+            var textpath = d3.select(".labelscircuit").selectAll(".edgelabel").append('textPath')
                 .attr('xlink:href', function (d, i) {return '#edgepath' + i})
                 .style("text-anchor", "middle")
                 .style("pointer-events", "none")
@@ -175,12 +176,12 @@ object GraphsToJS {
         }
 
         function ticked() {
-            var node = d3.select(".nodes")
+            var node = d3.select(".nodescircuit")
                 .selectAll("circle")
                 .attr('cx', function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
                 .attr('cy', function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
 
-            var rect = d3.select(".nodes")
+            var rect = d3.select(".nodescircuit")
                .selectAll("rect")
                .attr('x', function(d) {
                   if(d.group == 0){
@@ -194,7 +195,7 @@ object GraphsToJS {
                })
                .attr('y', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;});
 
-            var link = d3.select(".links")
+            var link = d3.select(".linkscircuit")
                 .selectAll("polyline")
                 .attr("points", function(d) {
                     return d.source.x + "," + d.source.y + " " +
@@ -260,6 +261,17 @@ object GraphsToJS {
     case Nil => ""
   }
 
+  /**
+    * Select the right group:
+    *  - 0: source component
+    *  - 1: source node
+    *  - 2: mixed node
+    *  - 3: sink node
+    *  - 4: sink component
+    * @param nodeType if it is source, sink, or mixed type
+    * @param style optional field that may contain "component"
+    * @return
+    */
   private def typeToGroup(nodeType: NodeType, style: Option[String]):String = (nodeType, style) match{
     case (Source, Some(s)) => if(s.contains("component")) "0" else "1"
     case (Source, None) => "1"

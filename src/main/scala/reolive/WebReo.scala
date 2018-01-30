@@ -1,13 +1,13 @@
 package reolive
 
 import D3Lib.CopytoClipboard._
-import D3Lib.GraphsToJS
+import D3Lib.{AutomataToJS, GraphsToJS}
 import org.scalajs.dom
 import dom.{EventTarget, html}
 import org.singlespaced.d3js.{Selection, d3}
 import preo.frontend.{Eval, Show, Simplify}
 import preo.common.TypeCheckException
-import preo.backend.Graph
+import preo.backend.{Automata, Graph, ReoGraph}
 import preo.DSL
 import preo.ast.BVal
 import preo.modelling.Mcrl2Model
@@ -26,6 +26,10 @@ object WebReo extends{
   var width = 700
   var height = 500
   val density = 0.5 // nodes per 100x100 px
+
+  var widthAut = 700
+  var heightAut = 500
+  val densityAut = 0.1 // nodes per 100x100 px
 
   private val buttons = Seq(
     "writer"->"writer", "reader"->"reader",
@@ -148,14 +152,16 @@ unzip =
     val svgDiv = rowDiv.append("div")
       .attr("class", "col-sm-9")
 
-    val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),width,height)
+    val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),"circuit",width,height)
+
+    val svgAut = appendSvg(panelBox(svgDiv,"Automata of the instance",visible = false),"automata",widthAut,heightAut)
 
     val mcrl2Box = panelBox(svgDiv,"mCRL2 of the instance",visible = false).append("div")
       .attr("id", "mcrl2Box")
     //      .style("margin-top", "4px")
     //      .style("border", "1px solid black")
 
-    fgenerate("dupl  ;  fifo * lossy",outputBox,instanceBox,svg)
+    fgenerate("dupl  ;  fifo * lossy",outputBox,instanceBox,svg,svgAut)
 
     /**
     Will evaluate the expression being written in the input box
@@ -167,7 +173,7 @@ unzip =
     val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
     inputAreaDom.onkeydown = {(e: dom.KeyboardEvent) =>
-      if(e.keyCode == 13 && e.shiftKey){e.preventDefault() ; fgenerate(inputAreaDom.value,outputBox,instanceBox,svg)}
+      if(e.keyCode == 13 && e.shiftKey){e.preventDefault() ; fgenerate(inputAreaDom.value,outputBox,instanceBox,svg,svgAut)}
       else ()
     }
 
@@ -175,7 +181,7 @@ unzip =
 
 
 
-    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, instanceBox, inputAreaDom,svg)
+    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, instanceBox, inputAreaDom,svg,svgAut)
 
   }
 
@@ -236,7 +242,7 @@ unzip =
     * Function that parses the expressions written in the input box and
     * tests if they're valid and generates the output if they are.
     */
-  private def fgenerate(input:String,outputInfo:Block,instanceInfo:Block,svg:Block): Unit={
+  private def fgenerate(input:String,outputInfo:Block,instanceInfo:Block,svg:Block,svgAut:Block): Unit={
     // clear output
 
     outputInfo.text("")
@@ -259,8 +265,9 @@ unzip =
                 .text(Show(reduc)+":\n  "+
                   Show(DSL.unsafeTypeOf(reduc)._1))
               //println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
-
               val ccon = Eval.unsafeReduce(reduc)
+
+              // draw connector
               val graph = Graph(ccon)
               val size = graph.nodes.size
               val factor = Math.sqrt(size*10000/(density*9*6))
@@ -268,6 +275,19 @@ unzip =
               height = (6*factor).toInt
               svg.attr("viewBox",s"00 00 $width $height")
               scalajs.js.eval(GraphsToJS(graph))
+
+              // draw Automata
+//              val aut = AutomataToJS(Automata.toAutomata(ReoGraph(ccon)))
+//              println("########")
+//              println(aut)
+//              println("++++++++")
+//              val factorAut = Math.sqrt(size*10000/(densityAut*9*6))
+//              widthAut =  (9*factorAut).toInt
+//              heightAut = (6*factorAut).toInt
+//              svgAut.attr("viewBox",s"00 00 $widthAut $heightAut")
+//              scalajs.js.eval(aut)
+
+              // produce mCRL2
               d3.select("#mcrl2Box").html(Mcrl2Model(ccon).webString)
               //mudar esta linha para utilizar d3 com novo grafo
               //e parametros em scala.js
@@ -299,19 +319,19 @@ unzip =
 
 
   private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,outputInfo:Block,
-                        instanceInfo:Block,inputAreaDom: html.TextArea,svg:Block): Unit = {
+                        instanceInfo:Block,inputAreaDom: html.TextArea,svg:Block,svgAut:Block): Unit = {
     val button = buttonsDiv.append("button")
         .text(ss._1)
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
       inputAreaDom.value = ss._2
-      fgenerate(ss._2,outputInfo,instanceInfo,svg)
+      fgenerate(ss._2,outputInfo,instanceInfo,svg,svgAut)
     }} : button.DatumFunction[Unit])
 
   }
 
 
-  private def appendSvg(div: Block,width: Int, height: Int): Block = {
+  private def appendSvg(div: Block,name: String, width: Int, height: Int): Block = {
     val svg = div.append("svg")
 //      .attr("width", "900")
 //      .attr("height", "600")
@@ -321,20 +341,20 @@ unzip =
       .attr("style","margin: auto;")
       .attr("viewBox",s"0 0 $width $height")
       .attr("preserveAspectRatio","xMinYMin meet")
-      .attr("id","svg-diagram")
+      .attr("id",name)
       .style("margin", "auto")
 
     svg.append("g")
-      .attr("class", "links")
+      .attr("class", "links"+name)
 
     svg.append("g")
-      .attr("class", "nodes")
+      .attr("class", "nodes"+name)
 
     svg.append("g")
-      .attr("class", "labels")
+      .attr("class", "labels"+name)
 
     svg.append("g")
-      .attr("class", "paths")
+      .attr("class", "paths"+name)
 
     //inserting regular arrow at the end
     svg.append("defs")
