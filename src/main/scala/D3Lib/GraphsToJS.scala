@@ -36,7 +36,7 @@ object GraphsToJS {
           }))
           .force('collision', d3.forceCollide().radius(function(d) {
                        return d.radius}))
-          .force("link", d3.forceLink().links(graph.linkscircuit).id(function(d) { return d.id; }).distance(45))
+          .force('link', d3.forceLink().links(graph.linkscircuit).id(function(d) { return d.id; }).distance(45))
           //.force("forcepos", forcepos)
           .on('tick', ticked);
 
@@ -44,8 +44,7 @@ object GraphsToJS {
 
         function init(nodes, links){
             //add nodes (nodes "circle" with group in {1,2,3})
-            var node = d3.select(".nodescircuit")
-                .selectAll("circle")
+            var node = d3.select(".nodescircuit").selectAll("circle")
                 .data(nodes.filter(function(d){return d.group >0 && d.group < 4}));
             node.enter()
                 .append("circle")
@@ -78,11 +77,10 @@ object GraphsToJS {
             node.exit().remove();
 
             // add components (nodes "rect" with group in {0,4})
-            var rects = d3.select(".nodescircuit")
-              .selectAll("rect")
-              .data(nodes.filter(function(d){
-                return d.group == 0 || d.group == 4
-              }));
+            var rects = d3.select(".nodescircuit").selectAll("rect")
+                .data(nodes.filter(function(d){
+                  return d.group == 0 || d.group == 4
+                }));
 
             rects.enter()
                 .append("rect")
@@ -101,10 +99,10 @@ object GraphsToJS {
 
 
              //add links
-             var link = d3.select(".linkscircuit")
-                .selectAll("polyline")
+             var link = d3.select(".linkscircuit").selectAll("polyline")
                 .data(links);
-             link.enter().append("polyline")
+             link.enter()
+                .append("polyline")
                 .style("stroke", "black")
                 .merge(link)
                 .attr('marker-end', function(d){
@@ -112,9 +110,9 @@ object GraphsToJS {
                 })
                 .attr('marker-mid', function(d) {
                   if (d.type === "fifo"){
-                     return 'url(#boxmarker)'
+                     return 'url(#boxmarkercircuit)'
                   } else if (d.type === "fifofull"){
-                     return 'url(#boxfullmarker)'
+                     return 'url(#boxfullmarkercircuit)'
                   } else {
                    return ("");
                 }})
@@ -142,7 +140,7 @@ object GraphsToJS {
                 .attr('class', 'edgepath')
                 .attr('fill-opacity', 0)
                 .attr('stroke-opacity', 0)
-                .attr('id', function (d, i) {return 'edgepath' + i})
+                .attr('id', function (d, i) {return 'edgepathcircuit' + i})
                 .style("pointer-events", "none");
             edgepaths.exit().remove();
 
@@ -152,15 +150,16 @@ object GraphsToJS {
                 .append('text')
                 .style("pointer-events", "none")
                 .attr('class', 'edgelabel')
-                .attr('id', function (d, i) {return 'edgelabel' + i})
+                .attr('id', function (d, i) {return 'edgelabelcircuit' + i})
                 .attr('font-size', 14)
                 .attr('fill', 'black');
             edgelabels.exit().remove();
 
             d3.select(".labelscircuit").selectAll("textPath").remove();
 
-            var textpath = d3.select(".labelscircuit").selectAll(".edgelabel").append('textPath')
-                .attr('xlink:href', function (d, i) {return '#edgepath' + i})
+            var textpath = d3.select(".labelscircuit").selectAll(".edgelabel")
+                .append('textPath')
+                .attr('xlink:href', function (d, i) {return '#edgepathcircuit' + i})
                 .style("text-anchor", "middle")
                 .style("pointer-events", "none")
                 .attr("startOffset", "50%")
@@ -176,13 +175,11 @@ object GraphsToJS {
         }
 
         function ticked() {
-            var node = d3.select(".nodescircuit")
-                .selectAll("circle")
+            var node = d3.select(".nodescircuit").selectAll("circle")
                 .attr('cx', function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
                 .attr('cy', function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
 
-            var rect = d3.select(".nodescircuit")
-               .selectAll("rect")
+            var rect = d3.select(".nodescircuit").selectAll("rect")
                .attr('x', function(d) {
                   if(d.group == 0){
                     d.x = Math.max(rectangle_width, Math.min(width-1, d.x))
@@ -195,8 +192,7 @@ object GraphsToJS {
                })
                .attr('y', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;});
 
-            var link = d3.select(".linkscircuit")
-                .selectAll("polyline")
+            var link = d3.select(".linkscircuit").selectAll("polyline")
                 .attr("points", function(d) {
                     return d.source.x + "," + d.source.y + " " +
                     (d.source.x + d.target.x)/2 + "," + (d.source.y + d.target.y)/2 + " " +
@@ -205,10 +201,10 @@ object GraphsToJS {
 //                .attr("y1", function(d) { return d.source.y; })
 //                .attr("x2", function(d) { return d.target.x; })
 //                .attr("y2", function(d) { return d.target.y; });
-            d3.selectAll(".edgepath").attr('d', function (d) {
+            d3.select(".pathscircuit").selectAll(".edgepath").attr('d', function (d) {
                 return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
             });
-            d3.selectAll(".edgelabel").attr('transform', function (d) {
+            d3.select(".labelscircuit").selectAll(".edgelabel").attr('transform', function (d) {
                 if (d.target.x < d.source.x) {
                     var bbox = this.getBBox();
                     rx = bbox.x + bbox.width / 2;
@@ -284,12 +280,12 @@ object GraphsToJS {
     case ReoChannel(src,trg, srcType, trgType, name, style) :: Nil => {
       var start = arrowToString(srcType);
       var end = arrowToString(trgType);
-      s"""{"source": "$src", "target": "$trg", "type":"$name", "start":"start$start", "end": "end$end"}"""
+      s"""{"source": "$src", "target": "$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit"}"""
     }
     case ReoChannel(src,trg, srcType, trgType, name, style) :: y :: rest  => {
       var start = arrowToString(srcType);
       var end = arrowToString(trgType);
-      s"""{"source": "$src", "target": "$trg", "type":"$name", "start":"start$start", "end": "end$end"},""" + processEdges(y::rest)
+      s"""{"source": "$src", "target": "$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit"},""" + processEdges(y::rest)
     }
     case Nil => ""
   }

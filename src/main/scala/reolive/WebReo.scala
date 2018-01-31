@@ -36,7 +36,7 @@ object WebReo extends{
     "fifo"->"fifo",     "merger"->"merger",
     "dupl"->"dupl",     "drain"->"drain",
     "fifo*writer ; drain"->"fifo*writer ; drain",
-    "\\x . fifo^x*writer ; drain^3" -> "\\x . fifo^x*writer ; drain^3",
+    "\\x . fifo^x*writer ; drain^2" -> "\\x . fifo^x*writer ; drain^2",
     "(\\x.fifo^x) ; (\\n.drain^n)" -> "(\\x.fifo^x) ; (\\n.drain^n)",
 //    "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
     "\\b:B . (b? fifo + lossy*lossy) ; merger" -> "\\b:B . (b? fifo + lossy*lossy) ; merger",
@@ -154,7 +154,7 @@ unzip =
 
     val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),"circuit",width,height)
 
-    val svgAut = appendSvg(panelBox(svgDiv,"Automata of the instance",visible = false),"automata",widthAut,heightAut)
+    val svgAut = appendSvg(panelBox(svgDiv,"Automaton of the instance (under development)",visible = false),"automata",widthAut,heightAut)
 
     val mcrl2Box = panelBox(svgDiv,"mCRL2 of the instance",visible = false).append("div")
       .attr("id", "mcrl2Box")
@@ -193,6 +193,9 @@ unzip =
                        ,title:String
                        ,visible:Boolean=true
                        ,copy: Boolean= false) : Block = {
+    def copyFunction(): Unit =
+      println("useless so far")
+
     val wrap = parent.append("div").attr("class","panel-group")
       .append("div").attr("class","panel panel-default")
     if(!copy) {
@@ -222,7 +225,7 @@ unzip =
         .append("button").attr("class", "btn btn-link btn-xs").attr("style", "height:18px")
           .text("Copy")
         .on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
-        copyFunction
+        copyFunction()
       }})
     }
     wrap
@@ -231,11 +234,9 @@ unzip =
       .attr("style",if (visible) "" else "height: 0px;")
       .attr("aria-expanded",visible.toString)
       .append("div").attr("class","panel-body my-panel-body")
+
   }
 
-  private def copyFunction: Unit = {
-    println("useless so far")
-  }
 
 
   /**
@@ -277,15 +278,16 @@ unzip =
               scalajs.js.eval(GraphsToJS(graph))
 
               // draw Automata
-//              val aut = AutomataToJS(Automata.toAutomata(ReoGraph(ccon)))
+              val aut = Automata.toAutomata(ReoGraph(ccon))
+              val sizeAut = aut.getStates.size
 //              println("########")
 //              println(aut)
 //              println("++++++++")
-//              val factorAut = Math.sqrt(size*10000/(densityAut*9*6))
-//              widthAut =  (9*factorAut).toInt
-//              heightAut = (6*factorAut).toInt
-//              svgAut.attr("viewBox",s"00 00 $widthAut $heightAut")
-//              scalajs.js.eval(aut)
+              val factorAut = Math.sqrt(sizeAut*10000/(densityAut*9*6))
+              widthAut =  (9*factorAut).toInt
+              heightAut = (6*factorAut).toInt
+              svgAut.attr("viewBox",s"00 00 $widthAut $heightAut")
+              scalajs.js.eval(AutomataToJS(aut))
 
               // produce mCRL2
               d3.select("#mcrl2Box").html(Mcrl2Model(ccon).webString)
@@ -359,7 +361,7 @@ unzip =
     //inserting regular arrow at the end
     svg.append("defs")
       .append("marker")
-      .attr("id","endarrowout")
+      .attr("id","endarrowout"+name)
       .attr("viewBox","-0 -5 10 10")
       .attr("refX",20.5)
       .attr("refY",0)
@@ -375,7 +377,7 @@ unzip =
     //arrowhead inverted for sync drains
     svg.append("defs")
       .append("marker")
-      .attr("id","endarrowin")
+      .attr("id","endarrowin"+name)
       .attr("viewBox","-0 -5 10 10")
       .attr("refX",20.5)
       .attr("refY",0)
@@ -390,7 +392,7 @@ unzip =
 
     svg.append("defs")
       .append("marker")
-      .attr("id","startarrowout")
+      .attr("id","startarrowout"+name)
       .attr("viewBox","-10 -10 16 16")
       .attr("refX",-15)
       .attr("refY",0)
@@ -405,7 +407,7 @@ unzip =
 
     svg.append("defs")
       .append("marker")
-      .attr("id","startarrowin")
+      .attr("id","startarrowin"+name)
       .attr("viewBox","-10 -10 16 16")
       .attr("refX",-22)
       .attr("refY",0)
@@ -420,7 +422,7 @@ unzip =
 
     svg.append("defs")
       .append("marker")
-      .attr("id","boxmarker")
+      .attr("id","boxmarker"+name)
       .attr("viewBox","0 0 60 30")
       .attr("refX","30")
       .attr("refY","15")
@@ -439,7 +441,7 @@ unzip =
 
     svg.append("defs")
       .append("marker")
-      .attr("id","boxfullmarker")
+      .attr("id","boxfullmarker"+name)
       .attr("viewBox","0 0 60 30")
       .attr("refX","30")
       .attr("refY","15")

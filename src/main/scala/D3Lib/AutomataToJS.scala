@@ -57,7 +57,7 @@ object AutomataToJS {
                       return 0;
                     }
                     else{
-                      return radiusAut - 0.75;
+                      return radiusAut + 0.75;
                     }
                   })
                   .attr("id", function (d) {return d.id;})
@@ -84,7 +84,9 @@ object AutomataToJS {
                     else{
                       return "green";
                     }
-                  });
+                  })
+                  ;
+
               node.exit().remove();
 
 
@@ -109,7 +111,8 @@ object AutomataToJS {
               link.exit().remove();
 
               //add labels to graphAut
-              var edgepaths = svgAut.select(".pathsautomata").selectAll(".edgepath")
+              var edgepaths = svgAut.select(".pathsautomata")
+                  .selectAll(".edgepath")
                   .data(linksAut);
               edgepaths.enter()
                   .append('path')
@@ -120,7 +123,8 @@ object AutomataToJS {
                   .style("pointer-events", "none");
               edgepaths.exit().remove();
 
-              var edgelabels = svgAut.select(".labelsautomata").selectAll(".edgelabel")
+              var edgelabels = svgAut.select(".labelsautomata")       // for all labels in data
+                  .selectAll(".edgelabel")
                   .data(linksAut);
               edgelabels.enter()
                   .append('text')
@@ -131,9 +135,12 @@ object AutomataToJS {
                   .attr('fill', 'black');
               edgelabels.exit().remove();
 
-              d3.select(".labels").selectAll("textPath").remove();
+              d3.select(".labelsautomata")
+                  .selectAll("textPath").remove();
 
-              var textpath = d3.select(".labelsautomata").selectAll(".edgelabel").append('textPath')
+              var textpath = d3.select(".labelsautomata")
+                  .selectAll(".edgelabel")
+                  .append('textPath')
                   .attr('xlink:href', function (d, i) {return '#edgepath' + i})
                   .style("text-anchor", "middle")
                   .style("pointer-events", "none")
@@ -144,12 +151,12 @@ object AutomataToJS {
           }
 
           function tickedAut() {
-              var node = d3.select(".nodesAut")
+              var node = d3.select(".nodesautomata")
                   .selectAll("circle")
                   .attr('cx', function(d) {return d.x = Math.max(radiusAut, Math.min(widthAut - radiusAut, d.x)); })
                   .attr('cy', function(d) {return d.y = Math.max(radiusAut, Math.min(heightAut - radiusAut, d.y)); });
 
-              var rect = d3.select(".nodesAut")
+              var rect = d3.select(".nodesautomata")
                  .selectAll("rect")
                  .attr('x', function(d) {
                     if(d.group == 0){
@@ -176,11 +183,11 @@ object AutomataToJS {
               d3.selectAll(".edgepath").attr('d', function (d) {
                   return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
               });
-              d3.selectAll(".edgelabel").attr('transform', function (d) {
+              d3.select(".labelsautomata").selectAll(".edgelabel").attr('transform', function (d) {
                   if (d.target.x < d.source.x) {
                       var bbox = this.getBBox();
-                      rx = bbox.x + bbox.widthAut / 2;
-                      ry = bbox.y + bbox.heightAut / 2;
+                      rx = bbox.x + bbox.widthautomata / 2;
+                      ry = bbox.y + bbox.heightautomata / 2;
                       return 'rotate(180 ' + rx + ' ' + ry + ')';
                   }
                   else {
@@ -241,7 +248,7 @@ object AutomataToJS {
     case (from, (to, fire, es)) => {
       Set(s"""{"source": "$from", "target": "$from-1-$to-${fire.mkString(".")}", "type":"", "start":"start", "end": "end"}""",
           s"""{"source": "$from-1-$to-${fire.mkString(".")}", "target": "$to-2-$from-${fire.mkString(".")}", "type":"${fire.mkString(".")}", "start":"start", "end": "end"}""",
-          s"""{"source": "$to-2-$from-${fire.mkString(".")}", "target": "$to", "type":"", "start":"start", "end": "endarrowout"}""")
+          s"""{"source": "$to-2-$from-${fire.mkString(".")}", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
     }
   }
 }
