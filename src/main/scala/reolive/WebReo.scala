@@ -41,7 +41,7 @@ object WebReo extends{
 //    "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
     "\\b:B . (b? fifo + lossy*lossy) ; merger" -> "\\b:B . (b? fifo + lossy*lossy) ; merger",
     "(\\x .drain^(x-1)) 3" -> "(\\x .drain^(x-1)) 3",
-    "(\\x. lossy^x |x>4) ; ..." -> "(\\x. lossy^x |x>4) ; (\\n. merger^n | n>2 & n<6)",
+    "(\\x. lossy^x |x>2) ; ..." -> "(\\x. lossy^x |x>2) ; (\\n. merger^n | n>1 & n<6)",
     ".. ; merger!" -> "writer^8 ; merger! ; merger! ; reader!",
     "x;y{x=..,y=..}" -> "x ; y {x = lossy * fifo , y = merger}",
     "exrouter=.."->"""dupl ; dupl*id ;
@@ -64,7 +64,7 @@ unzip =
    (((id^(x+1)*sym(1,1)^((n-x)-1)*id^(x+1))^x<--n);
     sym((2*n)*(n-1),2*n))
 }""",
-    "sequencer=.."-> """writer^3 ; sequencer 3 ; reader^3
+    "sequencer=.."-> """writer^2 ; sequencer 2 ; reader^2
                        |
                        |{
                        |zip =
@@ -154,14 +154,16 @@ unzip =
 
     val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),"circuit",width,height)
 
-    val svgAut = appendSvg(panelBox(svgDiv,"Automaton of the instance (under development)",visible = false),"automata",widthAut,heightAut)
+    val panelAut = panelBox(svgDiv,"Automaton of the instance (under development)",visible = false)
+    val svgAut = appendSvg(panelAut,"automata",widthAut,heightAut)
 
     val mcrl2Box = panelBox(svgDiv,"mCRL2 of the instance",visible = false).append("div")
       .attr("id", "mcrl2Box")
     //      .style("margin-top", "4px")
     //      .style("border", "1px solid black")
 
-    fgenerate("dupl  ;  fifo * lossy",outputBox,instanceBox,svg,svgAut)
+    val autExp = svgAut
+    fgenerate("dupl  ;  fifo * lossy",outputBox,instanceBox,svg,svgAut,autExp)
 
     /**
     Will evaluate the expression being written in the input box
@@ -173,7 +175,7 @@ unzip =
     val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
     inputAreaDom.onkeydown = {(e: dom.KeyboardEvent) =>
-      if(e.keyCode == 13 && e.shiftKey){e.preventDefault() ; fgenerate(inputAreaDom.value,outputBox,instanceBox,svg,svgAut)}
+      if(e.keyCode == 13 && e.shiftKey){e.preventDefault() ; fgenerate(inputAreaDom.value,outputBox,instanceBox,svg,svgAut,autExp)}
       else ()
     }
 
@@ -181,7 +183,7 @@ unzip =
 
 
 
-    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, instanceBox, inputAreaDom,svg,svgAut)
+    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, instanceBox, inputAreaDom,svg,svgAut,autExp)
 
   }
 
@@ -196,15 +198,18 @@ unzip =
     def copyFunction(): Unit =
       println("useless so far")
 
+    var expander: Block = parent
     val wrap = parent.append("div").attr("class","panel-group")
-      .append("div").attr("class","panel panel-default")
+      .append("div").attr("class","panel panel-default").attr("id",title)
     if(!copy) {
-      val header = wrap
+      expander = wrap
         .append("div").attr("class", "panel-heading my-panel-heading")
         .append("h4").attr("class", "panel-title")
         .append("a").attr("data-toggle", "collapse")
         .attr("href", "#collapse-1" + title.hashCode)
         .attr("aria-expanded", visible.toString)
+        .attr("class","collapsed")
+      expander
         .text(title)
     }
     else{
@@ -212,12 +217,14 @@ unzip =
         .append("div").attr("class", "panel-heading my-panel-heading")
         .append("div").attr("class", "row").attr("style","padding-left: 0px")
 
-      header
+      expander = header
         .append("div").attr("class", "col-sm-10")
         .append("h4").attr("class", "panel-title")
         .append("a").attr("data-toggle", "collapse")
         .attr("href", "#collapse-1" + title.hashCode)
         .attr("aria-expanded", visible.toString)
+        .attr("class","collapsed")
+      expander
         .text(title)
 
       header
@@ -228,13 +235,42 @@ unzip =
         copyFunction()
       }})
     }
-    wrap
+    val res = wrap
       .append("div").attr("id","collapse-1"+title.hashCode)
       .attr("class",if (visible) "panel-collapse collapse in" else "panel-collapse collapse")
       .attr("style",if (visible) "" else "height: 0px;")
       .attr("aria-expanded",visible.toString)
       .append("div").attr("class","panel-body my-panel-body")
 
+    res
+  }
+
+  private def isVisible(id:String): Boolean = {
+    val es = dom.document.getElementsByClassName("collapsed")
+    var foundId = false
+    for (i <- 0 until es.length) {
+      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
+      foundId = foundId || es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == id
+    }
+
+//    println("### - "+es.length)
+//    println("### - "+es.item(0).localName)
+//    println("### - "+es.item(0).parentNode.localName)
+//    println("### - "+es.item(0).parentNode.parentNode.localName)
+//    println("### - "+es.item(0).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
+
+//    val res = expander.attr("aria-expander") == "true"
+//    println("--- "+expander.html().render)
+//    println("--- "+expander.classed("collapsed"))
+//    println("--- "+expander.attr("aria-expander"))
+    println(" 77 "+ (!foundId))
+    !foundId
+  }
+
+  private def isOpen(panel:Block): Boolean = {
+    val res = panel.selectAll(".collapsed")
+    println(res)
+    !res.empty()
   }
 
 
@@ -243,7 +279,7 @@ unzip =
     * Function that parses the expressions written in the input box and
     * tests if they're valid and generates the output if they are.
     */
-  private def fgenerate(input:String,outputInfo:Block,instanceInfo:Block,svg:Block,svgAut:Block): Unit={
+  private def fgenerate(input:String,outputInfo:Block,instanceInfo:Block,svg:Block,svgAut:Block,autExp:Block): Unit={
     // clear output
 
     outputInfo.text("")
@@ -278,16 +314,21 @@ unzip =
               scalajs.js.eval(GraphsToJS(graph))
 
               // draw Automata
-              val aut = Automata.toAutomata(ReoGraph(ccon))
-              val sizeAut = aut.getStates.size
-//              println("########")
-//              println(aut)
-//              println("++++++++")
-              val factorAut = Math.sqrt(sizeAut*10000/(densityAut*9*6))
-              widthAut =  (9*factorAut).toInt
-              heightAut = (6*factorAut).toInt
-              svgAut.attr("viewBox",s"00 00 $widthAut $heightAut")
-              scalajs.js.eval(AutomataToJS(aut))
+              if (isVisible("Automaton of the instance (under development)")) {
+                println("aut pannel is openned")
+                val aut = Automata(ccon)
+                val sizeAut = aut.getStates.size
+                //              println("########")
+                //              println(aut)
+                //              println("++++++++")
+                val factorAut = Math.sqrt(sizeAut * 10000 / (densityAut * 9 * 6))
+                widthAut = (9 * factorAut).toInt
+                heightAut = (6 * factorAut).toInt
+                svgAut.attr("viewBox", s"00 00 $widthAut $heightAut")
+                scalajs.js.eval(AutomataToJS(aut))
+              }
+              else
+                println("aut pannel is closed")
 
               // produce mCRL2
               d3.select("#mcrl2Box").html(Mcrl2Model(ccon).webString)
@@ -321,13 +362,13 @@ unzip =
 
 
   private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,outputInfo:Block,
-                        instanceInfo:Block,inputAreaDom: html.TextArea,svg:Block,svgAut:Block): Unit = {
+                        instanceInfo:Block,inputAreaDom: html.TextArea,svg:Block,svgAut:Block,autVis:Block): Unit = {
     val button = buttonsDiv.append("button")
         .text(ss._1)
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
       inputAreaDom.value = ss._2
-      fgenerate(ss._2,outputInfo,instanceInfo,svg,svgAut)
+      fgenerate(ss._2,outputInfo,instanceInfo,svg,svgAut,autVis)
     }} : button.DatumFunction[Unit])
 
   }
