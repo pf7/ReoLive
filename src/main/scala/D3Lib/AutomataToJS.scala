@@ -156,20 +156,6 @@ object AutomataToJS {
                   .attr('cx', function(d) {return d.x = Math.max(radiusAut, Math.min(widthAut - radiusAut, d.x)); })
                   .attr('cy', function(d) {return d.y = Math.max(radiusAut, Math.min(heightAut - radiusAut, d.y)); });
 
-              var rect = d3.select(".nodesautomata")
-                 .selectAll("rect")
-                 .attr('x', function(d) {
-                    if(d.group == 0){
-                      d.x = Math.max(rectangle_width, Math.min(widthAut-1, d.x))
-                      return d.x - rectangle_width;
-                    }
-                    else{
-                      d.x = Math.max(5, Math.min(widthAut - rectangle_width, d.x))
-                      return d.x -rectangle_width /10;
-                    }
-                 })
-                 .attr('y', function(d) {d.y = Math.max(11, Math.min(heightAut - rectangle_height, d.y)); return d.y - rectangle_height/2;});
-
               var link = d3.select(".linksautomata")
                   .selectAll("polyline")
                   .attr("points", function(d) {
@@ -186,8 +172,9 @@ object AutomataToJS {
               d3.select(".labelsautomata").selectAll(".edgelabel").attr('transform', function (d) {
                   if (d.target.x < d.source.x) {
                       var bbox = this.getBBox();
-                      rx = bbox.x + bbox.widthautomata / 2;
-                      ry = bbox.y + bbox.heightautomata / 2;
+                      rx = bbox.x + bbox.width / 2;
+                      ry = bbox.y + bbox.height / 2;
+                      console.log('-- rotate(180 ' + rx + ' ' + ry + ')');
                       return 'rotate(180 ' + rx + ' ' + ry + ')';
                   }
                   else {

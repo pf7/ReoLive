@@ -249,7 +249,7 @@ unzip =
     val es = dom.document.getElementsByClassName("collapsed")
     var foundId = false
     for (i <- 0 until es.length) {
-      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
+//      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
       foundId = foundId || es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == id
     }
 
@@ -263,14 +263,8 @@ unzip =
 //    println("--- "+expander.html().render)
 //    println("--- "+expander.classed("collapsed"))
 //    println("--- "+expander.attr("aria-expander"))
-    println(" 77 "+ (!foundId))
+//    println("$$$ "+ (!foundId))
     !foundId
-  }
-
-  private def isOpen(panel:Block): Boolean = {
-    val res = panel.selectAll(".collapsed")
-    println(res)
-    !res.empty()
   }
 
 
@@ -315,7 +309,7 @@ unzip =
 
               // draw Automata
               if (isVisible("Automaton of the instance (under development)")) {
-                println("aut pannel is openned")
+//                println("aut pannel is openned")
                 val aut = Automata(ccon)
                 val sizeAut = aut.getStates.size
                 //              println("########")
@@ -327,8 +321,8 @@ unzip =
                 svgAut.attr("viewBox", s"00 00 $widthAut $heightAut")
                 scalajs.js.eval(AutomataToJS(aut))
               }
-              else
-                println("aut pannel is closed")
+//              else
+//                println("aut pannel is closed")
 
               // produce mCRL2
               d3.select("#mcrl2Box").html(Mcrl2Model(ccon).webString)
