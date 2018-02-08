@@ -174,7 +174,6 @@ object AutomataToJS {
                       var bbox = this.getBBox();
                       rx = bbox.x + bbox.width / 2;
                       ry = bbox.y + bbox.height / 2;
-                      console.log('-- rotate(180 ' + rx + ' ' + ry + ')');
                       return 'rotate(180 ' + rx + ' ' + ry + ')';
                   }
                   else {
