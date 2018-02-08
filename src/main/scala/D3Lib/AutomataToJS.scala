@@ -8,7 +8,7 @@ import preo.backend._
 //todo: add rectangle colision colision
 object AutomataToJS {
 
-  def apply(aut: Automata): String = {
+  def apply[A<:Automata[A]](aut: A): String = {
     val nodes = getNodes(aut)
     val links = getLinks(aut)
 
@@ -203,20 +203,29 @@ object AutomataToJS {
       """
   }
 
-  private def getNodes(aut: Automata): String =
-    aut.trans.flatMap(processNode(aut.init, _)).mkString("[",",","]")
+  private def getNodes[A<:Automata[A]](aut: A): String =
+    aut.getTrans.flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
 
-  private def getLinks(aut: Automata): String =
-    aut.trans.flatMap(processEdge).mkString("[",",","]")
+  private def getLinks[A<:Automata[A]](aut: A): String =
+    aut.getTrans.flatMap(processEdge).mkString("[",",","]")
 
-  private def processNode(initAut:Int,trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match{
-    case (from,(to,fire,es)) =>
+  private def processNode(initAut:Int,trans:(Int,Any,Int)): Set[String] = trans match{
+    case (from,lbl,to) =>
       val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)
       Set(s"""{"id": "$from", "group": $gfrom }""",
-          s"""{"id": "$to", "group": $gto }""",
-          s"""{"id": "$from-1-$to-${fire.mkString(".")}", "group": $gp1}""",
-          s"""{"id": "$to-2-$from-${fire.mkString(".")}", "group": $gp2 }""")
+        s"""{"id": "$to", "group": $gto }""",
+        s"""{"id": "$from-1-$to-$lbl", "group": $gp1}""",
+        s"""{"id": "$to-2-$from-$lbl", "group": $gp2 }""")
   }
+
+  //  private def processNode(initAut:Int,trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match{
+//    case (from,(to,fire,es)) =>
+//      val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)
+//      Set(s"""{"id": "$from", "group": $gfrom }""",
+//          s"""{"id": "$to", "group": $gto }""",
+//          s"""{"id": "$from-1-$to-${fire.mkString(".")}", "group": $gp1}""",
+//          s"""{"id": "$to-2-$from-${fire.mkString(".")}", "group": $gp2 }""")
+//  }
 
   /**
     * Select the right group:
@@ -230,13 +239,20 @@ object AutomataToJS {
       , "2" , "2"
       )
 
-  private def processEdge(trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match {
-    case (from, (to, fire, es)) => {
-      Set(s"""{"source": "$from", "target": "$from-1-$to-${fire.mkString(".")}", "type":"", "start":"start", "end": "end"}""",
-          s"""{"source": "$from-1-$to-${fire.mkString(".")}", "target": "$to-2-$from-${fire.mkString(".")}", "type":"${fire.mkString(".")}", "start":"start", "end": "end"}""",
-          s"""{"source": "$to-2-$from-${fire.mkString(".")}", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
+  private def processEdge(trans:(Int,Any,Int)): Set[String] = trans match {
+    case (from, lbl, to) => {
+      Set(s"""{"source": "$from", "target": "$from-1-$to-$lbl", "type":"", "start":"start", "end": "end"}""",
+        s"""{"source": "$from-1-$to-$lbl", "target": "$to-2-$from-$lbl", "type":"$lbl", "start":"start", "end": "end"}""",
+        s"""{"source": "$to-2-$from-$lbl", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
     }
   }
+//  private def processEdge(trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match {
+//    case (from, (to, fire, es)) => {
+//      Set(s"""{"source": "$from", "target": "$from-1-$to-${fire.mkString(".")}", "type":"", "start":"start", "end": "end"}""",
+//          s"""{"source": "$from-1-$to-${fire.mkString(".")}", "target": "$to-2-$from-${fire.mkString(".")}", "type":"${fire.mkString(".")}", "start":"start", "end": "end"}""",
+//          s"""{"source": "$to-2-$from-${fire.mkString(".")}", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
+//    }
+//  }
 }
 
 

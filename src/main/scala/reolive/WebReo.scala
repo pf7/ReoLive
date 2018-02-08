@@ -7,7 +7,7 @@ import dom.{EventTarget, html}
 import org.singlespaced.d3js.{Selection, d3}
 import preo.frontend.{Eval, Show, Simplify}
 import preo.common.TypeCheckException
-import preo.backend.{Automata, Graph, ReoGraph}
+import preo.backend._
 import preo.DSL
 import preo.ast.BVal
 import preo.modelling.Mcrl2Model
@@ -310,7 +310,7 @@ unzip =
               // draw Automata
               if (isVisible("Automaton of the instance (under development)")) {
 //                println("aut pannel is openned")
-                val aut = Automata(ccon)
+                val aut = Automata[PortAutomata](ccon)
                 val sizeAut = aut.getStates.size
                 //              println("########")
                 //              println(aut)
