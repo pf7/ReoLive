@@ -209,8 +209,8 @@ object AutomataToJS {
   private def getLinks[A<:Automata[A]](aut: A): String =
     aut.getTrans.flatMap(processEdge).mkString("[",",","]")
 
-  private def processNode(initAut:Int,trans:(Int,Any,Int)): Set[String] = trans match{
-    case (from,lbl,to) =>
+  private def processNode(initAut:Int,trans:(Int,Any, String,Int)): Set[String] = trans match{
+    case (from,lbl, _,to) =>
       val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)
       Set(s"""{"id": "$from", "group": $gfrom }""",
         s"""{"id": "$to", "group": $gto }""",
@@ -239,8 +239,8 @@ object AutomataToJS {
       , "2" , "2"
       )
 
-  private def processEdge(trans:(Int,Any,Int)): Set[String] = trans match {
-    case (from, lbl, to) => {
+  private def processEdge(trans:(Int,Any, String,Int)): Set[String] = trans match {
+    case (from, lbl, _, to) => {
       Set(s"""{"source": "$from", "target": "$from-1-$to-$lbl", "type":"", "start":"start", "end": "end"}""",
         s"""{"source": "$from-1-$to-$lbl", "target": "$to-2-$from-$lbl", "type":"$lbl", "start":"start", "end": "end"}""",
         s"""{"source": "$to-2-$from-$lbl", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
