@@ -49,15 +49,28 @@ object AutomataToJS {
               var node = d3.select(".nodesautomata")
                   .selectAll("circle")
                   .data(nodesAut);
-              node.enter()
-                  .append("circle")
+//              var nodeG = nodeout
+//                  .enter();
+//                  .append("g")
+//                  .attr("class","node");
+//              nodeG.append("text")
+//                  .attr("dx", 12)
+//                  .attr("dy", ".35em")
+//                  .text(function(d) {
+//                     if (d.group == 0 || d.group == 1 || d.group == 2) {
+//                       return "";
+//                     }
+//                     else return d.group;
+//                   });
+//              nodeG.append("circle")
+                node.enter().append("circle")
                   .merge(node)
                   .attr("r", function(d){
-                    if(d.group == 2){
-                      return 0;
+                    if(d.group == 0 || d.group == 1){
+                      return radiusAut + 0.75;
                     }
                     else{
-                      return radiusAut + 0.75;
+                      return 0;
                     }
                   })
                   .attr("id", function (d) {return d.id;})
@@ -67,10 +80,10 @@ object AutomataToJS {
                   .on("end", dragendedAut))
                   .style("stroke-opacity" , "1")
                   .style("stroke-widthAut", function(d){
-                    if(d.group == 2) {
-                      return "0px";
-                    } else {
+                    if(d.group == 0 || d.group == 1) {
                       return "1px";
+                    } else {
+                      return "0px";
                     }
                   })
                   .style("stroke", "black")
@@ -209,13 +222,14 @@ object AutomataToJS {
   private def getLinks[A<:Automata[A]](aut: A): String =
     aut.getTrans.flatMap(processEdge).mkString("[",",","]")
 
-  private def processNode(initAut:Int,trans:(Int,Any, String,Int)): Set[String] = trans match{
-    case (from,lbl, _,to) =>
+
+  private def processNode(initAut:Int,trans:(Int,Any,String,Int)): Set[String] = trans match{
+    case (from,lbl,id,to) =>
       val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)
       Set(s"""{"id": "$from", "group": $gfrom }""",
         s"""{"id": "$to", "group": $gto }""",
-        s"""{"id": "$from-1-$to-$lbl", "group": $gp1}""",
-        s"""{"id": "$to-2-$from-$lbl", "group": $gp2 }""")
+        s"""{"id": "$from-1-$to-$id", "group": "$gp1"}""",
+        s"""{"id": "$to-2-$from-$id", "group": "$gp2" }""")
   }
 
   //  private def processNode(initAut:Int,trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match{
@@ -231,7 +245,7 @@ object AutomataToJS {
     * Select the right group:
     *  - 0: initial state
     *  - 1: normal state
-    *  - 2: connection dot
+    *  - otherwise: connection dot
     */
   private def nodeGroups(initAut:Int,from:Int,to:Int):(String,String,String,String) =
     (   if(from==initAut) "0" else "1"
@@ -239,11 +253,11 @@ object AutomataToJS {
       , "2" , "2"
       )
 
-  private def processEdge(trans:(Int,Any, String,Int)): Set[String] = trans match {
-    case (from, lbl, _, to) => {
-      Set(s"""{"source": "$from", "target": "$from-1-$to-$lbl", "type":"", "start":"start", "end": "end"}""",
-        s"""{"source": "$from-1-$to-$lbl", "target": "$to-2-$from-$lbl", "type":"$lbl", "start":"start", "end": "end"}""",
-        s"""{"source": "$to-2-$from-$lbl", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
+  private def processEdge(trans:(Int,Any,String,Int)): Set[String] = trans match {
+    case (from, lbl,id, to) => {
+      Set(s"""{"source": "$from", "target": "$from-1-$to-$id", "type":"", "start":"start", "end": "end"}""",
+        s"""{"source": "$from-1-$to-$id", "target": "$to-2-$from-$id", "type":"$lbl", "start":"start", "end": "end"}""",
+        s"""{"source": "$to-2-$from-$id", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
     }
   }
 //  private def processEdge(trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match {

@@ -6,7 +6,7 @@ import org.scalajs.dom
 import dom.{EventTarget, MouseEvent, html}
 import org.singlespaced.d3js.{Selection, d3}
 import preo.frontend.{Eval, Show, Simplify}
-import preo.common.TypeCheckException
+import preo.common.{GenerationException, TypeCheckException}
 import preo.backend._
 import preo.DSL
 import preo.ast.BVal
@@ -35,7 +35,7 @@ object WebReo extends{
   var connector: CoreConnector = null
 
   private val buttons = Seq(
-    "writer"->"writer", "reader"->"reader",
+   "writer"->"writer", "reader"->"reader",
     "fifo"->"fifo",     "merger"->"merger",
     "dupl"->"dupl",     "drain"->"drain",
     "fifo*writer ; drain"->"fifo*writer ; drain",
@@ -86,7 +86,7 @@ unzip =
                        |         unzip(n:I))) ;
                        |    (id^n*(zip(n:I) ; drain^n))
                        |}""".stripMargin,
-  "nexrouters = ..." -> """writer ; nexrouter(3) ; reader!
+    "nexrouters = ..." -> """writer ; nexrouter(3) ; reader!
                           |{
                           |  unzip =
                           |    \n.Tr((2*n)*(n - 1))
@@ -106,7 +106,30 @@ unzip =
                           |      ((id^n)*(mergers(n))*id) ;
                           |      ((id^n)*drain))
                           |}
-                          |""".stripMargin
+                          |""".stripMargin,
+    "Prelude"->
+      """id
+        |{
+        |  writer    = writer,
+        |  reader    = reader,
+        |  fifo      = fifo,
+        |  fifofull  = fifofull,
+        |  drain     = drain,
+        |  id        = id,
+        |  dupl      = dupl,
+        |  lossy     = lossy,
+        |  merger    = merger,
+        |  swap      = swap,
+        |  exrouter  = exrouter,
+        |  exrouters = exrouters,
+        |  ids       = ids,
+        |  node      = node,
+        |  dupls     = dupls,
+        |  mergers   = mergers,
+        |  zip       = zip,
+        |  unzip     = unzip
+        |}
+      """.stripMargin
   )
 
 
@@ -138,8 +161,10 @@ unzip =
       .attr("style", "width: 100%")
       .attr("placeholder", "dupl  ;  fifo * lossy")
 
-    val outputBox = panelBox(colDiv1,"Type").append("div")
-      .attr("id", "outputBox")
+    val errors = colDiv1.append("div")
+
+    val typeBox = panelBox(colDiv1,"Type").append("div")
+      .attr("id", "typeBox")
 
     val instanceBox = panelBox(colDiv1,"Concrete instance").append("div")
       .attr("id", "instanceBox")
@@ -165,20 +190,19 @@ unzip =
     //      .style("margin-top", "4px")
     //      .style("border", "1px solid black")
 
-    val autExp = svgAut
-    fgenerate("dupl  ;  fifo * lossy",outputBox,instanceBox,svg,svgAut,autExp)
+    fgenerate("dupl  ;  fifo * lossy",typeBox,instanceBox,svg,svgAut,errors)
 
     /**
     Will evaluate the expression being written in the input box
       */
 //      inputBox.onkeyup = (e: dom.Event) => {
-//        fgenerate(inputBox.value,outputBox,canvasDiv)
+//        fgenerate(inputBox.value,typeBox,canvasDiv)
 //      }
 
     val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
     inputAreaDom.onkeydown = {(e: dom.KeyboardEvent) =>
-      if(e.keyCode == 13 && e.shiftKey){e.preventDefault() ; fgenerate(inputAreaDom.value,outputBox,instanceBox,svg,svgAut,autExp)}
+      if(e.keyCode == 13 && e.shiftKey){e.preventDefault() ; fgenerate(inputAreaDom.value,typeBox,instanceBox,svg,svgAut,errors)}
       else ()
     }
 
@@ -195,7 +219,8 @@ unzip =
 
 
 
-    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,outputBox, instanceBox, inputAreaDom,svg,svgAut,autExp)
+
+    for (ops <- buttons ) yield genButton(ops,buttonsDiv, inputArea,typeBox, instanceBox, inputAreaDom,svg,svgAut,errors)
 
   }
 
@@ -288,22 +313,22 @@ unzip =
     * Function that parses the expressions written in the input box and
     * tests if they're valid and generates the output if they are.
     */
-  private def fgenerate(input:String,outputInfo:Block,instanceInfo:Block,svg:Block,svgAut:Block,autExp:Block): Unit={
+  private def fgenerate(input:String,typeInfo:Block,instanceInfo:Block,svg:Block,svgAut:Block,errors:Block): Unit={
     // clear output
 
-    outputInfo.text("")
+    typeInfo.text("")
     instanceInfo.text("")
+    errors.text("")
 
     // update output and run script
     DSL.parseWithError(input) match {
       case preo.lang.Parser.Success(result,_) =>
         try {
           val (typ,rest) = DSL.unsafeTypeOf(result)
-          outputInfo.append("p")
+          typeInfo.append("p")
             .text(Show(typ))
           if (rest != BVal(true))
-            outputInfo.append("p")
-            .text(s"[  WARNING - did not check if ${Show(rest)} ]")
+            warning(errors,s"Warning: did not check if ${Show(rest)}.")
           Eval.unsafeInstantiate(result) match {
             case Some(reduc) =>
               // GOT A TYPE
@@ -330,24 +355,25 @@ unzip =
               }
             case _ =>
               // Failed to simplify
-              instanceInfo.append("p")
-                .text("Failed to reduce connector: "+Show(Simplify.unsafe(result)))
+              warning(errors,"Failed to reduce connector: "+Show(Simplify.unsafe(result)))
           }
         }
         catch {
           // type error
           case e: TypeCheckException =>
-            outputInfo.append("p").text(Show(result)+" - Type error: " + e.getMessage)
+            error(errors,/*Show(result)+ */"Type error: " + e.getMessage)
 //            instanceInfo.append("p").text("-")
+          case e: GenerationException =>
+            warning(errors,/*Show(result)+ */"Generation failed: " + e.getMessage)
           case e: JavaScriptException =>
-            outputInfo.append("p").text(Show(result)+" - JavaScript error : "+e+" - "+e.getClass)
+            error(errors,/*Show(result)+ */"JavaScript error : "+e+" - "+e.getClass)
 //            instanceInfo.append("p").text("-")
         }
       case preo.lang.Parser.Failure(msg,_) =>
-        outputInfo.append("p").text("Parser failure: " + msg)
+        error(errors,"Parser failure: " + msg)
 //        instanceInfo.append("p").text("-")
       case preo.lang.Parser.Error(msg,_) =>
-        outputInfo.append("p").text("Parser error: " + msg)
+        error(errors,"Parser error: " + msg)
 //        instanceInfo.append("p").text("-")
     }
 
@@ -381,15 +407,20 @@ unzip =
     d3.select("#mcrl2Box").html(Mcrl2Model(connector).webString)
   }
 
+  private def error(errors:Block,msg:String): Unit =
+    errors.append("div").attr("class","alert alert-danger").text(msg)
+  private def warning(errors:Block,msg:String): Unit =
+    errors.append("div").attr("class","alert alert-warning").text(msg)
 
-  private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,outputInfo:Block,
-                        instanceInfo:Block,inputAreaDom: html.TextArea,svg:Block,svgAut:Block,autVis:Block): Unit = {
+
+  private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,typeInfo:Block,
+                        instanceInfo:Block,inputAreaDom: html.TextArea,svg:Block,svgAut:Block,errors:Block): Unit = {
     val button = buttonsDiv.append("button")
         .text(ss._1)
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
       inputAreaDom.value = ss._2
-      fgenerate(ss._2,outputInfo,instanceInfo,svg,svgAut,autVis)
+      fgenerate(ss._2,typeInfo,instanceInfo,svg,svgAut,errors)
     }} : button.DatumFunction[Unit])
 
   }
