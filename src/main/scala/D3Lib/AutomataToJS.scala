@@ -222,6 +222,7 @@ object AutomataToJS {
   private def getLinks[A<:Automata[A]](aut: A): String =
     aut.getTrans.flatMap(processEdge).mkString("[",",","]")
 
+
   private def processNode(initAut:Int,trans:(Int,Any,String,Int)): Set[String] = trans match{
     case (from,lbl,id,to) =>
       val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)

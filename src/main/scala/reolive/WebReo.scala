@@ -3,7 +3,7 @@ package reolive
 import D3Lib.CopytoClipboard._
 import D3Lib.{AutomataToJS, GraphsToJS}
 import org.scalajs.dom
-import dom.{EventTarget, html}
+import dom.{EventTarget, MouseEvent, html}
 import org.singlespaced.d3js.{Selection, d3}
 import preo.frontend.{Eval, Show, Simplify}
 import preo.common.{GenerationException, TypeCheckException}
@@ -11,6 +11,7 @@ import preo.backend._
 import preo.DSL
 import preo.ast.BVal
 import preo.modelling.Mcrl2Model
+import preo.ast.CoreConnector
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 import scalajs.js.annotation.JSExportTopLevel
@@ -30,6 +31,8 @@ object WebReo extends{
   var widthAut = 700
   var heightAut = 500
   val densityAut = 0.1 // nodes per 100x100 px
+
+  var connector: CoreConnector = null
 
   private val buttons = Seq(
    "writer"->"writer", "reader"->"reader",
@@ -203,7 +206,17 @@ unzip =
       else ()
     }
 
-    //inputArea.on("keyup", {(e: EventTarget, a: Int, b:UndefOr[Int]) =>println(e);fgenerate(inputAreaDom.value,typeBox)} : inputArea.DatumFunction[Unit])
+    dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+        .onclick = {(e: MouseEvent) => if(!isVisible("Circuit of the instance")) drawConnector(svg)}
+
+    dom.document.getElementById("Automaton of the instance (under development)").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+      .onclick = {(e: MouseEvent) => if(!isVisible("Automaton of the instance (under development)")) drawAutomata(svgAut)}
+
+    dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+      .onclick = {(e: MouseEvent) => if(!isVisible("mCRL2 of the instance")) produceMcrl2()}
+
+    //inputArea.on("keyup", {(e: EventTarget, a: Int, b:UndefOr[Int]) =>println(e);fgenerate(inputAreaDom.value,outputBox)} : inputArea.DatumFunction[Unit])
+
 
 
 
@@ -232,9 +245,11 @@ unzip =
         .append("a").attr("data-toggle", "collapse")
         .attr("href", "#collapse-1" + title.hashCode)
         .attr("aria-expanded", visible.toString)
-        .attr("class","collapsed")
+      if(!visible)
+        expander.attr("class","collapsed")
       expander
         .text(title)
+
     }
     else{
       val header = wrap
@@ -273,6 +288,7 @@ unzip =
     val es = dom.document.getElementsByClassName("collapsed")
     var foundId = false
     for (i <- 0 until es.length) {
+      println(es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
 //      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
       foundId = foundId || es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == id
     }
@@ -320,38 +336,23 @@ unzip =
                 .text(Show(reduc)+":\n  "+
                   Show(DSL.unsafeTypeOf(reduc)._1))
               //println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
-              val ccon = Eval.unsafeReduce(reduc)
+              connector = Eval.unsafeReduce(reduc)
 
               // draw connector
-              val graph = Graph(ccon)
-              val size = graph.nodes.size
-              val factor = Math.sqrt(size*10000/(density*9*6))
-              width =  (9*factor).toInt
-              height = (6*factor).toInt
-              svg.attr("viewBox",s"00 00 $width $height")
-              scalajs.js.eval(GraphsToJS(graph))
+              if(isVisible("Circuit of the instance")) {
+                drawConnector(svg)
+              }
 
               // draw Automata
               if (isVisible("Automaton of the instance (under development)")) {
 //                println("aut pannel is openned")
-                val aut = Automata[PortAutomata](ccon)
-                val sizeAut = aut.getStates.size
-                //              println("########")
-                //              println(aut)
-                //              println("++++++++")
-                val factorAut = Math.sqrt(sizeAut * 10000 / (densityAut * 9 * 6))
-                widthAut = (9 * factorAut).toInt
-                heightAut = (6 * factorAut).toInt
-                svgAut.attr("viewBox", s"00 00 $widthAut $heightAut")
-                scalajs.js.eval(AutomataToJS(aut))
+                drawAutomata(svgAut)
               }
-//              else
-//                println("aut pannel is closed")
 
               // produce mCRL2
-              d3.select("#mcrl2Box").html(Mcrl2Model(ccon).webString)
-              //mudar esta linha para utilizar d3 com novo grafo
-              //e parametros em scala.js
+              if(isVisible("mCRL2 of the instance")) {
+                produceMcrl2()
+              }
             case _ =>
               // Failed to simplify
               warning(errors,"Failed to reduce connector: "+Show(Simplify.unsafe(result)))
@@ -379,10 +380,38 @@ unzip =
 
   }
 
+  private def drawConnector(svg: WebReo.Block): Unit = {
+    val graph = Graph(connector)
+    val size = graph.nodes.size
+    val factor = Math.sqrt(size*10000/(density*9*6))
+    width =  (9*factor).toInt
+    height = (6*factor).toInt
+    svg.attr("viewBox",s"00 00 $width $height")
+    scalajs.js.eval(GraphsToJS(graph))
+  }
+
+  private def drawAutomata(svgAut: WebReo.Block): Unit = {
+    val aut = Automata[PortAutomata](connector)
+    val sizeAut = aut.getStates.size
+    //              println("########")
+    //              println(aut)
+    //              println("++++++++")
+    val factorAut = Math.sqrt(sizeAut * 10000 / (densityAut * 9 * 6))
+    widthAut = (9 * factorAut).toInt
+    heightAut = (6 * factorAut).toInt
+    svgAut.attr("viewBox", s"00 00 $widthAut $heightAut")
+    scalajs.js.eval(AutomataToJS(aut))
+  }
+
+  private def produceMcrl2(): Unit = {
+    d3.select("#mcrl2Box").html(Mcrl2Model(connector).webString)
+  }
+
   private def error(errors:Block,msg:String): Unit =
     errors.append("div").attr("class","alert alert-danger").text(msg)
   private def warning(errors:Block,msg:String): Unit =
     errors.append("div").attr("class","alert alert-warning").text(msg)
+
 
   private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,typeInfo:Block,
                         instanceInfo:Block,inputAreaDom: html.TextArea,svg:Block,svgAut:Block,errors:Block): Unit = {
