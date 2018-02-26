@@ -8,7 +8,7 @@ import preo.backend._
 //todo: add rectangle colision colision
 object AutomataToJS {
 
-  def apply[A<:Automata[A]](aut: A): String = {
+  def apply[A<:Automata](aut: A): String = {
     val nodes = getNodes(aut)
     val links = getLinks(aut)
 
@@ -216,10 +216,10 @@ object AutomataToJS {
       """
   }
 
-  private def getNodes[A<:Automata[A]](aut: A): String =
+  private def getNodes[A<:Automata](aut: A): String =
     aut.getTrans.flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
 
-  private def getLinks[A<:Automata[A]](aut: A): String =
+  private def getLinks[A<:Automata](aut: A): String =
     aut.getTrans.flatMap(processEdge).mkString("[",",","]")
 
 
