@@ -67,7 +67,7 @@ unzip =
    (((id^(x+1)*sym(1,1)^((n-x)-1)*id^(x+1))^x<--n);
     sym((2*n)*(n-1),2*n))
 }""",
-    "sequencer=.."-> """writer^2 ; sequencer 2 ; reader^2
+    "sequencer=.."-> """writer^3 ; sequencer 3 ; reader^3
                        |
                        |{
                        |zip =
