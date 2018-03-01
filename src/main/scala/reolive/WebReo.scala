@@ -80,11 +80,14 @@ unzip =
                        |  (((id^(x+1)*sym(1,1)^((n-x)-1)*id^(x+1))^x<--n);
                        |   sym((2*n)*(n-1),2*n)),
                        |
+                       |fifoloop = \n. Tr(n)(
+                       |   sym(n-1,1);
+                       |  (fifofull; dupl) * (fifo; dupl)^(n-1);
+                       |  unzip n ),
+                       |
                        |sequencer =
-                       |  \n.((dupl^n;unzip(n:I)) *
-                       |    Tr(n)(sym(n-1,1);((fifofull;dupl)*((fifo ; dupl)^(n-1)));
-                       |         unzip(n:I))) ;
-                       |    (id^n*(zip(n:I) ; drain^n))
+                       |  \n.(dupl^n; unzip n) * fifoloop n ;
+                       |    id^n * (zip n; drain^n)
                        |}""".stripMargin,
     "nexrouters = ..." -> """writer ; nexrouter(3) ; reader!
                           |{
@@ -127,7 +130,9 @@ unzip =
         |  dupls     = dupls,
         |  mergers   = mergers,
         |  zip       = zip,
-        |  unzip     = unzip
+        |  unzip     = unzip,
+        |  fifoloop  = fifoloop,
+        |  sequencer = sequencer
         |}
       """.stripMargin
   )
