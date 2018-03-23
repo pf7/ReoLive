@@ -329,7 +329,8 @@ unzip =
     DSL.parseWithError(input) match {
       case preo.lang.Parser.Success(result,_) =>
         try {
-          val (typ,rest) = DSL.unsafeTypeOf(result)
+          val typ = DSL.unsafeCheckVerbose(result)
+          val (_,rest) = DSL.unsafeTypeOf(result)
           typeInfo.append("p")
             .text(Show(typ))
           if (rest != BVal(true))
@@ -412,10 +413,14 @@ unzip =
     d3.select("#mcrl2Box").html(Mcrl2Model(connector).webString)
   }
 
-  private def error(errors:Block,msg:String): Unit =
-    errors.append("div").attr("class","alert alert-danger").text(msg)
-  private def warning(errors:Block,msg:String): Unit =
-    errors.append("div").attr("class","alert alert-warning").text(msg)
+  private def error(errors:Block,msg:String): Unit = {
+    val err = errors.append("div").attr("class", "alert alert-danger")
+      for(s <- msg.split('\n')) err.append("p").attr("style","margin-top: 0px;").text(s)
+  }
+  private def warning(errors:Block,msg:String): Unit ={
+    val err = errors.append("div").attr("class", "alert alert-warning")
+    for(s <- msg.split('\n')) err.append("p").attr("style","margin-top: 0px;").text(s)
+  }
 
 
   private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,typeInfo:Block,
