@@ -25,12 +25,15 @@ object WebReo extends{
 
   type Block = Selection[dom.EventTarget]
   var width = 700
-  var height = 500
-  val density = 0.5 // nodes per 100x100 px
+  var height = 400
 
-  var widthAut = 700
-  var heightAut = 500
-  val densityAut = 0.1 // nodes per 100x100 px
+  val widthCircRatio = 7
+  val heightCircRatio = 3
+  val densityCirc = 0.5 // nodes per 100x100 px
+
+  val widthAutRatio = 7
+  val heightAutRatio = 3
+  val densityAut = 0.2 // nodes per 100x100 px
 
   var connector: CoreConnector = null
 
@@ -153,7 +156,7 @@ unzip =
       .attr("class", "row")
 
     val colDiv1 = rowDiv.append("div")
-      .attr("class", "col-sm-3")
+      .attr("class", "col-sm-4")
 
     // add InputArea
     val inputDiv = panelBox(colDiv1,"Input (Shift-Enter to update)").append("div")
@@ -183,12 +186,12 @@ unzip =
 
 
     val svgDiv = rowDiv.append("div")
-      .attr("class", "col-sm-9")
+      .attr("class", "col-sm-8")
 
-    val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),"circuit",width,height)
+    val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),"circuit")
 
     val panelAut = panelBox(svgDiv,"Automaton of the instance (under development)",visible = false)
-    val svgAut = appendSvg(panelAut,"automata",widthAut,heightAut)
+    val svgAut = appendSvg(panelAut,"automata")
 
     val mcrl2Box = panelBox(svgDiv,"mCRL2 of the instance",visible = false).append("div")
       .attr("id", "mcrl2Box")
@@ -389,9 +392,9 @@ unzip =
   private def drawConnector(svg: WebReo.Block): Unit = {
     val graph = Graph(connector)
     val size = graph.nodes.size
-    val factor = Math.sqrt(size*10000/(density*9*6))
-    width =  (9*factor).toInt
-    height = (6*factor).toInt
+    val factor = Math.sqrt(size*10000/(densityCirc*widthCircRatio*heightCircRatio))
+    val width =  (widthCircRatio*factor).toInt
+    val height = (heightCircRatio*factor).toInt
     svg.attr("viewBox",s"00 00 $width $height")
     scalajs.js.eval(GraphsToJS(graph))
   }
@@ -402,10 +405,10 @@ unzip =
     //              println("########")
     //              println(aut)
     //              println("++++++++")
-    val factorAut = Math.sqrt(sizeAut * 10000 / (densityAut * 9 * 6))
-    widthAut = (9 * factorAut).toInt
-    heightAut = (6 * factorAut).toInt
-    svgAut.attr("viewBox", s"00 00 $widthAut $heightAut")
+    val factorAut = Math.sqrt(sizeAut * 10000 / (densityAut * widthAutRatio * heightAutRatio))
+    val width = (widthAutRatio * factorAut).toInt
+    val height = (heightAutRatio * factorAut).toInt
+    svgAut.attr("viewBox", s"00 00 $width $height")
     scalajs.js.eval(AutomataToJS(aut))
   }
 
@@ -436,7 +439,7 @@ unzip =
   }
 
 
-  private def appendSvg(div: Block,name: String, width: Int, height: Int): Block = {
+  private def appendSvg(div: Block,name: String): Block = {
     val svg = div.append("svg")
 //      .attr("width", "900")
 //      .attr("height", "600")
