@@ -20,4 +20,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(views.html.index2()) 
   }
 
+  def about = Action {
+    Ok(views.html.about())
+  }
 }
