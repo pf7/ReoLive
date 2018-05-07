@@ -409,6 +409,7 @@ unzip =
     val width = (widthAutRatio * factorAut).toInt
     val height = (heightAutRatio * factorAut).toInt
     svgAut.attr("viewBox", s"00 00 $width $height")
+
     scalajs.js.eval(AutomataToJS(aut))
   }
 
