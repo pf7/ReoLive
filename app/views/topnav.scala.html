@@ -1,0 +1,26 @@
+@(number: Int)
+
+<div class="navbar navbar-inverse"> <!-- navbar-fixed-top -->
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">
+                <!-- <img id="reolivelogo" src="....png" alt="ReoLive logo"> -->
+                Reo Live
+        </a>
+    </div>
+    <div class="navbar-collapse collapse navbar-responsive-collapse">
+        <ul class="nav navbar-nav" id="myTab">
+                <!--~~~~~~~~~~~~~~~~~
+          CHANGE TABS HERE
+        ~~~~~~~~~~~~~~~~~~-->
+            <li @if(number == 1){class="active"} ><a href="/">Families</a></li>
+            <li @if(number == 2){class="active"}><a href="/about">About</a></li>
+                <!--~~~~~~~~~~~~~~-->
+
+        </ul>
+    </div>
+</div>
