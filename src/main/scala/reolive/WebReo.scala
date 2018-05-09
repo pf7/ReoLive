@@ -13,6 +13,7 @@ import preo.ast.BVal
 import preo.modelling.Mcrl2Model
 import preo.ast.CoreConnector
 
+
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 import scalajs.js.annotation.JSExportTopLevel
 import scalatags.JsDom.all._
@@ -143,7 +144,7 @@ unzip =
 
     val contentDiv = d3.select(content).append("div")
       .attr("id", "content")
-
+    println("coiso")
     val rowDiv = contentDiv.append("div")
       .attr("class", "row")
 
