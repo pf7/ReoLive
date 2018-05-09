@@ -3,5 +3,6 @@ project/build.properties
 project/project/
 project/target/
 target/
-src/main/resources/js/*.js
-src/main/resources/js/*.js.map
+localJS/src/main/resources/js/*.js
+LocalJS/src/main/resources/js/*.js.map
+LocalJS/target/
