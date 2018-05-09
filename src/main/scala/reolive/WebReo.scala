@@ -13,7 +13,6 @@ import preo.ast.BVal
 import preo.modelling.Mcrl2Model
 import preo.ast.CoreConnector
 
-
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 import scalajs.js.annotation.JSExportTopLevel
 import scalatags.JsDom.all._
@@ -26,23 +25,26 @@ object WebReo extends{
 
   type Block = Selection[dom.EventTarget]
   var width = 700
-  var height = 500
-  val density = 0.5 // nodes per 100x100 px
+  var height = 400
 
-  var widthAut = 700
-  var heightAut = 500
-  val densityAut = 0.1 // nodes per 100x100 px
+  val widthCircRatio = 7
+  val heightCircRatio = 3
+  val densityCirc = 0.5 // nodes per 100x100 px
+
+  val widthAutRatio = 7
+  val heightAutRatio = 3
+  val densityAut = 0.2 // nodes per 100x100 px
 
   var connector: CoreConnector = null
 
   private val buttons = Seq(
-   "writer"->"writer", "reader"->"reader",
+    "writer"->"writer", "reader"->"reader",
     "fifo"->"fifo",     "merger"->"merger",
     "dupl"->"dupl",     "drain"->"drain",
     "fifo*writer ; drain"->"fifo*writer ; drain",
     "\\x . fifo^x*writer ; drain^2" -> "\\x . fifo^x*writer ; drain^2",
     "(\\x.fifo^x) ; (\\n.drain^n)" -> "(\\x.fifo^x) ; (\\n.drain^n)",
-//    "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
+    //    "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
     "\\b:B . (b? fifo + lossy*lossy) ; merger" -> "\\b:B . (b? fifo + lossy*lossy) ; merger",
     "(\\x .drain^(x-1)) 3" -> "(\\x .drain^(x-1)) 3",
     "(\\x. lossy^x |x>2) ; ..." -> "(\\x. lossy^x |x>2) ; (\\n. merger^n | n>1 & n<6)",
@@ -53,7 +55,7 @@ object WebReo extends{
                      |id*merger*id*id ;
                      |id*id*swap ;
                      |id*drain*id""".stripMargin,
-//    "exrouter=.."->"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2",
+    //    "exrouter=.."->"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2",
     "zip=.."-> """zip 3
 {
 zip =
@@ -68,7 +70,7 @@ unzip =
    (((id^(x+1)*sym(1,1)^((n-x)-1)*id^(x+1))^x<--n);
     sym((2*n)*(n-1),2*n))
 }""",
-    "sequencer=.."-> """writer^2 ; sequencer 2 ; reader^2
+    "sequencer=.."-> """writer^3 ; sequencer 3 ; reader^3
                        |
                        |{
                        |zip =
@@ -81,33 +83,36 @@ unzip =
                        |  (((id^(x+1)*sym(1,1)^((n-x)-1)*id^(x+1))^x<--n);
                        |   sym((2*n)*(n-1),2*n)),
                        |
+                       |fifoloop = \n. Tr(n)(
+                       |   sym(n-1,1);
+                       |  (fifofull; dupl) * (fifo; dupl)^(n-1);
+                       |  unzip n ),
+                       |
                        |sequencer =
-                       |  \n.((dupl^n;unzip(n:I)) *
-                       |    Tr(n)(sym(n-1,1);((fifofull;dupl)*((fifo ; dupl)^(n-1)));
-                       |         unzip(n:I))) ;
-                       |    (id^n*(zip(n:I) ; drain^n))
+                       |  \n.(dupl^n; unzip n) * fifoloop n ;
+                       |    id^n * (zip n; drain^n)
                        |}""".stripMargin,
     "nexrouters = ..." -> """writer ; nexrouter(3) ; reader!
-                          |{
-                          |  unzip =
-                          |    \n.Tr((2*n)*(n - 1))
-                          |    (((((id^(x+1))*(sym(1,1)^((n-x)-1)))*(id^(x+1)))^(x<--n));
-                          |     sym((2*n)*(n-1),2*n))
-                          |  ,
-                          |  dupls =
-                          |    \n.Tr(n-1)(id*(dupl^(n-1)) ; sym(1,(n-1)*2))
-                          |  ,
-                          |  mergers =
-                          |    \n.Tr(n-1)(sym((n-1)*2,1) ; (id*(merger^(n-1))))
-                          |  ,
-                          |  nexrouter =
-                          |    \n. (
-                          |      (dupls(n+1)) ;
-                          |      ((((lossy ; dupl)^n) ; (unzip(n)))*id) ;
-                          |      ((id^n)*(mergers(n))*id) ;
-                          |      ((id^n)*drain))
-                          |}
-                          |""".stripMargin,
+                            |{
+                            |  unzip =
+                            |    \n.Tr((2*n)*(n - 1))
+                            |    (((((id^(x+1))*(sym(1,1)^((n-x)-1)))*(id^(x+1)))^(x<--n));
+                            |     sym((2*n)*(n-1),2*n))
+                            |  ,
+                            |  dupls =
+                            |    \n.Tr(n-1)(id*(dupl^(n-1)) ; sym(1,(n-1)*2))
+                            |  ,
+                            |  mergers =
+                            |    \n.Tr(n-1)(sym((n-1)*2,1) ; (id*(merger^(n-1))))
+                            |  ,
+                            |  nexrouter =
+                            |    \n. (
+                            |      (dupls(n+1)) ;
+                            |      ((((lossy ; dupl)^n) ; (unzip(n)))*id) ;
+                            |      ((id^n)*(mergers(n))*id) ;
+                            |      ((id^n)*drain))
+                            |}
+                            |""".stripMargin,
     "Prelude"->
       """id
         |{
@@ -128,7 +133,9 @@ unzip =
         |  dupls     = dupls,
         |  mergers   = mergers,
         |  zip       = zip,
-        |  unzip     = unzip
+        |  unzip     = unzip,
+        |  fifoloop  = fifoloop,
+        |  sequencer = sequencer
         |}
       """.stripMargin
   )
@@ -137,19 +144,19 @@ unzip =
   @JSExportTopLevel("reolive.WebReo.main")
   def main(content: html.Div) = {
 
-//    // add header
-//    d3.select(content).append("div")
-//      .attr("id", "header")
-//      .append("h1").text("Reo Live - Connector Families")
+    //    // add header
+    //    d3.select(content).append("div")
+    //      .attr("id", "header")
+    //      .append("h1").text("Reo Live - Connector Families")
 
     val contentDiv = d3.select(content).append("div")
       .attr("id", "content")
-    println("coiso")
+
     val rowDiv = contentDiv.append("div")
       .attr("class", "row")
 
     val colDiv1 = rowDiv.append("div")
-      .attr("class", "col-sm-3")
+      .attr("class", "col-sm-4")
 
     // add InputArea
     val inputDiv = panelBox(colDiv1,"Input (Shift-Enter to update)").append("div")
@@ -179,12 +186,12 @@ unzip =
 
 
     val svgDiv = rowDiv.append("div")
-      .attr("class", "col-sm-9")
+      .attr("class", "col-sm-8")
 
-    val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),"circuit",width,height)
+    val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),"circuit")
 
     val panelAut = panelBox(svgDiv,"Automaton of the instance (under development)",visible = false)
-    val svgAut = appendSvg(panelAut,"automata",widthAut,heightAut)
+    val svgAut = appendSvg(panelAut,"automata")
 
     val mcrl2Box = panelBox(svgDiv,"mCRL2 of the instance",visible = false).append("div")
       .attr("id", "mcrl2Box")
@@ -196,9 +203,9 @@ unzip =
     /**
     Will evaluate the expression being written in the input box
       */
-//      inputBox.onkeyup = (e: dom.Event) => {
-//        fgenerate(inputBox.value,typeBox,canvasDiv)
-//      }
+    //      inputBox.onkeyup = (e: dom.Event) => {
+    //        fgenerate(inputBox.value,typeBox,canvasDiv)
+    //      }
 
     val inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
@@ -208,7 +215,7 @@ unzip =
     }
 
     dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-        .onclick = {(e: MouseEvent) => if(!isVisible("Circuit of the instance")) drawConnector(svg)}
+      .onclick = {(e: MouseEvent) => if(!isVisible("Circuit of the instance")) drawConnector(svg)}
 
     dom.document.getElementById("Automaton of the instance (under development)").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) => if(!isVisible("Automaton of the instance (under development)")) drawAutomata(svgAut)}
@@ -270,10 +277,10 @@ unzip =
       header
         .append("div").attr("class", "col-sm-1")
         .append("button").attr("class", "btn btn-link btn-xs").attr("style", "height:18px")
-          .text("Copy")
+        .text("Copy")
         .on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
-        copyFunction()
-      }})
+          copyFunction()
+        }})
     }
     val res = wrap
       .append("div").attr("id","collapse-1"+title.hashCode)
@@ -290,21 +297,21 @@ unzip =
     var foundId = false
     for (i <- 0 until es.length) {
       println(es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
-//      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
+      //      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
       foundId = foundId || es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == id
     }
 
-//    println("### - "+es.length)
-//    println("### - "+es.item(0).localName)
-//    println("### - "+es.item(0).parentNode.localName)
-//    println("### - "+es.item(0).parentNode.parentNode.localName)
-//    println("### - "+es.item(0).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
+    //    println("### - "+es.length)
+    //    println("### - "+es.item(0).localName)
+    //    println("### - "+es.item(0).parentNode.localName)
+    //    println("### - "+es.item(0).parentNode.parentNode.localName)
+    //    println("### - "+es.item(0).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
 
-//    val res = expander.attr("aria-expander") == "true"
-//    println("--- "+expander.html().render)
-//    println("--- "+expander.classed("collapsed"))
-//    println("--- "+expander.attr("aria-expander"))
-//    println("$$$ "+ (!foundId))
+    //    val res = expander.attr("aria-expander") == "true"
+    //    println("--- "+expander.html().render)
+    //    println("--- "+expander.classed("collapsed"))
+    //    println("--- "+expander.attr("aria-expander"))
+    //    println("$$$ "+ (!foundId))
     !foundId
   }
 
@@ -325,7 +332,8 @@ unzip =
     DSL.parseWithError(input) match {
       case preo.lang.Parser.Success(result,_) =>
         try {
-          val (typ,rest) = DSL.unsafeTypeOf(result)
+          val typ = DSL.unsafeCheckVerbose(result)
+          val (_,rest) = DSL.unsafeTypeOf(result)
           typeInfo.append("p")
             .text(Show(typ))
           if (rest != BVal(true))
@@ -346,7 +354,7 @@ unzip =
 
               // draw Automata
               if (isVisible("Automaton of the instance (under development)")) {
-//                println("aut pannel is openned")
+                //                println("aut pannel is openned")
                 drawAutomata(svgAut)
               }
 
@@ -363,19 +371,19 @@ unzip =
           // type error
           case e: TypeCheckException =>
             error(errors,/*Show(result)+ */"Type error: " + e.getMessage)
-//            instanceInfo.append("p").text("-")
+          //            instanceInfo.append("p").text("-")
           case e: GenerationException =>
             warning(errors,/*Show(result)+ */"Generation failed: " + e.getMessage)
           case e: JavaScriptException =>
             error(errors,/*Show(result)+ */"JavaScript error : "+e+" - "+e.getClass)
-//            instanceInfo.append("p").text("-")
+          //            instanceInfo.append("p").text("-")
         }
       case preo.lang.Parser.Failure(msg,_) =>
         error(errors,"Parser failure: " + msg)
-//        instanceInfo.append("p").text("-")
+      //        instanceInfo.append("p").text("-")
       case preo.lang.Parser.Error(msg,_) =>
         error(errors,"Parser error: " + msg)
-//        instanceInfo.append("p").text("-")
+      //        instanceInfo.append("p").text("-")
     }
 
 
@@ -384,9 +392,9 @@ unzip =
   private def drawConnector(svg: WebReo.Block): Unit = {
     val graph = Graph(connector)
     val size = graph.nodes.size
-    val factor = Math.sqrt(size*10000/(density*9*6))
-    width =  (9*factor).toInt
-    height = (6*factor).toInt
+    val factor = Math.sqrt(size*10000/(densityCirc*widthCircRatio*heightCircRatio))
+    val width =  (widthCircRatio*factor).toInt
+    val height = (heightCircRatio*factor).toInt
     svg.attr("viewBox",s"00 00 $width $height")
     scalajs.js.eval(GraphsToJS(graph))
   }
@@ -397,10 +405,11 @@ unzip =
     //              println("########")
     //              println(aut)
     //              println("++++++++")
-    val factorAut = Math.sqrt(sizeAut * 10000 / (densityAut * 9 * 6))
-    widthAut = (9 * factorAut).toInt
-    heightAut = (6 * factorAut).toInt
-    svgAut.attr("viewBox", s"00 00 $widthAut $heightAut")
+    val factorAut = Math.sqrt(sizeAut * 10000 / (densityAut * widthAutRatio * heightAutRatio))
+    val width = (widthAutRatio * factorAut).toInt
+    val height = (heightAutRatio * factorAut).toInt
+    svgAut.attr("viewBox", s"00 00 $width $height")
+
     scalajs.js.eval(AutomataToJS(aut))
   }
 
@@ -408,16 +417,20 @@ unzip =
     d3.select("#mcrl2Box").html(Mcrl2Model(connector).webString)
   }
 
-  private def error(errors:Block,msg:String): Unit =
-    errors.append("div").attr("class","alert alert-danger").text(msg)
-  private def warning(errors:Block,msg:String): Unit =
-    errors.append("div").attr("class","alert alert-warning").text(msg)
+  private def error(errors:Block,msg:String): Unit = {
+    val err = errors.append("div").attr("class", "alert alert-danger")
+    for(s <- msg.split('\n')) err.append("p").attr("style","margin-top: 0px;").text(s)
+  }
+  private def warning(errors:Block,msg:String): Unit ={
+    val err = errors.append("div").attr("class", "alert alert-warning")
+    for(s <- msg.split('\n')) err.append("p").attr("style","margin-top: 0px;").text(s)
+  }
 
 
   private def genButton(ss:(String,String),buttonsDiv:Block, inputBox:Block,typeInfo:Block,
                         instanceInfo:Block,inputAreaDom: html.TextArea,svg:Block,svgAut:Block,errors:Block): Unit = {
     val button = buttonsDiv.append("button")
-        .text(ss._1)
+      .text(ss._1)
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
       inputAreaDom.value = ss._2
@@ -427,13 +440,13 @@ unzip =
   }
 
 
-  private def appendSvg(div: Block,name: String, width: Int, height: Int): Block = {
+  private def appendSvg(div: Block,name: String): Block = {
     val svg = div.append("svg")
-//      .attr("width", "900")
-//      .attr("height", "600")
-//      .style("border", "black")
-//      .style("border-width", "thin")
-//      .style("border-style", "solid")
+      //      .attr("width", "900")
+      //      .attr("height", "600")
+      //      .style("border", "black")
+      //      .style("border-width", "thin")
+      //      .style("border-style", "solid")
       .attr("style","margin: auto;")
       .attr("viewBox",s"0 0 $width $height")
       .attr("preserveAspectRatio","xMinYMin meet")
@@ -528,10 +541,10 @@ unzip =
       .attr("fill","white")
       .attr("orient","auto")
       .append("rect")
-        .attr("x","0")
-        .attr("y","0")
-        .attr("width","60")
-        .attr("height","30")
+      .attr("x","0")
+      .attr("y","0")
+      .attr("width","60")
+      .attr("height","30")
 
     svg.append("defs")
       .append("marker")
@@ -556,4 +569,3 @@ unzip =
   }
 
 }
-

@@ -8,7 +8,7 @@ import preo.backend._
 //todo: add rectangle colision colision
 object AutomataToJS {
 
-  def apply[A<:Automata[A]](aut: A): String = {
+  def apply[A<:Automata](aut: A): String = {
     val nodes = getNodes(aut)
     val links = getLinks(aut)
 
@@ -28,12 +28,12 @@ object AutomataToJS {
             .force('center', d3.forceCenter(widthAut / 2, heightAut / 2))
             .force('y', d3.forceY().y(function(d) { return 0;}))
             .force('x', d3.forceX().x(function(d) {
-  //            if (d.group >= 3){
-  //              return widthAut/2;
-  //            }
-  //            if (d.group <=1){
-  //              return -widthAut/2;
-  //            }
+//              if (d.group == "1"){
+//                return widthAut;
+//              }
+//              if (d.group == "0"){
+//                return -widthAut;
+//              }
               return 0;
             }))
             .force('collision', d3.forceCollide().radius(function(d) {
@@ -180,10 +180,18 @@ object AutomataToJS {
   //                .attr("x2", function(d) { return d.target.x; })
   //                .attr("y2", function(d) { return d.target.y; });
               d3.selectAll(".edgepath").attr('d', function (d) {
-                  return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+                  m = (d.target.y - d.source.y)/(d.target.x - d.source.x);
+                  b = d.target.y - m*d.target.x;
+                  new_source_x = d.source.x - 2000;
+                  new_target_x = d.target.x + 2000;
+                  new_source_y = new_source_x * m  +b;
+                  new_target_y = new_target_x * m +b;
+                  return 'M ' + new_source_x +' '+ new_source_y  +' L '+ new_target_x +' '+ new_target_y;
               });
               d3.select(".labelsautomata").selectAll(".edgelabel").attr('transform', function (d) {
-                  if (d.target.x < d.source.x) {
+                new_source_x = d.source.x - 2000;
+                new_target_x = d.target.x + 2000;
+                  if (new_target_x < new_source_x) {
                       var bbox = this.getBBox();
                       rx = bbox.x + bbox.width / 2;
                       ry = bbox.y + bbox.height / 2;
@@ -216,10 +224,10 @@ object AutomataToJS {
       """
   }
 
-  private def getNodes[A<:Automata[A]](aut: A): String =
+  private def getNodes[A<:Automata](aut: A): String =
     aut.getTrans.flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
 
-  private def getLinks[A<:Automata[A]](aut: A): String =
+  private def getLinks[A<:Automata](aut: A): String =
     aut.getTrans.flatMap(processEdge).mkString("[",",","]")
 
 
@@ -268,5 +276,3 @@ object AutomataToJS {
 //    }
 //  }
 }
-
-
