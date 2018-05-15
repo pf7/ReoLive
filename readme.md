@@ -15,11 +15,17 @@ How to compile and try-out
 
 * Generate the JavaScript code using sbt:
 
-> sbt \~fastOptJS
+> sbt \~local_script/fastOptJS
 
 * Open the `index-dev.html` file, already linking to the generated JavaScript code:
 
 > open src/main/resources/index-dev.html
+
+* Start the server using sbt:
+
+>sbt \~run
+
+
 
 
 

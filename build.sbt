@@ -1,7 +1,7 @@
+
 lazy val reotools = (project in file("."))
   .enablePlugins(PlayScala)
   .disablePlugins(ScalaJSPlugin, WorkbenchPlugin)
-    .aggregate(local_script)
   .settings(
     name := "reotools",
     version := "1.0",
@@ -32,6 +32,7 @@ lazy val local_script = (project  in file("localJS"))
     version := "1.0",
     scalaVersion := "2.12.4",
     scalacOptions ++= Seq("-unchecked", "-deprecation","-feature"),
+//    hello := {println("Hello World!")},
    libraryDependencies ++= Seq(
      "be.doeraene" %%% "scalajs-jquery" % "0.9.1",
      "junit" % "junit" % "4.12",
