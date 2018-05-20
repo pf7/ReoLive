@@ -1,20 +1,35 @@
-@*
- * This template takes a single argument, a String containing a
- * message to display.
- *@
-@(message: String)
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    @head()
+  </head>
 
-@*
- * Call the `main` template with two arguments. The first
- * argument is a `String` with the title of the page, the second
- * argument is an `Html` object containing the body of the page.
- *@
-@main("Welcome to Play") {
+  <body>
 
-    @*
-     * Get an `Html` object by calling the built-in Play welcome
-     * template and passing a `String` message.
-     *@
-    @welcome(message, style = "scala")
+  @topnav(1)
 
-}
+  <div id="myTabContent" class="container">
+  <div class="row">
+
+
+
+    <div id="contentWrap"></div>
+
+  </div>
+  </div>
+
+
+  @footer()
+
+  </body>
+
+  <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>-->
+  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/jquery-1.10.2.min.js")'></script>
+  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/springy.min.js")'> </script>
+  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/bootstrap.min.js")'></script>
+  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/d3.v4.min.js")'></script>
+  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/reotools-opt.js")'></script>
+  <script type="text/javascript" src='@routes.Assets.versioned("../assets/javascripts/starter.js")'></script>
+
+</html>
+
