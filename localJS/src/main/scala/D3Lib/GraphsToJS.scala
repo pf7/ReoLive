@@ -5,7 +5,7 @@ import preo.backend.Graph._
 import preo.backend._
 
 
-//todo: add rectangle colision colision
+//todo: add rectangle colision
 object GraphsToJS {
   def apply(graph: Graph): String = {
     val nodes = getNodes(graph);

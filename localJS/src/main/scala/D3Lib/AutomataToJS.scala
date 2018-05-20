@@ -5,7 +5,6 @@ import preo.backend.ReoGraph.Edge
 import preo.backend._
 
 
-//todo: add rectangle colision colision
 object AutomataToJS {
 
   def apply[A<:Automata](aut: A): String = {

@@ -23,7 +23,7 @@ How to compile and try-out
 
 * Start the server using sbt:
 
->sbt \~run
+>sbt run
 
 
 

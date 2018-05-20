@@ -6,3 +6,4 @@ target/
 localJS/src/main/resources/js/*.js
 LocalJS/src/main/resources/js/*.js.map
 LocalJS/target/
+tasks.txt
