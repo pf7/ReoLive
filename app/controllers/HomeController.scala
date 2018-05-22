@@ -23,4 +23,8 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def about = Action {
     Ok(views.html.about())
   }
+
+  def remote = Action{
+    Ok(views.html.remote())
+  }
 }

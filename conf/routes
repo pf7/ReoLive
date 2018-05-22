@@ -8,7 +8,10 @@ GET     /                           controllers.HomeController.index
 
 GET     /about                      controllers.HomeController.about
 
+GET     /remote                     controllers.HomeController.remote
+
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-      
+GET     /message                    controllers.MessageController.socket
