@@ -3,8 +3,10 @@ package services
 import akka.actor._
 import preo.DSL
 import preo.ast.BVal
+import preo.backend.{Automata, Graph, PortAutomata}
 import preo.common.{GenerationException, TypeCheckException}
 import preo.frontend.{Eval, Show, Simplify}
+import preo.modelling.Mcrl2Model
 
 object ReoActor {
   def props(out: ActorRef) = Props(new ReoActor(out))
@@ -18,7 +20,6 @@ class ReoActor(out: ActorRef) extends Actor {
 
   private def process(msg: String): String = {
     var warnings: List[String] = List()
-    var errors: List[String] = List()
 
     DSL.parseWithError(msg) match {
       case preo.lang.Parser.Success(result,_) =>
@@ -30,35 +31,25 @@ class ReoActor(out: ActorRef) extends Actor {
           val reducType = DSL.typeOf(reduc)
           val coreConnector = Eval.reduce(reduc)
 
-//              // draw connector
-//              if(isVisible("Circuit of the instance")) {
-//                drawConnector(svg)
-//              }
-//
-//              // draw Automata
-//              if (isVisible("Automaton of the instance (under development)")) {
-//                //                println("aut pannel is openned")
-//                drawAutomata(svgAut)
-//              }
-//
-//              // produce mCRL2
-//              if(isVisible("mCRL2 of the instance")) {
-//                produceMcrl2()
-//              }
+          val graph = Graph(coreConnector)
+          val aut = Automata[PortAutomata](coreConnector)
+          val model = Mcrl2Model(coreConnector).webString
+
+          JsonCreater.create(typ, reducType, coreConnector, graph, aut, model).toString
         }
         catch {
           // type error
           case e: TypeCheckException =>
-            errors ++= List("Type error: " + e.getMessage)
-          //            instanceInfo.append("p").text("-")
+            JsonCreater.create("Type error: " + e.getMessage).toString
+
           case e: GenerationException =>
-            warnings ++= List("Generation failed: " + e.getMessage)
+            JsonCreater.create("Generation failed: " + e.getMessage).toString
           }
       case preo.lang.Parser.Failure(msg,_) =>
-        errors ++= List("Parser failure: " + msg)
+        JsonCreater.create("Parser failure: " + msg).toString
       //        instanceInfo.append("p").text("-")
       case preo.lang.Parser.Error(msg,_) =>
-        errors ++= "Parser error: " + msg)
+        JsonCreater.create("Parser error: " + msg).toString
       //        instanceInfo.append("p").text("-")
     }
 
