@@ -2,10 +2,9 @@ package services
 
 import akka.actor._
 import preo.DSL
-import preo.ast.BVal
 import preo.backend.{Automata, Graph, PortAutomata}
 import preo.common.{GenerationException, TypeCheckException}
-import preo.frontend.{Eval, Show, Simplify}
+import preo.frontend.Eval
 import preo.modelling.Mcrl2Model
 
 object ReoActor {
@@ -20,7 +19,7 @@ class ReoActor(out: ActorRef) extends Actor {
 
   private def process(msg: String): String = {
     var warnings: List[String] = List()
-
+    println(msg)
     DSL.parseWithError(msg) match {
       case preo.lang.Parser.Success(result,_) =>
         try {

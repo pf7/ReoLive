@@ -8,9 +8,9 @@ import preo.backend._
 //todo: add rectangle colision colision
 object AutomataToJS {
 
-  def apply[A<:Automata](aut: A): String = {
-    val nodes = getNodes(aut)
-    val links = getLinks(aut)
+  def apply(aut: Map[String, List[Any]]): String = {
+//    val nodes = aut.get("nodesautomata")
+//    val links = aut.get("linksautomata")
 
     s"""
         buildAut();
@@ -21,7 +21,7 @@ object AutomataToJS {
           var heightAut = vboxAut[3];  //svgAut.attr("heightAut");
           var radiusAut = 4.75;
 
-          var graphAut = {"nodesautomata": $nodes, "linksautomata": $links};
+          var graphAut = $aut//{"nodesautomata": nodes, "linksautomata": links};
 
           var simulationAut = d3.forceSimulation(graphAut.nodesautomata)
             .force('charge', d3.forceManyBody().strength(-200))

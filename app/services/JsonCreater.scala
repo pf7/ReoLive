@@ -5,7 +5,6 @@ import play.api.libs.json._
 import preo.ast._
 import preo.backend._
 import preo.frontend.Show
-import preo.modelling.Mcrl2Model
 
 /**@
   * Provides the methods to convert objects into json. Used in socket communication
@@ -103,8 +102,8 @@ object JsonCreater {
     val end = arrowToString(edge.trgType)
     JsObject(
       Map(
-        "source" -> JsString(edge.src.toString),
-        "target" -> JsString(edge.trg.toString),
+        "source" -> JsNumber(edge.src),
+        "target" -> JsNumber(edge.trg),
         "start" -> JsString(s"start${start}circuit"),
         "end" -> JsString(s"end${end}circuit"),
         "type" -> JsString(edge.name)
@@ -126,7 +125,7 @@ object JsonCreater {
     val nodeGroup = typeToGroup(node.nodeType, node.style);
     JsObject(
       Map(
-        "id"-> JsString(node.id.toString),
+        "id"-> JsNumber(node.id),
         "group" -> JsString(nodeGroup)
       )
     )
@@ -148,23 +147,23 @@ object JsonCreater {
     * @return Json for the automata
     */
   private def convert[A<:Automata](aut: A): JsValue = JsObject(Map(
-    "nodesautomata" -> JsString(getNodes(aut)),
-    "linksautomata" -> JsString(getLinks(aut))
+    "nodesautomata" -> getNodes(aut),
+    "linksautomata" -> getLinks(aut)
   ))
 
-  private def getNodes[A<:Automata](aut: A): String =
-    aut.getTrans.flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
+  private def getNodes[A<:Automata](aut: A): JsValue =
+    JsArray(aut.getTrans.flatMap(processNode(aut.getInit, _)).toSeq)
 
-  private def getLinks[A<:Automata](aut: A): String =
-    aut.getTrans.flatMap(processEdge).mkString("[",",","]")
+  private def getLinks[A<:Automata](aut: A): JsValue =
+    JsArray(aut.getTrans.flatMap(processEdge).toSeq)
 
-  private def processNode(initAut:Int,trans:(Int,Any,String,Int)): Set[String] = trans match{
+  private def processNode(initAut:Int,trans:(Int,Any,String,Int)): Set[JsValue] = trans match{
     case (from,lbl,id,to) =>
       val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)
-      Set(s"""{"id": "$from", "group": $gfrom }""",
-        s"""{"id": "$to", "group": $gto }""",
-        s"""{"id": "$from-1-$to-$id", "group": "$gp1"}""",
-        s"""{"id": "$to-2-$from-$id", "group": "$gp2" }""")
+      Set(JsObject(Map("id"-> JsNumber(from), "group"-> JsString(gfrom))),
+        JsObject(Map("id"-> JsNumber(to), "group" -> JsString(gto))),
+        JsObject(Map("id"-> JsNumber(from-1-to-id.toInt), "group"-> JsString(gp1))),
+        JsObject(Map("id"-> JsNumber(to-2-from-id.toInt), "group" -> JsString(gp2))))
   }
 
   private def nodeGroups(initAut:Int,from:Int,to:Int):(String,String,String,String) =
@@ -173,11 +172,18 @@ object JsonCreater {
       , "2" , "2"
     )
 
-  private def processEdge(trans:(Int,Any,String,Int)): Set[String] = trans match {
+  private def processEdge(trans:(Int,Any,String,Int)): Set[JsValue] = trans match {
     case (from, lbl,id, to) => {
-      Set(s"""{"source": "$from", "target": "$from-1-$to-$id", "type":"", "start":"start", "end": "end"}""",
-        s"""{"source": "$from-1-$to-$id", "target": "$to-2-$from-$id", "type":"$lbl", "start":"start", "end": "end"}""",
-        s"""{"source": "$to-2-$from-$id", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
+      Set(JsObject(
+        Map("source" -> JsNumber(from), "target"-> JsNumber(from-1-to-id.toInt), "type"->JsString(""), "start"->JsString("start"),
+          "end"-> JsString("end"))),
+        JsObject(Map(
+          "source"-> JsNumber(from-1-to-id.toInt), "target"-> JsNumber(to-2-from-id.toInt), "type"->JsString(lbl.toString),
+          "start"->JsString("start"), "end"-> JsString("end"))),
+        JsObject(Map(
+          "source"-> JsNumber(to-2-from-id.toInt), "target"-> JsNumber(to), "type"->JsString(""), "start"->JsString("start"),
+          "end"-> JsString("endarrowoutautomata")))
+      )
     }
   }
 
