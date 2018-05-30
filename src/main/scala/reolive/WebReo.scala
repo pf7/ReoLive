@@ -190,7 +190,7 @@ unzip =
 
     val svg = appendSvg(panelBox(svgDiv,"Circuit of the instance"),"circuit")
 
-    val panelAut = panelBox(svgDiv,"Automaton of the instance (under development)",visible = false)
+    val panelAut = panelBox(svgDiv,"Automaton of the instance",visible = false)
     val svgAut = appendSvg(panelAut,"automata")
 
     val mcrl2Box = panelBox(svgDiv,"mCRL2 of the instance",visible = false).append("div")
@@ -217,8 +217,8 @@ unzip =
     dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
         .onclick = {(e: MouseEvent) => if(!isVisible("Circuit of the instance")) drawConnector(svg)}
 
-    dom.document.getElementById("Automaton of the instance (under development)").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible("Automaton of the instance (under development)")) drawAutomata(svgAut)}
+    dom.document.getElementById("Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+      .onclick = {(e: MouseEvent) => if(!isVisible("Automaton of the instance")) drawAutomata(svgAut)}
 
     dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) => if(!isVisible("mCRL2 of the instance")) produceMcrl2()}
@@ -353,7 +353,7 @@ unzip =
               }
 
               // draw Automata
-              if (isVisible("Automaton of the instance (under development)")) {
+              if (isVisible("Automaton of the instance")) {
 //                println("aut pannel is openned")
                 drawAutomata(svgAut)
               }
