@@ -333,7 +333,7 @@ unzip =
     val socket = new WebSocket("ws://localhost:9000/message")
     var message: String = null
 
-    socket.onmessage = { (e: MessageEvent) => JsonLoader(e.data.toString)}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
+    socket.onmessage = { (e: MessageEvent) => process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors)}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
 
     socket.addEventListener("open", (e: Event) => {
       socket.send(input)
@@ -344,28 +344,31 @@ unzip =
 
     val result = JsonLoader(input)
 
+//
+//    val (typ, reducTyp, con, graph, automata, mcrl2) = JsonLoader(input)
+
 
     typeInfo.text("")
     instanceInfo.text("")
     errors.text("")
-
-//    result match{
-//      case Right(message) => error(errors, message)
-//      case Left(typ,reduc, reducTyp, graph, automata, mcrl2) => {
-//        typeInfo.append("p")
-//          .text(typ)
-//        instanceInfo.append("p")
-//          .text(Show(reduc)+":\n  "+
-//            reducTyp)
-//        drawConnector(graph, svg)
-//        drawAutomata(automata, svgAut)
-//        produceMcrl2(mcrl2)
-//      }
-//    }
+//    println(result)
+    result match{
+      case Right(message) => error(errors, message)
+      case Left((typ,reducTyp, con, graph, automata, mcrl2)) => {
+        typeInfo.append("p")
+          .text(typ)
+        instanceInfo.append("p")
+          .text(Show(con)+":\n  "+
+            reducTyp)
+        drawConnector(graph, svg)
+        drawAutomata(automata, svgAut)
+        produceMcrl2(mcrl2)
+      }
+    }
 
   }
 
-  private def drawConnector(graph: Map[String, List[Any]], svg: WebReo.Block): Unit = {
+  private def drawConnector(graph: Map[String, String], svg: RemoteReo.Block): Unit = {
     val size = graph.get("nodes").size
     val factor = Math.sqrt(size*10000/(densityCirc*widthCircRatio*heightCircRatio))
     val width =  (widthCircRatio*factor).toInt
@@ -374,7 +377,7 @@ unzip =
     scalajs.js.eval(GraphsToJS(graph))
   }
 
-  private def drawAutomata(aut: Map[String, List[Any]], svgAut: WebReo.Block): Unit = {
+  private def drawAutomata(aut: Map[String, String], svgAut: RemoteReo.Block): Unit = {
     val sizeAut = aut.get("nodesautomata").size
     //              println("########")
     //              println(aut)
