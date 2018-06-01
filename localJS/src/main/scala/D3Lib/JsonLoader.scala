@@ -6,7 +6,7 @@ import preo.frontend.Show
 import scala.util.parsing.json._
 
 object JsonLoader {
-  def apply(rawjs: String):  Either[(String, String, CoreConnector, Map[String, String], Map[String, String], String), String] = {
+  def apply(rawjs: String):  Either[(String, String, CoreConnector, (Map[String, String], Int), (Map[String, String], Int), String), String] = {
     val json = JSON.parseRaw(rawjs).get.asInstanceOf[JSONObject]
     val parsed = JSON.parseFull(rawjs).get.asInstanceOf[Map[String, Any]]
 //    println(json.getClass)
@@ -19,20 +19,19 @@ object JsonLoader {
 
     if (parsed.contains("error")) Right(parsed.get("error").asInstanceOf[String])
     else {
-      println(0)
       val typ = parsed("type").asInstanceOf[String]
-      println(typ)
       val reducTyp = parsed("reducType").asInstanceOf[String]
-      println(reducTyp)
       val con = convertCon(parsed("connector").asInstanceOf[Map[String, Any]])
-      println(Show(con))
+
       val graph = convertGraph(parsed("graph").asInstanceOf[Map[String, Any]])
-      println(4)
+      val gsize = parsed("graph").asInstanceOf[Map[String, Any]]("nodes").asInstanceOf[List[Map[String, Any]]].size
+
       val automata = convertAut(parsed("automata").asInstanceOf[Map[String, Any]])
-      println(5)
+      val asize = parsed("automata").asInstanceOf[Map[String, Any]]("nodesautomata").asInstanceOf[List[Map[String, Any]]].size
+
       val mcrl2 = parsed("model").asInstanceOf[String]
-      println(6)
-      Left((typ, reducTyp, con, graph, automata, mcrl2))
+
+      Left((typ, reducTyp, con, (graph, gsize), (automata, asize), mcrl2))
     }
   }
 
@@ -53,7 +52,6 @@ object JsonLoader {
   private def convertInterface(i: String): CoreInterface = CoreInterface(i.toInt)
 
   private def convertGraph(raw: Map[String, Any]): Map[String, String] = {
-    println(raw)
     Map(
       "nodes" -> convertList(raw("nodes").asInstanceOf[List[Map[String, Any]]]),
       "edges" -> convertList(raw("edges").asInstanceOf[List[Map[String, Any]]])

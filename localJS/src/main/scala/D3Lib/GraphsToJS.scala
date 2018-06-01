@@ -7,9 +7,12 @@ import preo.backend._
 
 //todo: add rectangle colision colision
 object GraphsToJS {
-  def apply(graph: Map[String, String]): String = {
-    val nodes = graph("nodes")
-    val edges = graph("edges")
+  def localBuild(graph: Graph): String = generateJS(getNodes(graph), getLinks(graph))
+
+  def remoteBuild(graph: Map[String, String]): String = generateJS(graph("nodes"), graph("edges"))
+
+
+  private def generateJS(nodes: String, edges: String): String = {
     s"""
         var svg = d3.select("#circuit");
         var vbox = svg.attr('viewBox').split(" ")
@@ -18,9 +21,9 @@ object GraphsToJS {
         var radius = 7.75;
         var rectangle_width = 40;
         var rectangle_height = 20;
-        console.log(1);
+
         var graph = {"nodescircuit": $nodes, "linkscircuit": $edges};
-        console.log(graph);
+
         var simulation = d3.forceSimulation(graph.nodescircuit)
           .force('charge', d3.forceManyBody().strength(-700))
           .force('center', d3.forceCenter(width / 2, height / 2))

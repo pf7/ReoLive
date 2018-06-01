@@ -40,7 +40,13 @@ object RemoteReo extends{
   val heightAutRatio = 3
   val densityAut = 0.2 // nodes per 100x100 px
 
-  var connector: CoreConnector = null
+//  var connector: CoreConnector = null
+
+  private var graph: Map[String, String] = null
+  private var gsize: Int = 0
+  private var automata: Map[String, String] = null
+  private var asize: Int = 0
+  private var mcrl2: String = ""
 
   private val buttons = Seq(
     "writer"->"writer", "reader"->"reader",
@@ -219,14 +225,23 @@ unzip =
       else ()
     }
 
-//    dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-//      .onclick = {(e: MouseEvent) => if(!isVisible("Circuit of the instance")) drawConnector(svg)}
-//
-//    dom.document.getElementById("Automaton of the instance (under development)").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-//      .onclick = {(e: MouseEvent) => if(!isVisible("Automaton of the instance (under development)")) drawAutomata(svgAut)}
-//
-//    dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-//      .onclick = {(e: MouseEvent) => if(!isVisible("mCRL2 of the instance")) produceMcrl2()}
+    dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+      .onclick = {(e: MouseEvent) =>
+      if(!isVisible("Circuit of the instance")) drawConnector(graph, gsize, svg)
+      else deleteDrawing(svg)
+    }
+
+    dom.document.getElementById("Automaton of the instance (under development)").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+      .onclick = {(e: MouseEvent) =>
+      if(!isVisible("Automaton of the instance (under development)")) drawAutomata(automata, asize,svgAut)
+      else deleteDrawing(svgAut)
+    }
+
+    dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+      .onclick = {(e: MouseEvent) =>
+      if(!isVisible("mCRL2 of the instance")) produceMcrl2(mcrl2)
+      else deleteModel()
+    }
 
     //inputArea.on("keyup", {(e: EventTarget, a: Int, b:UndefOr[Int]) =>println(e);fgenerate(inputAreaDom.value,outputBox)} : inputArea.DatumFunction[Unit])
 
@@ -333,11 +348,12 @@ unzip =
     val socket = new WebSocket("ws://localhost:9000/message")
     var message: String = null
 
-    socket.onmessage = { (e: MessageEvent) => process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors)}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
+    socket.onmessage = { (e: MessageEvent) => {process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
 
     socket.addEventListener("open", (e: Event) => {
       socket.send(input)
     })
+
   }
 
   private def process(input: String, typeInfo: Block, instanceInfo: Block, svg:Block, svgAut:Block, errors:Block): Unit = {
@@ -354,40 +370,67 @@ unzip =
 //    println(result)
     result match{
       case Right(message) => error(errors, message)
-      case Left((typ,reducTyp, con, graph, automata, mcrl2)) => {
+      case Left((typ,reducTyp, con, (gr, gs), (aut, as), mc)) => {
         typeInfo.append("p")
           .text(typ)
         instanceInfo.append("p")
           .text(Show(con)+":\n  "+
             reducTyp)
-        drawConnector(graph, svg)
-        drawAutomata(automata, svgAut)
-        produceMcrl2(mcrl2)
+        this.graph = gr
+        this.gsize = gs
+        this.automata = aut
+        this.asize = as
+        this.mcrl2 = mc
+
+//        println(aut)
+//        println(as)
+//
+//        println(automata)
+//        println(asize)
+
+        if(isVisible("Circuit of the instance")) {
+          drawConnector(graph, gsize, svg)
+        }
+
+        if (isVisible("Automaton of the instance (under development)")) {
+          drawAutomata(automata, asize, svgAut)
+        }
+
+        if(isVisible("mCRL2 of the instance")) {
+          produceMcrl2(mcrl2)
+        }
       }
     }
 
   }
 
-  private def drawConnector(graph: Map[String, String], svg: RemoteReo.Block): Unit = {
-    val size = graph.get("nodes").size
+  private def deleteDrawing(svg: RemoteReo.Block): Unit = {
+    svg.selectAll("g").html("")
+  }
+
+  private def deleteModel(): Unit = {
+    d3.select("#mcrl2Box").html("")
+  }
+
+  private def drawConnector(graph: Map[String, String], size: Int, svg: RemoteReo.Block): Unit = {
+
     val factor = Math.sqrt(size*10000/(densityCirc*widthCircRatio*heightCircRatio))
     val width =  (widthCircRatio*factor).toInt
     val height = (heightCircRatio*factor).toInt
     svg.attr("viewBox",s"00 00 $width $height")
-    scalajs.js.eval(GraphsToJS(graph))
+    scalajs.js.eval(GraphsToJS.remoteBuild(graph))
   }
 
-  private def drawAutomata(aut: Map[String, String], svgAut: RemoteReo.Block): Unit = {
-    val sizeAut = aut.get("nodesautomata").size
+  private def drawAutomata(aut: Map[String, String],sizeAut:Int, svgAut: RemoteReo.Block): Unit = {
     //              println("########")
     //              println(aut)
     //              println("++++++++")
-    val factorAut = Math.sqrt(sizeAut * 10000 / (densityAut * widthAutRatio * heightAutRatio))
+    val factorAut = Math.sqrt(sizeAut * 3333 / (densityAut * widthAutRatio * heightAutRatio))
     val width = (widthAutRatio * factorAut).toInt
     val height = (heightAutRatio * factorAut).toInt
     svgAut.attr("viewBox", s"00 00 $width $height")
 
-    scalajs.js.eval(AutomataToJS(aut))
+    scalajs.js.eval(AutomataToJS.remoteBuild(aut))
   }
 
   private def produceMcrl2(mcrl2: String): Unit = {
