@@ -162,10 +162,11 @@ unzip =
     val inputDiv = panelBox(colDiv1,"Input (Shift-Enter to update)").append("div")
       .attr("id", "textBox")
 
+    val defCon = "dupl  ;  fifo * lossy"
     val conn = scala.scalajs.js.eval("window.location.href")
       .toString.split('?')
       .map(URIUtils.decodeURIComponent)
-      .tail.headOption.getOrElse("dupl  ;  fifo * lossy")
+      .tail.headOption.getOrElse(defCon)
 
     val inputArea = inputDiv.append("textarea")
       .attr("id", "inputArea")
@@ -173,6 +174,7 @@ unzip =
       .attr("rows", "10")
       .attr("style", "width: 100%")
       .attr("placeholder", conn)
+    if (conn!=defCon) inputArea.text(conn)
 
     val errors = colDiv1.append("div")
 
