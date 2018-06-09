@@ -13,7 +13,7 @@ import preo.ast.BVal
 import preo.modelling.Mcrl2Model
 import preo.ast.CoreConnector
 
-import scala.scalajs.js.{JavaScriptException, UndefOr}
+import scala.scalajs.js.{JavaScriptException, URIUtils, UndefOr}
 import scalajs.js.annotation.JSExportTopLevel
 import scalatags.JsDom.all._
 
@@ -162,12 +162,17 @@ unzip =
     val inputDiv = panelBox(colDiv1,"Input (Shift-Enter to update)").append("div")
       .attr("id", "textBox")
 
+    val conn = scala.scalajs.js.eval("window.location.href")
+      .toString.split('?')
+      .map(URIUtils.decodeURIComponent)
+      .tail.headOption.getOrElse("dupl  ;  fifo * lossy")
+
     val inputArea = inputDiv.append("textarea")
       .attr("id", "inputArea")
       .attr("class","my-textarea")
       .attr("rows", "10")
       .attr("style", "width: 100%")
-      .attr("placeholder", "dupl  ;  fifo * lossy")
+      .attr("placeholder", conn)
 
     val errors = colDiv1.append("div")
 
@@ -198,7 +203,7 @@ unzip =
     //      .style("margin-top", "4px")
     //      .style("border", "1px solid black")
 
-    fgenerate("dupl  ;  fifo * lossy",typeBox,instanceBox,svg,svgAut,errors)
+    fgenerate(conn,typeBox,instanceBox,svg,svgAut,errors)
 
     /**
     Will evaluate the expression being written in the input box
