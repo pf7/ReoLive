@@ -177,6 +177,7 @@ unzip =
     if (conn!=defCon) inputArea.text(conn)
 
     val errors = colDiv1.append("div")
+    errors.attr("id","ErrorMessages")
 
     val typeBox = panelBox(colDiv1,"Type").append("div")
       .attr("id", "typeBox")
@@ -303,7 +304,7 @@ unzip =
     val es = dom.document.getElementsByClassName("collapsed")
     var foundId = false
     for (i <- 0 until es.length) {
-      println(es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
+//      println(es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
 //      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
       foundId = foundId || es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == id
     }

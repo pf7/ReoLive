@@ -238,6 +238,11 @@ object GraphsToJS {
           d.fy = d3.event.y;
         }
         function dragended(d) {
+          var msg = document.getElementById("ErrorMessages")
+          if (msg.hasChildNodes()) {
+            msg.removeChild(msg.childNodes[0]);
+          }
+          msg.append("Node: "+d.id+" ("+d.style+")");
           if (!d3.event.active) simulation.alphaTarget(0);
           if (d.group == 3 || d.group == 1){
             d.fx = null;
@@ -258,11 +263,11 @@ object GraphsToJS {
   private def processNodes(nodes: List[ReoNode]): String = nodes match{
     case ReoNode(id, name, nodeType, style) :: Nil => {
       val nodeGroup = typeToGroup(nodeType, style);
-      s"""{"id": "$id", "group": $nodeGroup }"""
+      s"""{"id": "$id", "group": $nodeGroup, "style": \"${style.getOrElse("")}\"}"""
     }
     case ReoNode(id, name, nodeType, style) :: y :: rest => {
       val nodeGroup = typeToGroup(nodeType, style);
-      s"""{"id": "$id", "group": $nodeGroup },""" + processNodes(y::rest)
+      s"""{"id": "$id", "group": $nodeGroup, "style": \"${style.getOrElse("")}\" },""" + processNodes(y::rest)
     }
     case Nil => ""
   }

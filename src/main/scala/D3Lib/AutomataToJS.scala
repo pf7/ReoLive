@@ -11,8 +11,8 @@ object AutomataToJS {
   def apply[A<:Automata](aut: A): String = {
     val nodes = getNodes(aut)
     val links = getLinks(aut)
-    println(nodes)
-    println(links)
+//    println(nodes)
+//    println(links)
     s"""
         buildAut();
         function buildAut() {
@@ -76,9 +76,10 @@ object AutomataToJS {
                   })
                   .attr("id", function (d) {return d.id;})
                   .call(d3.drag()
-                  .on("start", dragstartedAut)
-                  .on("drag", draggedAut)
-                  .on("end", dragendedAut))
+                    .on("start", dragstartedAut)
+                    .on("drag", draggedAut)
+                    .on("end", dragendedAut)
+                  )
                   .style("stroke-opacity" , "1")
                   .style("stroke-widthAut", function(d){
                     if(d.group == 0 || d.group == 1) {
@@ -134,6 +135,12 @@ object AutomataToJS {
                   .attr('fill-opacity', 0)
                   .attr('stroke-opacity', 0)
                   .attr('id', function (d, i) {return 'edgepath' + i})
+                  .call(d3.drag()
+                     .on("start", function(d) {})
+                     .on("drag", function(d) {})
+                     .on("end", function(d) {})
+                  )
+
                   .style("pointer-events", "none");
               edgepaths.exit().remove();
 
@@ -162,6 +169,7 @@ object AutomataToJS {
                   .text(function (d) {
                     return d.type;
                   });
+//              textpath.enter().on("click", function(d) { alert("hi"); });
           }
 
           function tickedAut() {
