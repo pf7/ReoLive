@@ -1,4 +1,4 @@
-package D3Lib
+package reolive.d3Lib
 
 import preo.backend.Graph._
 import preo.backend.ReoGraph.Edge

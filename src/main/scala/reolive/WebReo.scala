@@ -1,16 +1,16 @@
 package reolive
 
-import D3Lib.CopytoClipboard._
-import D3Lib.{AutomataToJS, GraphsToJS}
 import org.scalajs.dom
 import dom.{EventTarget, MouseEvent, html}
 import org.singlespaced.d3js.{Selection, d3}
 import preo.frontend.{Eval, Show, Simplify}
-import preo.common.{GenerationException, TypeCheckException}
+import preo.common.{GenerationException, TimeoutException, TypeCheckException}
 import preo.backend._
 import preo.DSL
 import preo.ast.BVal
-import preo.modelling.Mcrl2Model
+
+import scala.reflect.reify.Errors
+//import preo.modelling.Mcrl2Model
 import preo.ast.CoreConnector
 
 import scala.scalajs.js.{JavaScriptException, URIUtils, UndefOr}
@@ -222,14 +222,31 @@ unzip =
       else ()
     }
 
-    dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-        .onclick = {(e: MouseEvent) => if(!isVisible("Circuit of the instance")) drawConnector(svg)}
+    def runOnExpansion(elem:String,action: =>Unit): Unit = {
+      dom.document.getElementById(elem)
+        .firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+        .onclick = { (e: MouseEvent) => if(!isVisible(elem))
+        try(action) catch(checkExceptions(errors))}
+    }
 
-    dom.document.getElementById("Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible("Automaton of the instance")) drawAutomata(svgAut)}
+    runOnExpansion("Circuit of the instance",drawConnector(svg))
+    runOnExpansion("Automaton of the instance",drawAutomata(svgAut))
+    runOnExpansion("mCRL2 of the instance",produceMcrl2())
 
-    dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible("mCRL2 of the instance")) produceMcrl2()}
+//    dom.document.getElementById("Circuit of the instance")
+//      .firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+//      .onclick = {(e: MouseEvent) => if(!isVisible("Circuit of the instance"))
+//        drawConnector(svg)}
+//
+//    dom.document.getElementById("Automaton of the instance")
+//      .firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+//      .onclick = { (e: MouseEvent) => if(!isVisible("Automaton of the instance"))
+//        try(drawAutomata(svgAut)) catch(checkExceptions(errors))}
+//
+//    dom.document.getElementById("mCRL2 of the instance")
+//      .firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+//      .onclick = {(e: MouseEvent) => if(!isVisible("mCRL2 of the instance"))
+//        produceMcrl2()}
 
     //inputArea.on("keyup", {(e: EventTarget, a: Int, b:UndefOr[Int]) =>println(e);fgenerate(inputAreaDom.value,outputBox)} : inputArea.DatumFunction[Unit])
 
@@ -357,35 +374,26 @@ unzip =
 
               // draw connector
               if(isVisible("Circuit of the instance")) {
-                drawConnector(svg)
+                try(drawConnector(svg)) catch (checkExceptions(errors))
               }
 
               // draw Automata
               if (isVisible("Automaton of the instance")) {
 //                println("aut pannel is openned")
-                drawAutomata(svgAut)
+                try(drawAutomata(svgAut)) catch (checkExceptions(errors))
               }
 
               // produce mCRL2
               if(isVisible("mCRL2 of the instance")) {
-                produceMcrl2()
+                try(produceMcrl2()) catch (checkExceptions(errors))
               }
             case _ =>
               // Failed to simplify
               warning(errors,"Failed to reduce connector: "+Show(Simplify.unsafe(result)))
           }
         }
-        catch {
-          // type error
-          case e: TypeCheckException =>
-            error(errors,/*Show(result)+ */"Type error: " + e.getMessage)
-//            instanceInfo.append("p").text("-")
-          case e: GenerationException =>
-            warning(errors,/*Show(result)+ */"Generation failed: " + e.getMessage)
-          case e: JavaScriptException =>
-            error(errors,/*Show(result)+ */"JavaScript error : "+e+" - "+e.getClass)
-//            instanceInfo.append("p").text("-")
-        }
+        catch(checkExceptions(errors))
+
       case preo.lang.Parser.Failure(msg,_) =>
         error(errors,"Parser failure: " + msg)
 //        instanceInfo.append("p").text("-")
@@ -393,8 +401,21 @@ unzip =
         error(errors,"Parser error: " + msg)
 //        instanceInfo.append("p").text("-")
     }
+  }
 
-
+  private def checkExceptions(errors: Block): PartialFunction[Throwable,Unit] = {
+    // type error
+    case e: TypeCheckException =>
+      error(errors,/*Show(result)+ */"Type error: " + e.getMessage)
+    //            instanceInfo.append("p").text("-")
+    case e: GenerationException =>
+      warning(errors,/*Show(result)+ */"Generation failed: " + e.getMessage)
+    case e: TimeoutException =>
+      error(errors,"Timeout: " + e.getMessage)
+    case e: JavaScriptException =>
+      error(errors,/*Show(result)+ */"JavaScript error : "+e+" - "+e.getClass)
+    //            instanceInfo.append("p").text("-")
+    case e => error(errors,"unknown error:"+e+" - "+e.getClass)
   }
 
   private def drawConnector(svg: WebReo.Block): Unit = {
@@ -404,7 +425,7 @@ unzip =
     val width =  (widthCircRatio*factor).toInt
     val height = (heightCircRatio*factor).toInt
     svg.attr("viewBox",s"00 00 $width $height")
-    scalajs.js.eval(GraphsToJS(graph))
+    scalajs.js.eval(d3Lib.GraphsToJS(graph))
   }
 
   private def drawAutomata(svgAut: WebReo.Block): Unit = {
@@ -418,11 +439,11 @@ unzip =
     val height = (heightAutRatio * factorAut).toInt
     svgAut.attr("viewBox", s"00 00 $width $height")
 
-    scalajs.js.eval(AutomataToJS(aut))
+    scalajs.js.eval(d3Lib.AutomataToJS(aut))
   }
 
   private def produceMcrl2(): Unit = {
-    d3.select("#mcrl2Box").html(Mcrl2Model(connector).webString)
+    d3.select("#mcrl2Box").html(preo.frontend.mcrl2.Model(connector).webString)
   }
 
   private def error(errors:Block,msg:String): Unit = {

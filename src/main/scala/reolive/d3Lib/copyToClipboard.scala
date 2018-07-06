@@ -1,4 +1,4 @@
-package D3Lib
+package reolive.d3Lib
 
 import scala.scalajs.js
 

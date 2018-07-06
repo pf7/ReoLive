@@ -1,4 +1,4 @@
-package D3Lib
+package reolive.d3Lib
 
 import org.singlespaced.d3js.d3
 import preo.backend.Graph._
@@ -242,7 +242,7 @@ object GraphsToJS {
           if (msg.hasChildNodes()) {
             msg.removeChild(msg.childNodes[0]);
           }
-          msg.append("Node: "+d.id+" ("+d.style+")");
+          msg.append("Node: "+d.id+" "+d.style+"");
           if (!d3.event.active) simulation.alphaTarget(0);
           if (d.group == 3 || d.group == 1){
             d.fx = null;
