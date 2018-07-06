@@ -430,7 +430,7 @@ unzip =
 
   private def drawAutomata(svgAut: WebReo.Block): Unit = {
     val aut = Automata[PortAutomata](connector)
-    val sizeAut = aut.getStates.size
+    val sizeAut = aut.getStates.size + (aut.getTrans.size/2)
     //              println("########")
     //              println(aut)
     //              println("++++++++")
