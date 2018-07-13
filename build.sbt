@@ -1,5 +1,5 @@
 
-lazy val reotools = (project in file("."))
+lazy val reotools = (project in file("server"))
   .enablePlugins(PlayScala)
   .disablePlugins(ScalaJSPlugin, WorkbenchPlugin)
   .settings(
