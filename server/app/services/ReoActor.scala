@@ -5,7 +5,7 @@ import preo.DSL
 import preo.backend.{Automata, Graph, PortAutomata}
 import preo.common.{GenerationException, TypeCheckException}
 import preo.frontend.Eval
-import preo.modelling.Mcrl2Model
+import preo.frontend.mcrl2.Model
 
 object ReoActor {
   def props(out: ActorRef) = Props(new ReoActor(out))
@@ -32,7 +32,7 @@ class ReoActor(out: ActorRef) extends Actor {
 
           val graph = Graph(coreConnector)
           val aut = Automata[PortAutomata](coreConnector)
-          val model = Mcrl2Model(coreConnector).webString
+          val model = Model(coreConnector).webString
 
           JsonCreater.create(typ, reducType, coreConnector, graph, aut, model).toString
         }

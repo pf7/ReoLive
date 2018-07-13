@@ -10,7 +10,7 @@ import preo.common.{GenerationException, TypeCheckException}
 import preo.backend._
 import preo.DSL
 import preo.ast.BVal
-import preo.modelling.Mcrl2Model
+import preo.frontend.mcrl2.Model
 import preo.ast.CoreConnector
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
@@ -414,7 +414,7 @@ unzip =
   }
 
   private def produceMcrl2(): Unit = {
-    d3.select("#mcrl2Box").html(Mcrl2Model(connector).webString)
+    d3.select("#mcrl2Box").html(Model(connector).webString)
   }
 
   private def error(errors:Block,msg:String): Unit = {

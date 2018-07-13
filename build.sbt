@@ -1,9 +1,9 @@
 
-lazy val reotools = (project in file("server"))
+lazy val server = (project in file("server"))
   .enablePlugins(PlayScala)
   .disablePlugins(ScalaJSPlugin, WorkbenchPlugin)
   .settings(
-    name := "reotools",
+    name := "server",
     version := "1.0",
     scalaVersion := "2.12.4",
     scalacOptions ++= Seq("-unchecked", "-deprecation","-feature"),
@@ -20,8 +20,8 @@ lazy val reotools = (project in file("server"))
       "com.typesafe.play" %% "play" % "2.6.11",
       jdbc , ehcache , ws , specs2 % Test , guice
     ),
-    unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" ),
-    unmanagedSourceDirectories in Compile += baseDirectory.value / "lib/preo/src/main/scala"
+//    unmanagedResourceDirectories in Test +=  Seq(baseDirectory ( _ /"target/web/public/test" )),
+    unmanagedSourceDirectories in Compile += baseDirectory.value / "../lib/preo/src/main/scala"
   )
 
 lazy val local_script = (project  in file("localJS"))
@@ -49,4 +49,6 @@ lazy val local_script = (project  in file("localJS"))
  )
 
 // todo: add here a task for, when compiling the server, copying the content into the app/...
-
+//
+//lazy val root = (project in file("."))
+//  .aggregate(local_script, server)
