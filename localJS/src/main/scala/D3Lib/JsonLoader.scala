@@ -6,7 +6,7 @@ import preo.frontend.Show
 import scala.util.parsing.json._
 
 object JsonLoader {
-  def apply(rawjs: String):  Either[(String, String, CoreConnector, (Map[String, String], Int), (Map[String, String], Int), String), String] = {
+  def apply(rawjs: String):  Either[(String, String, CoreConnector), String] = {
     val json = JSON.parseRaw(rawjs).get.asInstanceOf[JSONObject]
     val parsed = JSON.parseFull(rawjs).get.asInstanceOf[Map[String, Any]]
 //    println(json.getClass)
@@ -23,15 +23,7 @@ object JsonLoader {
       val reducTyp = parsed("reducType").asInstanceOf[String]
       val con = convertCon(parsed("connector").asInstanceOf[Map[String, Any]])
 
-      val graph = convertGraph(parsed("graph").asInstanceOf[Map[String, Any]])
-      val gsize = parsed("graph").asInstanceOf[Map[String, Any]]("nodes").asInstanceOf[List[Map[String, Any]]].size
-
-      val automata = convertAut(parsed("automata").asInstanceOf[Map[String, Any]])
-      val asize = parsed("automata").asInstanceOf[Map[String, Any]]("nodesautomata").asInstanceOf[List[Map[String, Any]]].size
-
-      val mcrl2 = parsed("model").asInstanceOf[String]
-
-      Left((typ, reducTyp, con, (graph, gsize), (automata, asize), mcrl2))
+      Left((typ, reducTyp, con))
     }
   }
 
@@ -51,21 +43,21 @@ object JsonLoader {
 
   private def convertInterface(i: String): CoreInterface = CoreInterface(i.toInt)
 
-  private def convertGraph(raw: Map[String, Any]): Map[String, String] = {
-    Map(
-      "nodes" -> convertList(raw("nodes").asInstanceOf[List[Map[String, Any]]]),
-      "edges" -> convertList(raw("edges").asInstanceOf[List[Map[String, Any]]])
-    )
-  }
-
-
-  private def convertAut(raw: Map[String, Any]): Map[String, String] = Map(
-    "nodesautomata" -> convertList(raw("nodesautomata").asInstanceOf[List[Map[String, Any]]]),
-    "linksautomata" -> convertList(raw("linksautomata").asInstanceOf[List[Map[String, Any]]])
-  )
-
-  private def convertList(objects: List[Map[String, Any]]): String = objects.map(convertMap).mkString("[",",","]")
-
-  private def convertMap(obj: Map[String, Any]): String = obj.toList.map{ case (a, b) => "\"" + a + "\": \"" + b.toString + "\""}.mkString("{", ",", "}")
+//  private def convertGraph(raw: Map[String, Any]): Map[String, String] = {
+//    Map(
+//      "nodes" -> convertList(raw("nodes").asInstanceOf[List[Map[String, Any]]]),
+//      "edges" -> convertList(raw("edges").asInstanceOf[List[Map[String, Any]]])
+//    )
+//  }
+//
+//
+//  private def convertAut(raw: Map[String, Any]): Map[String, String] = Map(
+//    "nodesautomata" -> convertList(raw("nodesautomata").asInstanceOf[List[Map[String, Any]]]),
+//    "linksautomata" -> convertList(raw("linksautomata").asInstanceOf[List[Map[String, Any]]])
+//  )
+//
+//  private def convertList(objects: List[Map[String, Any]]): String = objects.map(convertMap).mkString("[",",","]")
+//
+//  private def convertMap(obj: Map[String, Any]): String = obj.toList.map{ case (a, b) => "\"" + a + "\": \"" + b.toString + "\""}.mkString("{", ",", "}")
 
 }

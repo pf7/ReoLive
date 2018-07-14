@@ -30,11 +30,7 @@ class ReoActor(out: ActorRef) extends Actor {
           val reducType = DSL.typeOf(reduc)
           val coreConnector = Eval.reduce(reduc)
 
-          val graph = Graph(coreConnector)
-          val aut = Automata[PortAutomata](coreConnector)
-          val model = Model(coreConnector).webString
-
-          JsonCreater.create(typ, reducType, coreConnector, graph, aut, model).toString
+          JsonCreater.create(typ, reducType, coreConnector).toString
         }
         catch {
           // type error

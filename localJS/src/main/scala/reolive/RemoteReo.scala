@@ -40,13 +40,13 @@ object RemoteReo extends{
   val heightAutRatio = 3
   val densityAut = 0.2 // nodes per 100x100 px
 
-//  var connector: CoreConnector = null
+  var connector: CoreConnector = null
 
-  private var graph: Map[String, String] = null
-  private var gsize: Int = 0
-  private var automata: Map[String, String] = null
-  private var asize: Int = 0
-  private var mcrl2: String = ""
+//  private var graph: Map[String, String] = null
+//  private var gsize: Int = 0
+//  private var automata: Map[String, String] = null
+//  private var asize: Int = 0
+//  private var mcrl2: String = ""
 
   private val buttons = Seq(
     "writer"->"writer", "reader"->"reader",
@@ -227,19 +227,19 @@ unzip =
 
     dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) =>
-      if(!isVisible("Circuit of the instance")) drawConnector(graph, gsize, svg)
+      if(!isVisible("Circuit of the instance")) drawConnector(svg)
       else deleteDrawing(svg)
     }
 
     dom.document.getElementById("Automaton of the instance (under development)").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) =>
-      if(!isVisible("Automaton of the instance (under development)")) drawAutomata(automata, asize,svgAut)
+      if(!isVisible("Automaton of the instance (under development)")) drawAutomata(svgAut)
       else deleteDrawing(svgAut)
     }
 
     dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) =>
-      if(!isVisible("mCRL2 of the instance")) produceMcrl2(mcrl2)
+      if(!isVisible("mCRL2 of the instance")) produceMcrl2
       else deleteModel()
     }
 
@@ -360,9 +360,6 @@ unzip =
 
     val result = JsonLoader(input)
 
-//
-//    val (typ, reducTyp, con, graph, automata, mcrl2) = JsonLoader(input)
-
 
     typeInfo.text("")
     instanceInfo.text("")
@@ -370,17 +367,13 @@ unzip =
 //    println(result)
     result match{
       case Right(message) => error(errors, message)
-      case Left((typ,reducTyp, con, (gr, gs), (aut, as), mc)) => {
+      case Left((typ,reducTyp, con)) => {
         typeInfo.append("p")
           .text(typ)
         instanceInfo.append("p")
           .text(Show(con)+":\n  "+
             reducTyp)
-        this.graph = gr
-        this.gsize = gs
-        this.automata = aut
-        this.asize = as
-        this.mcrl2 = mc
+        this.connector = con
 
 //        println(aut)
 //        println(as)
@@ -389,15 +382,15 @@ unzip =
 //        println(asize)
 
         if(isVisible("Circuit of the instance")) {
-          drawConnector(graph, gsize, svg)
+          drawConnector(svg)
         }
 
         if (isVisible("Automaton of the instance (under development)")) {
-          drawAutomata(automata, asize, svgAut)
+          drawAutomata(svgAut)
         }
 
         if(isVisible("mCRL2 of the instance")) {
-          produceMcrl2(mcrl2)
+          produceMcrl2()
         }
       }
     }
@@ -412,29 +405,32 @@ unzip =
     d3.select("#mcrl2Box").html("")
   }
 
-  private def drawConnector(graph: Map[String, String], size: Int, svg: RemoteReo.Block): Unit = {
-
+  private def drawConnector(svg: WebReo.Block): Unit = {
+    val graph = Graph(connector)
+    val size = graph.nodes.size
     val factor = Math.sqrt(size*10000/(densityCirc*widthCircRatio*heightCircRatio))
     val width =  (widthCircRatio*factor).toInt
     val height = (heightCircRatio*factor).toInt
     svg.attr("viewBox",s"00 00 $width $height")
-    scalajs.js.eval(GraphsToJS.remoteBuild(graph))
+    scalajs.js.eval(GraphsToJS.localBuild(graph))
   }
 
-  private def drawAutomata(aut: Map[String, String],sizeAut:Int, svgAut: RemoteReo.Block): Unit = {
+  private def drawAutomata(svgAut: WebReo.Block): Unit = {
+    val aut = Automata[PortAutomata](connector)
+    val sizeAut = aut.getStates.size
     //              println("########")
     //              println(aut)
     //              println("++++++++")
-    val factorAut = Math.sqrt(sizeAut * 3333 / (densityAut * widthAutRatio * heightAutRatio))
+    val factorAut = Math.sqrt(sizeAut * 10000 / (densityAut * widthAutRatio * heightAutRatio))
     val width = (widthAutRatio * factorAut).toInt
     val height = (heightAutRatio * factorAut).toInt
     svgAut.attr("viewBox", s"00 00 $width $height")
 
-    scalajs.js.eval(AutomataToJS.remoteBuild(aut))
+    scalajs.js.eval(AutomataToJS.localBuild(aut))
   }
 
-  private def produceMcrl2(mcrl2: String): Unit = {
-    d3.select("#mcrl2Box").html(mcrl2)
+  private def produceMcrl2(): Unit = {
+    d3.select("#mcrl2Box").html(Model(connector).webString)
   }
 
   private def error(errors:Block,msg:String): Unit = {
