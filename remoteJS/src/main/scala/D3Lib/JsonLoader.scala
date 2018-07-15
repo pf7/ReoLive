@@ -9,13 +9,13 @@ object JsonLoader {
   def apply(rawjs: String):  Either[(String, String, CoreConnector), String] = {
     val json = JSON.parseRaw(rawjs).get.asInstanceOf[JSONObject]
     val parsed = JSON.parseFull(rawjs).get.asInstanceOf[Map[String, Any]]
-//    println(json.getClass)
-//    json.
-//    print(json.toString)
-//
-//    println(rawjs)
-//
-//    println(parsed)
+    //    println(json.getClass)
+    //    json.
+    //    print(json.toString)
+    //
+    //    println(rawjs)
+    //
+    //    println(parsed)
 
     if (parsed.contains("error")) Right(parsed.get("error").asInstanceOf[String])
     else {
@@ -43,21 +43,22 @@ object JsonLoader {
 
   private def convertInterface(i: String): CoreInterface = CoreInterface(i.toInt)
 
-//  private def convertGraph(raw: Map[String, Any]): Map[String, String] = {
-//    Map(
-//      "nodes" -> convertList(raw("nodes").asInstanceOf[List[Map[String, Any]]]),
-//      "edges" -> convertList(raw("edges").asInstanceOf[List[Map[String, Any]]])
-//    )
-//  }
-//
-//
-//  private def convertAut(raw: Map[String, Any]): Map[String, String] = Map(
-//    "nodesautomata" -> convertList(raw("nodesautomata").asInstanceOf[List[Map[String, Any]]]),
-//    "linksautomata" -> convertList(raw("linksautomata").asInstanceOf[List[Map[String, Any]]])
-//  )
-//
-//  private def convertList(objects: List[Map[String, Any]]): String = objects.map(convertMap).mkString("[",",","]")
-//
-//  private def convertMap(obj: Map[String, Any]): String = obj.toList.map{ case (a, b) => "\"" + a + "\": \"" + b.toString + "\""}.mkString("{", ",", "}")
+  //  private def convertGraph(raw: Map[String, Any]): Map[String, String] = {
+  //    Map(
+  //      "nodes" -> convertList(raw("nodes").asInstanceOf[List[Map[String, Any]]]),
+  //      "edges" -> convertList(raw("edges").asInstanceOf[List[Map[String, Any]]])
+  //    )
+  //  }
+  //
+  //
+  //  private def convertAut(raw: Map[String, Any]): Map[String, String] = Map(
+  //    "nodesautomata" -> convertList(raw("nodesautomata").asInstanceOf[List[Map[String, Any]]]),
+  //    "linksautomata" -> convertList(raw("linksautomata").asInstanceOf[List[Map[String, Any]]])
+  //  )
+  //
+  //  private def convertList(objects: List[Map[String, Any]]): String = objects.map(convertMap).mkString("[",",","]")
+  //
+  //  private def convertMap(obj: Map[String, Any]): String = obj.toList.map{ case (a, b) => "\"" + a + "\": \"" + b.toString + "\""}.mkString("{", ",", "}")
 
 }
+

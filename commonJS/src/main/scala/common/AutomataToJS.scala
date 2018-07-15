@@ -1,7 +1,5 @@
-package D3Lib
+package common
 
-import preo.backend.Graph._
-import preo.backend.ReoGraph.Edge
 import preo.backend._
 
 
@@ -243,13 +241,13 @@ object AutomataToJS {
   }
 
   //  private def processNode(initAut:Int,trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match{
-//    case (from,(to,fire,es)) =>
-//      val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)
-//      Set(s"""{"id": "$from", "group": $gfrom }""",
-//          s"""{"id": "$to", "group": $gto }""",
-//          s"""{"id": "$from-1-$to-${fire.mkString(".")}", "group": $gp1}""",
-//          s"""{"id": "$to-2-$from-${fire.mkString(".")}", "group": $gp2 }""")
-//  }
+  //    case (from,(to,fire,es)) =>
+  //      val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)
+  //      Set(s"""{"id": "$from", "group": $gfrom }""",
+  //          s"""{"id": "$to", "group": $gto }""",
+  //          s"""{"id": "$from-1-$to-${fire.mkString(".")}", "group": $gp1}""",
+  //          s"""{"id": "$to-2-$from-${fire.mkString(".")}", "group": $gp2 }""")
+  //  }
 
   /**
     * Select the right group:
@@ -261,7 +259,7 @@ object AutomataToJS {
     (   if(from==initAut) "0" else "1"
       , if(to==initAut) "0" else "1"
       , "2" , "2"
-      )
+    )
 
   private def processEdge(trans:(Int,Any,String,Int)): Set[String] = trans match {
     case (from, lbl,id, to) => {
@@ -270,11 +268,11 @@ object AutomataToJS {
         s"""{"source": "$to-2-$from-$id", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
     }
   }
-//  private def processEdge(trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match {
-//    case (from, (to, fire, es)) => {
-//      Set(s"""{"source": "$from", "target": "$from-1-$to-${fire.mkString(".")}", "type":"", "start":"start", "end": "end"}""",
-//          s"""{"source": "$from-1-$to-${fire.mkString(".")}", "target": "$to-2-$from-${fire.mkString(".")}", "type":"${fire.mkString(".")}", "start":"start", "end": "end"}""",
-//          s"""{"source": "$to-2-$from-${fire.mkString(".")}", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
-//    }
-//  }
+  //  private def processEdge(trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match {
+  //    case (from, (to, fire, es)) => {
+  //      Set(s"""{"source": "$from", "target": "$from-1-$to-${fire.mkString(".")}", "type":"", "start":"start", "end": "end"}""",
+  //          s"""{"source": "$from-1-$to-${fire.mkString(".")}", "target": "$to-2-$from-${fire.mkString(".")}", "type":"${fire.mkString(".")}", "start":"start", "end": "end"}""",
+  //          s"""{"source": "$to-2-$from-${fire.mkString(".")}", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
+  //    }
+  //  }
 }

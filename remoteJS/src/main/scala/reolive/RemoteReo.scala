@@ -1,9 +1,10 @@
 package reolive
 
+package reolive
 
 
-import D3Lib.CopytoClipboard._
-import D3Lib.{AutomataToJS, GraphsToJS, JsonLoader}
+import common.{AutomataToJS, GraphsToJS}
+import D3Lib.JsonLoader
 import org.scalajs.dom
 import dom.{EventTarget, MouseEvent, html}
 import org.scalajs.dom.raw.{Event, MessageEvent, WebSocket}
@@ -18,9 +19,7 @@ import preo.ast.CoreConnector
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 import scalajs.js.annotation.JSExportTopLevel
-import scalatags.JsDom.all._
 
-import scala.util.parsing.json.JSONObject
 
 
 /**
@@ -42,11 +41,11 @@ object RemoteReo extends{
 
   var connector: CoreConnector = null
 
-//  private var graph: Map[String, String] = null
-//  private var gsize: Int = 0
-//  private var automata: Map[String, String] = null
-//  private var asize: Int = 0
-//  private var mcrl2: String = ""
+  //  private var graph: Map[String, String] = null
+  //  private var gsize: Int = 0
+  //  private var automata: Map[String, String] = null
+  //  private var asize: Int = 0
+  //  private var mcrl2: String = ""
 
   private val buttons = Seq(
     "writer"->"writer", "reader"->"reader",
@@ -364,7 +363,7 @@ unzip =
     typeInfo.text("")
     instanceInfo.text("")
     errors.text("")
-//    println(result)
+    //    println(result)
     result match{
       case Right(message) => error(errors, message)
       case Left((typ,reducTyp, con)) => {
@@ -375,11 +374,11 @@ unzip =
             reducTyp)
         this.connector = con
 
-//        println(aut)
-//        println(as)
-//
-//        println(automata)
-//        println(asize)
+        //        println(aut)
+        //        println(as)
+        //
+        //        println(automata)
+        //        println(asize)
 
         if(isVisible("Circuit of the instance")) {
           drawConnector(svg)
@@ -405,7 +404,7 @@ unzip =
     d3.select("#mcrl2Box").html("")
   }
 
-  private def drawConnector(svg: WebReo.Block): Unit = {
+  private def drawConnector(svg: RemoteReo.Block): Unit = {
     val graph = Graph(connector)
     val size = graph.nodes.size
     val factor = Math.sqrt(size*10000/(densityCirc*widthCircRatio*heightCircRatio))
@@ -415,7 +414,7 @@ unzip =
     scalajs.js.eval(GraphsToJS.localBuild(graph))
   }
 
-  private def drawAutomata(svgAut: WebReo.Block): Unit = {
+  private def drawAutomata(svgAut: RemoteReo.Block): Unit = {
     val aut = Automata[PortAutomata](connector)
     val sizeAut = aut.getStates.size
     //              println("########")

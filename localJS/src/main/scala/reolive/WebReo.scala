@@ -1,7 +1,7 @@
 package reolive
 
-import D3Lib.CopytoClipboard._
-import D3Lib.{AutomataToJS, GraphsToJS}
+
+import common.{AutomataToJS, GraphsToJS}
 import org.scalajs.dom
 import dom.{EventTarget, MouseEvent, html}
 import org.singlespaced.d3js.{Selection, d3}

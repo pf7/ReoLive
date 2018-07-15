@@ -1,7 +1,5 @@
-package D3Lib
+package common
 
-import org.singlespaced.d3js.d3
-import preo.backend.Graph._
 import preo.backend._
 
 
@@ -299,5 +297,6 @@ object GraphsToJS {
     case _ => ""
   }
 }
+
 
 
