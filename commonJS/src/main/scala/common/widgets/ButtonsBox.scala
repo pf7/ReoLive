@@ -4,7 +4,7 @@ import org.scalajs.dom.EventTarget
 
 import scala.scalajs.js.UndefOr
 
-class ButtonsBox(f:(String) => Unit, inputBox: InputBox)
+class ButtonsBox(reload:() => Unit, inputBox: InputBox)
     extends PanelBox[String]("examples", None){
 
   private val buttons = Seq(
@@ -135,7 +135,7 @@ unzip =
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
       inputBox.inputAreaDom.value = ss._2
-      f(ss._2)
+      reload()
     }} : button.DatumFunction[Unit])
   }
 }

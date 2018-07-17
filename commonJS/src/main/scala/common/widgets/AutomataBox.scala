@@ -20,7 +20,7 @@ class AutomataBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Automata
   override def init(div: Block): Unit = {
     svg= PanelBox.appendSvg(panelBox(div, false),"automata")
     dom.document.getElementById("Automaton of the instance (under development)").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible) drawAutomata}
+      .onclick = {(e: MouseEvent) => if(!isVisible) drawAutomata else deleteAutomaton}
 
   }
 
@@ -40,4 +40,8 @@ class AutomataBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Automata
 
     scalajs.js.eval(AutomataToJS(automaton))
   }
+
+  private def deleteAutomaton: Unit = {
+      svg.selectAll("g").html("")
+    }
 }

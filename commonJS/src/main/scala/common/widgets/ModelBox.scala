@@ -18,7 +18,7 @@ class ModelBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Model]("mCR
 
 
     dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = { (e: MouseEvent) => if (!isVisible) produceMcrl2 }
+      .onclick = { (e: MouseEvent) => if (!isVisible) produceMcrl2 else deleteModel}
   }
 
   override def update: Unit = if(isVisible) produceMcrl2
@@ -26,6 +26,10 @@ class ModelBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Model]("mCR
   private def produceMcrl2: Unit = {
     model = Model(dependency.get)
     box.html(model.webString)
+  }
+
+  private def deleteModel: Unit = {
+    box.html("")
   }
 
 }

@@ -1,11 +1,10 @@
-package D3Lib
+package json
 
 import preo.ast._
-import preo.frontend.Show
 
 import scala.util.parsing.json._
 
-object JsonLoader {
+object Loader{
   def apply(rawjs: String):  Either[(String, String, CoreConnector), String] = {
     val json = JSON.parseRaw(rawjs).get.asInstanceOf[JSONObject]
     val parsed = JSON.parseFull(rawjs).get.asInstanceOf[Map[String, Any]]

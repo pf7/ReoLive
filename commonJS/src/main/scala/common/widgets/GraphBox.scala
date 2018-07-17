@@ -19,12 +19,12 @@ class GraphBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Graph]("Cir
   override def init(div: Block): Unit = {
     box = PanelBox.appendSvg(super.panelBox(div,true),"circuit")
     dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!super.isVisible) drawGraph}
+      .onclick = {(e: MouseEvent) => if(!isVisible) drawGraph else deleteDrawing}
 
   }
 
   override def update: Unit = {
-    if(super.isVisible) {
+    if(isVisible) {
       drawGraph
     }
   }
@@ -38,4 +38,8 @@ class GraphBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Graph]("Cir
     box.attr("viewBox", s"00 00 $width $height")
     scalajs.js.eval(GraphsToJS(graph))
   }
+
+    private def deleteDrawing: Unit = {
+      box.selectAll("g").html("")
+    }
 }

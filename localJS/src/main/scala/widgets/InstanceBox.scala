@@ -1,5 +1,6 @@
-package common.widgets
+package widgets
 
+import common.widgets.{ErrorBox, PanelBox}
 import preo.DSL
 import preo.ast.{Connector, CoreConnector}
 import preo.frontend.{Eval, Show, Simplify}
@@ -32,3 +33,4 @@ class InstanceBox(dependency: PanelBox[Connector], errors: ErrorBox) extends Pan
     }
   }
 }
+

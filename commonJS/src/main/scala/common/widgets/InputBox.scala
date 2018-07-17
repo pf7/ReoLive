@@ -5,7 +5,7 @@ import org.scalajs.dom.html
 
 //todo: f must execute this.update
 //todo: improve param function type
-class InputBox(f:(String) => Unit)
+class InputBox(reload:() => Unit)
   extends PanelBox[String]("Input (Shift-Enter to update)", None){
 
   var input: String = "dupl  ;  fifo * lossy"
@@ -28,7 +28,7 @@ class InputBox(f:(String) => Unit)
     inputAreaDom = dom.document.getElementById("inputArea").asInstanceOf[html.TextArea]
 
     inputAreaDom.onkeydown = {(e: dom.KeyboardEvent) =>
-      if(e.keyCode == 13 && e.shiftKey){e.preventDefault(); f(inputAreaDom.value)}
+      if(e.keyCode == 13 && e.shiftKey){e.preventDefault(); reload()}
       else ()
     }
   }

@@ -1,5 +1,6 @@
-package common.widgets
+package widgets
 
+import common.widgets.{PanelBox, ErrorBox}
 import preo.DSL
 import preo.ast.{BVal, Connector}
 import preo.common.TypeCheckException
@@ -41,10 +42,10 @@ class TypeBox(dependency: PanelBox[String], errors: ErrorBox) extends PanelBox[C
         }
       case preo.lang.Parser.Failure(msg,_) =>
         errors.error("Parser failure: " + msg)
-        //        instanceInfo.append("p").text("-")
+      //        instanceInfo.append("p").text("-")
       case preo.lang.Parser.Error(msg,_) =>
         errors.error("Parser error: " + msg)
-        //        instanceInfo.append("p").text("-")
+      //        instanceInfo.append("p").text("-")
     }
   }
 }
