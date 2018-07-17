@@ -1,4 +1,4 @@
-package common
+package common.frontend
 
 import preo.backend._
 
@@ -6,9 +6,7 @@ import preo.backend._
 //todo: add rectangle colision colision
 object AutomataToJS {
 
-  def localBuild[A<:Automata](aut: A): String = generateJS(getNodes(aut), getLinks(aut))
-
-  def remoteBuild(aut: Map[String, String]): String =  generateJS(aut("nodesautomata"), aut("linksautomata"))
+  def apply[A<:Automata](aut: A): String = generateJS(getNodes(aut), getLinks(aut))
 
   private def generateJS(nodes: String, edges: String): String = {
 

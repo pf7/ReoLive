@@ -15,7 +15,7 @@ How to compile and try-out
 
 * Generate the JavaScript code using sbt:
 
-> sbt \~local_script/fastOptJS
+> sbt ~fastOptJS
 
 * Open the `index-dev.html` file, already linking to the generated JavaScript code:
 
@@ -23,7 +23,7 @@ How to compile and try-out
 
 * Start the server using sbt:
 
->sbt \~run
+>sbt \~server/run
 
 
 

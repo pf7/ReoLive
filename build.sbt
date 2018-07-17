@@ -1,3 +1,4 @@
+
 lazy val common_settings = Seq(
   scalaVersion := "2.12.4",
   libraryDependencies ++= Seq(
@@ -10,6 +11,7 @@ lazy val common_settings = Seq(
 
 
 lazy val server = (project in file("server"))
+  .dependsOn(localJS, remoteJS)
   .enablePlugins(PlayScala)
   .disablePlugins(ScalaJSPlugin, WorkbenchPlugin)
   .settings(
@@ -32,6 +34,7 @@ lazy val server = (project in file("server"))
   )
 
 lazy val javascript_settings = Seq(
+//  Compile/run := {},
   version := "1.0",
   scalacOptions ++= Seq("-unchecked", "-deprecation","-feature"),
   //    hello := {println("Hello World!")},
@@ -41,14 +44,14 @@ lazy val javascript_settings = Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.1",
     "com.lihaoyi" %%% "scalatags" % "0.6.7",
     "org.singlespaced" %%% "scalajs-d3" % "0.3.4",
-    "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.0.5"
+    "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.1"
   ),
   unmanagedSourceDirectories in Compile += baseDirectory.value / "../lib/preo/src/main/scala"
 )
 
 
 
-lazy val common_javascript = (project in file("commonJS"))
+lazy val commonJS = (project in file("commonJS"))
   .enablePlugins(ScalaJSPlugin, WorkbenchPlugin)
   .disablePlugins(PlayScala)
   .settings(
@@ -57,8 +60,8 @@ lazy val common_javascript = (project in file("commonJS"))
     javascript_settings
   )
 
-lazy val local_javascript = (project  in file("localJS"))
-  .dependsOn(common_javascript)
+lazy val localJS = (project  in file("localJS"))
+  .dependsOn(commonJS)
   .enablePlugins(ScalaJSPlugin)
   .disablePlugins(PlayScala)
   .settings(
@@ -67,8 +70,8 @@ lazy val local_javascript = (project  in file("localJS"))
     javascript_settings
   )
 
-lazy val remote_javascript = (project in file("remoteJS"))
-  .dependsOn(common_javascript)
+lazy val remoteJS= (project in file("remoteJS"))
+  .dependsOn(commonJS)
   .enablePlugins(ScalaJSPlugin)
   .disablePlugins(PlayScala)
   .settings(
@@ -77,20 +80,12 @@ lazy val remote_javascript = (project in file("remoteJS"))
     javascript_settings
   )
 
-//
-//lazy val local_script = (project  in file("localJS"))
-//  .enablePlugins(ScalaJSPlugin, WorkbenchPlugin)
-//  .disablePlugins(PlayScala)
-//  .settings(
-//    common_settings,
-//    name := "local_script",
-//    javascript_settings
-//  )
-
-
 
 
 // todo: add here a task for, when compiling the server, copying the content into the app/...
 //
-//lazy val root = (project in file("."))
-//  .aggregate(local_script, server)
+//lazy val reotools = (project in file("."))
+//  .aggregate(server)
+//  .settings(
+//    Compile/mainClass := server/Compile/mainClass
+//  )

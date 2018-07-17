@@ -1,14 +1,11 @@
-package common
+package common.frontend
 
 import preo.backend._
 
 
 //todo: add rectangle colision colision
 object GraphsToJS {
-  def localBuild(graph: Graph): String = generateJS(getNodes(graph), getLinks(graph))
-
-  def remoteBuild(graph: Map[String, String]): String = generateJS(graph("nodes"), graph("edges"))
-
+  def apply(graph: Graph): String = generateJS(getNodes(graph), getLinks(graph))
 
   private def generateJS(nodes: String, edges: String): String = {
     s"""

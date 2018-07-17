@@ -2,22 +2,18 @@ package reolive
 
 package reolive
 
-
-import common.{AutomataToJS, GraphsToJS}
 import D3Lib.JsonLoader
+import common.frontend.{AutomataToJS, GraphsToJS}
 import org.scalajs.dom
 import dom.{EventTarget, MouseEvent, html}
 import org.scalajs.dom.raw.{Event, MessageEvent, WebSocket}
 import org.singlespaced.d3js.{Selection, d3}
-import preo.frontend.{Eval, Show, Simplify}
-import preo.common.{GenerationException, TypeCheckException}
+import preo.frontend.Show
 import preo.backend._
-import preo.DSL
-import preo.ast.BVal
 import preo.frontend.mcrl2.Model
 import preo.ast.CoreConnector
 
-import scala.scalajs.js.{JavaScriptException, UndefOr}
+import scala.scalajs.js.UndefOr
 import scalajs.js.annotation.JSExportTopLevel
 
 
