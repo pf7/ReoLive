@@ -15,7 +15,7 @@ libraryDependencies ++= Seq(
 //  "org.choco-solver" % "choco-solver" % "3.3.1-j7",
   "org.choco-solver" % "choco-solver" % "4.0.6",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-  "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.0.5",
+  "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.1",
   /////
   "org.scala-js" %%% "scalajs-dom" % "0.9.1",
   "com.lihaoyi" %%% "scalatags" % "0.6.7"
