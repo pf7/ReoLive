@@ -75,23 +75,31 @@ object GraphsToJS {
             node.exit().remove();
 
             // add components (nodes "rect" with group in {0,4})
-            var rects = d3.select(".nodescircuit").selectAll("rect")
+            var rects = d3.select(".nodescircuit").selectAll(".component")
                 .data(nodes.filter(function(d){
                   return d.group == 0 || d.group == 4
                 }));
 
-            rects.enter()
-                .append("rect")
-                .merge(rects)
+            var rect = rects.enter();
+            var rg = rect
+                 .append("g")
+                 .attr("class","component");
+            rg.attr("id", function (d) {return d.id;});
+            rg   .append("rect")
+//                .merge(rects)
                  .attr('width', rectangle_width)
                  .attr('height', rectangle_height)
-                 .attr("id", function (d) {return d.id;})
+                 .attr("y","-10px")
                  .call(d3.drag()
                    .on("start", dragstarted)
                    .on("drag", dragged)
                    .on("end", dragended))
                  .style("stroke", "black")
                  .attr("fill", "#ffd896");
+            rg
+                .append("text")
+                .attr("transform","translate(5,4)");
+                //.text("TEXT HERE!");
 
             rects.exit().remove();
 
@@ -163,7 +171,8 @@ object GraphsToJS {
                 .attr("startOffset", "50%")
                 .text(function (d) {
                   if(d.type === "drain" || d.type === "lossy" || d.type === "merger" ||
-                     d.type === "sync" || d.type === "fifo" || d.type === "fifofull"){
+                     d.type === "sync" || d.type === "fifo" || d.type
+                     === "fifofull"){
                     return "";
                   }
                   else{
@@ -177,7 +186,7 @@ object GraphsToJS {
                 .attr('cx', function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
                 .attr('cy', function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
 
-            var rect = d3.select(".nodescircuit").selectAll("rect")
+            var rect = d3.select(".nodescircuit").selectAll(".component")
                .attr('x', function(d) {
                   if(d.group == 0){
                     d.x = Math.max(rectangle_width, Math.min(width-1, d.x))
@@ -188,7 +197,8 @@ object GraphsToJS {
                     return d.x -rectangle_width /10;
                   }
                })
-               .attr('y', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;});
+               .attr('y', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;})
+               .attr("transform",function(d) { return "translate("+d.x+","+d.y+")"; } );
 
             var link = d3.select(".linkscircuit").selectAll("polyline")
                 .attr("points", function(d) {
