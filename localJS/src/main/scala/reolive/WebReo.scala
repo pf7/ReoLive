@@ -37,10 +37,15 @@ object WebReo extends{
       .attr("id", "content")
 
     val rowDiv = contentDiv.append("div")
-      .attr("class", "row")
+//      .attr("class", "row")
+        .attr("id", "mytable")
 
     val colDiv1 = rowDiv.append("div")
-      .attr("class", "col-sm-4")
+    //      .attr("class", "col-sm-4")
+        .attr("id", "leftbar")
+
+    colDiv1.append("div")
+        .attr("id","dragbar")
 
     // add InputArea
     inputBox = new InputBox(reload)
@@ -59,7 +64,9 @@ object WebReo extends{
     buttonsDiv.init(colDiv1)
 
     val svgDiv = rowDiv.append("div")
-      .attr("class", "col-sm-8")
+//      .attr("class", "col-sm-8")
+        .attr("id", "rightbar")
+
 
     svg = new GraphBox(instanceInfo)
     svg.init(svgDiv)
