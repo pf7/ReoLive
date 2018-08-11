@@ -6,3 +6,5 @@ target/
 localJS/src/main/resources/js/*.js
 LocalJS/src/main/resources/js/*.js.map
 LocalJS/target/
+server/app/assets/javascripts/local_js-opt.js
+server/app/assets/javascripts/remote_js-opt.js
