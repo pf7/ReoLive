@@ -5,8 +5,10 @@ import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
 import preo.backend.{Automata, PortAutomata}
+import preo.common.TimeoutException
 
-class AutomataBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Automata]("Automaton of the instance (under development)", Some(dependency)) {
+
+class AutomataBox(dependency: PanelBox[CoreConnector], errorBox: ErrorBox) extends PanelBox[Automata]("Automaton of the instance", Some(dependency)) {
   private var svg: Block = _
   private var automaton: Automata = _
 
@@ -19,15 +21,16 @@ class AutomataBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Automata
 
   override def init(div: Block): Unit = {
     svg= PanelBox.appendSvg(panelBox(div, false),"automata")
-    dom.document.getElementById("Automaton of the instance (under development)").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible) drawAutomata else deleteAutomaton}
+    dom.document.getElementById("Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+      .onclick = {(e: MouseEvent) => if(!isVisible) drawAutomata() else deleteAutomaton()}
 
   }
 
-  override def update: Unit = if(isVisible) drawAutomata
+  override def update: Unit = if(isVisible) drawAutomata()
 
 
-  private def drawAutomata: Unit = {
+  private def drawAutomata(): Unit =
+  try{
     automaton = Automata[PortAutomata](dependency.get)
     val sizeAut = automaton.getStates.size
     //              println("########")
@@ -40,8 +43,9 @@ class AutomataBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Automata
 
     scalajs.js.eval(AutomataToJS(automaton))
   }
+  catch checkExceptions(errorBox)
 
-  private def deleteAutomaton: Unit = {
+  private def deleteAutomaton(): Unit = {
       svg.selectAll("g").html("")
     }
 }

@@ -6,7 +6,7 @@ import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
 import preo.backend.Graph
 
-class GraphBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Graph]("Circuit of the instance", Some(dependency)) {
+class GraphBox(dependency: PanelBox[CoreConnector], errorBox: ErrorBox) extends PanelBox[Graph]("Circuit of the instance", Some(dependency)) {
   var graph: Graph = _
   var box: Block = _
   override def get: Graph = graph
@@ -19,17 +19,14 @@ class GraphBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Graph]("Cir
   override def init(div: Block): Unit = {
     box = PanelBox.appendSvg(super.panelBox(div,true),"circuit")
     dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible) drawGraph else deleteDrawing}
+      .onclick = {(e: MouseEvent) => if(!isVisible) drawGraph() else deleteDrawing()}
 
   }
 
-  override def update: Unit = {
-    if(isVisible) {
-      drawGraph
-    }
-  }
+  override def update: Unit = if(isVisible) drawGraph()
 
-  private def drawGraph: Unit = {
+
+  private def drawGraph(): Unit = try{
     graph = Graph(dependency.get)
     val size = graph.nodes.size
     val factor = Math.sqrt(size * 10000 / (densityCirc * widthCircRatio * heightCircRatio))
@@ -38,8 +35,9 @@ class GraphBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Graph]("Cir
     box.attr("viewBox", s"00 00 $width $height")
     scalajs.js.eval(GraphsToJS(graph))
   }
+  catch checkExceptions(errorBox)
 
-    private def deleteDrawing: Unit = {
+    private def deleteDrawing(): Unit = {
       box.selectAll("g").html("")
     }
 }

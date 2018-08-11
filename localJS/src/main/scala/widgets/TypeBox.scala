@@ -8,7 +8,7 @@ import preo.frontend.Show
 
 
 //todo: this should be local to localJS
-class TypeBox(dependency: PanelBox[String], errors: ErrorBox) extends PanelBox[Connector]("Type", Some(dependency)){
+class TypeBox(dependency: PanelBox[String], errorBox: ErrorBox) extends PanelBox[Connector]("Type", Some(dependency)){
 
   var con: Connector = _
   var typeInfo: Block = _
@@ -32,19 +32,15 @@ class TypeBox(dependency: PanelBox[String], errors: ErrorBox) extends PanelBox[C
           typeInfo.append("p")
             .text(Show(typ))
           if (rest != BVal(true))
-            errors.warning(s"Warning: did not check if ${Show(rest)}.")
+            errorBox.warning(s"Warning: did not check if ${Show(rest)}.")
           con = result
         }
-        catch {
-          // type error
-          case e: TypeCheckException =>
-            errors.error(/*Show(result)+ */ "Type error: " + e.getMessage)
-        }
+        catch checkExceptions(errorBox)
       case preo.lang.Parser.Failure(msg,_) =>
-        errors.error("Parser failure: " + msg)
+        errorBox.error("Parser failure: " + msg)
       //        instanceInfo.append("p").text("-")
       case preo.lang.Parser.Error(msg,_) =>
-        errors.error("Parser error: " + msg)
+        errorBox.error("Parser error: " + msg)
       //        instanceInfo.append("p").text("-")
     }
   }

@@ -2,6 +2,9 @@ package common.widgets
 
 import org.scalajs.dom
 import org.singlespaced.d3js.Selection
+import preo.common.{GenerationException, TimeoutException, TypeCheckException}
+
+import scala.scalajs.js.JavaScriptException
 
 
 //panel boxes are the abstract entities which contain each panel displayed on the website
@@ -67,6 +70,22 @@ abstract class PanelBox[A](title: String, dependency: Option[PanelBox[_]]){
   def init(div: Block): Unit
 
   def update: Unit
+
+  def checkExceptions(errorBox: ErrorBox): PartialFunction[Throwable,Unit] = {
+    // type error
+    case e: TypeCheckException =>
+      errorBox.error(/*Show(result)+ */"Type error: " + e.getMessage)
+    //            instanceInfo.append("p").text("-")
+    case e: GenerationException =>
+      errorBox.warning(/*Show(result)+ */"Generation failed: " + e.getMessage)
+    case e: TimeoutException =>
+      errorBox.error("Timeout: " + e.getMessage)
+    case e: JavaScriptException =>
+      errorBox.error(/*Show(result)+ */"JavaScript error : "+e+" - "+e.getClass)
+    //            instanceInfo.append("p").text("-")
+    case e => errorBox.error("unknown error:"+e+" - "+e.getClass)
+  }
+
 }
 
 
@@ -202,5 +221,4 @@ object PanelBox{
 
     svg
   }
-
 }

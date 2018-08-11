@@ -53,7 +53,6 @@ class TypeInstanceBox(reload:() => Unit, dependency: PanelBox[String], errors: E
 
     override def update: Unit = {
       val socket = new WebSocket("ws://localhost:9000/message")
-      var message: String = null
 
       socket.onmessage = { e: MessageEvent => {process(e.data.toString); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
 

@@ -65,10 +65,10 @@ object RemoteReo extends{
 //      .attr("class", "col-sm-8")
       .attr("id", "rightbar")
 
-    svg = new GraphBox(typeInstanceInfo)
+    svg = new GraphBox(typeInstanceInfo, errors)
     svg.init(svgDiv)
 
-    svgAut = new AutomataBox(typeInstanceInfo)
+    svgAut = new AutomataBox(typeInstanceInfo, errors)
     svgAut.init(svgDiv)
 
     mcrl2Box = new ModelBox(typeInstanceInfo)

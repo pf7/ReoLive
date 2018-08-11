@@ -68,10 +68,10 @@ object WebReo extends{
         .attr("id", "rightbar")
 
 
-    svg = new GraphBox(instanceInfo)
+    svg = new GraphBox(instanceInfo, errors)
     svg.init(svgDiv)
 
-    svgAut = new AutomataBox(instanceInfo)
+    svgAut = new AutomataBox(instanceInfo, errors)
     svgAut.init(svgDiv)
 
     mcrl2Box = new ModelBox(instanceInfo)
