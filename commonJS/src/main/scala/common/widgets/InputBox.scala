@@ -1,7 +1,9 @@
 package common.widgets
 
 import org.scalajs.dom
-import org.scalajs.dom.html
+import org.scalajs.dom.{EventTarget, html}
+
+import scala.scalajs.js.UndefOr
 
 //todo: f must execute this.update
 //todo: improve param function type
@@ -15,8 +17,18 @@ class InputBox(reload:() => Unit)
   override def get: String = input
 
   override def init(div: Block): Unit = {
-    val inputDiv = super.panelBox(div,true).append("div")
+    val inputDiv = super.panelBox(div,true, 80).append("div")
       .attr("id", "textBox")
+
+
+    val button = wrap.select("table").append("th")
+      .attr("float", "right")
+      .attr("width", "20%")
+      .append("button").attr("class", "btn btn-default btn-sm").attr("float", "right")
+
+    button.append("span").attr("class", "glyphicon glyphicon-refresh")
+
+    button.on("click", {(e: EventTarget, a: Int, b:UndefOr[Int])=> { reload()}})
 
     val inputArea = inputDiv.append("textarea")
       .attr("id", "inputArea")

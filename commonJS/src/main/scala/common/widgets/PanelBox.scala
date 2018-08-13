@@ -11,19 +11,23 @@ import scala.scalajs.js.JavaScriptException
 abstract class PanelBox[A](title: String, dependency: Option[PanelBox[_]]){
   type Block = Selection[dom.EventTarget]
 
+  var wrap:Block = null
 
   /**
     * Creates a collapsable pannel
     * */
   protected def panelBox(parent:Block
-                       ,visible:Boolean=true
-                       ) : Block = {
+                       ,visible:Boolean=true, percentage: Int =100) : Block = {
 
     var expander: Block = parent
-    val wrap = parent.append("div").attr("class","panel-group")
+    wrap = parent.append("div").attr("class","panel-group")
       .append("div").attr("class","panel panel-default").attr("id",title)
     expander = wrap
       .append("div").attr("class", "panel-heading my-panel-heading")
+        .append("table")
+        .attr("width", "100%")
+        .append("th")
+      .attr("width", s"$percentage%")
       .append("h4").attr("class", "panel-title")
       .append("a").attr("data-toggle", "collapse")
       .attr("href", "#collapse-1" + title.hashCode)
@@ -46,9 +50,9 @@ abstract class PanelBox[A](title: String, dependency: Option[PanelBox[_]]){
     val es = dom.document.getElementsByClassName("collapsed")
     var foundId = false
     for (i <- 0 until es.length) {
-      println(es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
+      println(es.item(i).parentNode.parentNode.parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
       //      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
-      foundId = foundId || es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == title
+      foundId = foundId || es.item(i).parentNode.parentNode.parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == title
     }
 
     //    println("### - "+es.length)

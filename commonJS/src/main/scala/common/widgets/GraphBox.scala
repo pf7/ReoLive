@@ -18,7 +18,7 @@ class GraphBox(dependency: PanelBox[CoreConnector], errorBox: ErrorBox) extends 
 
   override def init(div: Block): Unit = {
     box = PanelBox.appendSvg(super.panelBox(div,true),"circuit")
-    dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) => if(!isVisible) drawGraph() else deleteDrawing()}
 
   }
