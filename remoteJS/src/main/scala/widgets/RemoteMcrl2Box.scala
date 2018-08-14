@@ -1,8 +1,8 @@
 package widgets
 
-import common.widgets.{ErrorBox, ModelBox, PanelBox}
+import common.widgets.{ErrorBox, PanelBox}
 import org.scalajs.dom
-import org.scalajs.dom.raw.{Blob, BlobPropertyBag, XMLHttpRequest}
+import org.scalajs.dom.raw.XMLHttpRequest
 import org.scalajs.dom.{EventTarget, MouseEvent, html}
 import preo.ast.CoreConnector
 import preo.frontend.mcrl2.Model
@@ -59,7 +59,6 @@ class RemoteModelBox(dependency: PanelBox[CoreConnector], errorBox: ErrorBox) ex
     x.open("GET", url, true)
     x.onload = (e) => {
       if(x.status == 200){
-        println("coiso")
         scalajs.js.eval(
           s"""
             let a = document.createElement("a");
