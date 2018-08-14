@@ -1,5 +1,8 @@
 package controllers
 
+import java.io.File
+import scala.concurrent._
+import ExecutionContext.Implicits.global
 import javax.inject._
 import play.api.mvc._
 
@@ -27,4 +30,31 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   def remote = Action{
     Ok(views.html.remote())
   }
+
+  def model(id: Long) = Action{
+    val file = new File(s"/tmp/model_$id.mcrl2")
+    if(file.exists())
+      Ok.sendFile(file, fileName = _ => "model.mcrl2")
+    else
+      fileNotFound()
+  }
+
+  def lps(id: Long) = Action{
+    val file = new File(s"/tmp/model_$id.lps")
+    if(file.exists())
+      Ok.sendFile(file, fileName = _ => "model.lps")
+    else
+      fileNotFound()
+  }
+
+  def lts(id: Long) = Action{
+    val file = new File(s"/tmp/model_$id.lts")
+    if(file.exists())
+      Ok.sendFile(file, fileName = _ => "model.lts")
+    else
+      fileNotFound()
+  }
+
+
+  def fileNotFound() = NotFound("File not found! \nPerform an update and try again.")
 }

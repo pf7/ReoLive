@@ -13,6 +13,8 @@ class TypeInstanceBox(reload:() => Unit, dependency: PanelBox[String], errors: E
     private var instanceInfo: Block = _
     private var ccon: CoreConnector = _
 
+    var id: Long = 0
+
 
     /**
       * Creates a collapsable pannel
@@ -67,17 +69,21 @@ class TypeInstanceBox(reload:() => Unit, dependency: PanelBox[String], errors: E
       instanceInfo.text("")
 
       val result = Loader(receivedData)
+      println(result)
 
       //    println(result)
       result match {
-        case Right(message) => errors.error(message)
-        case Left((typ, reducTyp, con)) => {
+        case Right(message) => {
+          errors.error(message)
+        }
+        case Left((typ, reducTyp, con, ide)) => {
           typeInfo.append("p")
             .text(typ)
           instanceInfo.append("p")
             .text(Show(con) + ":\n  " +
               reducTyp)
           ccon = con
+          this.id = ide
           reload()
         }
       }

@@ -30,6 +30,12 @@ class ReoActor(out: ActorRef) extends Actor {
           val reducType = DSL.typeOf(reduc)
           val coreConnector = Eval.reduce(reduc)
 
+          val model = preo.frontend.mcrl2.Model(coreConnector)
+
+          model.storeInFile
+          model.generateLPS
+          model.generateLTS
+
           JsonCreater.create(typ, reducType, coreConnector).toString
         }
         catch {

@@ -27,15 +27,17 @@ How to compile local javascript and try-out
 How to compile client-server project and try-out
 ==============
 
-* Compile files using the script
+* Compile files using the script:
 
 > fast_compile.sh
 
 * Start the server using sbt:
 
->sbt \~server/run
+> sbt server/run
 
+* Open a browser and type:
 
+> localhost:9000
 
 
 

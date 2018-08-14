@@ -7,7 +7,7 @@ import org.singlespaced.d3js.d3
 import preo.backend._
 import preo.frontend.mcrl2.Model
 import preo.ast.CoreConnector
-import widgets.TypeInstanceBox
+import widgets.{RemoteModelBox, TypeInstanceBox}
 
 import scalajs.js.annotation.JSExportTopLevel
 
@@ -20,11 +20,11 @@ object RemoteReo extends{
 
 
   var inputBox: PanelBox[String] = _
-  var typeInstanceInfo: PanelBox[CoreConnector] = _
+  var typeInstanceInfo: TypeInstanceBox = _
   var errors: ErrorBox = _
   var svg: PanelBox[Graph] = _
   var svgAut: PanelBox[Automata] = _
-  var mcrl2Box: PanelBox[Model] = _
+  var mcrl2Box: RemoteModelBox = _
 
   @JSExportTopLevel("reolive.RemoteReo.main")
   def main(content: html.Div): Unit = {
@@ -55,6 +55,7 @@ object RemoteReo extends{
     errors = new ErrorBox
     errors.init(colDiv1)
 
+
     typeInstanceInfo = new TypeInstanceBox(second_reload,inputBox, errors)
     typeInstanceInfo.init(colDiv1)
 
@@ -71,8 +72,9 @@ object RemoteReo extends{
     svgAut = new AutomataBox(typeInstanceInfo, errors)
     svgAut.init(svgDiv)
 
-    mcrl2Box = new ModelBox(typeInstanceInfo)
+    mcrl2Box = new RemoteModelBox(typeInstanceInfo, errors)
     mcrl2Box.init(svgDiv)
+
 
     first_reload()
 
@@ -90,6 +92,7 @@ object RemoteReo extends{
     typeInstanceInfo.update
   }
   private def second_reload(): Unit = {
+    mcrl2Box.id = typeInstanceInfo.id
     svg.update
     svgAut.update
     mcrl2Box.update

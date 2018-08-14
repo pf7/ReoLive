@@ -15,7 +15,8 @@ object JsonCreater {
     JsObject(Map(
       "type" -> convert(typ),
       "reducType" -> convert(reductyp),
-      "connector" -> convert(con)
+      "connector" -> convert(con),
+      "id" -> JsNumber(Thread.currentThread().getId)
     ))
 
 

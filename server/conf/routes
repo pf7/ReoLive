@@ -15,3 +15,9 @@ GET     /remote                     controllers.HomeController.remote
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 GET     /message                    controllers.MessageController.socket
+
+GET     /model/:id                  controllers.HomeController.model(id:Long)
+
+GET     /lts/:id                    controllers.HomeController.lts(id:Long)
+
+GET     /lps/:id                    controllers.HomeController.lps(id:Long)

@@ -5,7 +5,8 @@ import preo.ast._
 import scala.util.parsing.json._
 
 object Loader{
-  def apply(rawjs: String):  Either[(String, String, CoreConnector), String] = {
+  def apply(rawjs: String):  Either[(String, String, CoreConnector, Int), String] = {
+    println(rawjs)
     val json = JSON.parseRaw(rawjs).get.asInstanceOf[JSONObject]
     val parsed = JSON.parseFull(rawjs).get.asInstanceOf[Map[String, Any]]
     //    println(json.getClass)
@@ -16,13 +17,15 @@ object Loader{
     //
     //    println(parsed)
 
-    if (parsed.contains("error")) Right(parsed.get("error").asInstanceOf[String])
+    if (parsed.contains("error")) {
+      Right(parsed("error").asInstanceOf[String])
+    }
     else {
       val typ = parsed("type").asInstanceOf[String]
       val reducTyp = parsed("reducType").asInstanceOf[String]
       val con = convertCon(parsed("connector").asInstanceOf[Map[String, Any]])
-
-      Left((typ, reducTyp, con))
+      val id = parsed("id").asInstanceOf[Int]
+      Left((typ, reducTyp, con, id))
     }
   }
 
