@@ -45,22 +45,15 @@ object Loader{
 
   private def convertInterface(i: String): CoreInterface = CoreInterface(i.toInt)
 
-  //  private def convertGraph(raw: Map[String, Any]): Map[String, String] = {
-  //    Map(
-  //      "nodes" -> convertList(raw("nodes").asInstanceOf[List[Map[String, Any]]]),
-  //      "edges" -> convertList(raw("edges").asInstanceOf[List[Map[String, Any]]])
-  //    )
-  //  }
-  //
-  //
-  //  private def convertAut(raw: Map[String, Any]): Map[String, String] = Map(
-  //    "nodesautomata" -> convertList(raw("nodesautomata").asInstanceOf[List[Map[String, Any]]]),
-  //    "linksautomata" -> convertList(raw("linksautomata").asInstanceOf[List[Map[String, Any]]])
-  //  )
-  //
-  //  private def convertList(objects: List[Map[String, Any]]): String = objects.map(convertMap).mkString("[",",","]")
-  //
-  //  private def convertMap(obj: Map[String, Any]): String = obj.toList.map{ case (a, b) => "\"" + a + "\": \"" + b.toString + "\""}.mkString("{", ",", "}")
+  def loadModalOutput(msg: String): Either[String, String] = {
+    val parsed = JSON.parseFull(msg).get.asInstanceOf[Map[String, Any]]
 
+    if (parsed.contains("error")) {
+      Right(parsed("error").asInstanceOf[String])
+    }
+    else{
+      Left(parsed("output").asInstanceOf[String])
+    }
+  }
 }
 

@@ -3,7 +3,6 @@ package services
 
 import play.api.libs.json._
 import preo.ast._
-import preo.backend._
 import preo.frontend.Show
 
 /**@
@@ -19,9 +18,14 @@ object JsonCreater {
       "id" -> JsNumber(Thread.currentThread().getId)
     ))
 
+  def create(output: String): JsValue = {
+    JsObject(Map(
+      "output" -> JsString(output)
+    ))
+  }
 
 
-  def create(error: String): JsValue = {
+  def createError(error: String): JsValue = {
     JsObject(Map(
       "error" -> JsString(error))
     )

@@ -21,3 +21,5 @@ GET     /model/:id                  controllers.HomeController.model(id:Long)
 GET     /lts/:id                    controllers.HomeController.lts(id:Long)
 
 GET     /lps/:id                    controllers.HomeController.lps(id:Long)
+
+GET     /modal                      controllers.ModalController.socket
