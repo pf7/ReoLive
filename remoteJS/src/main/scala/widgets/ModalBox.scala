@@ -66,7 +66,9 @@ class ModalBox(reload: => Unit, dependency: PanelBox[String], outputBox: OutputB
     socket.addEventListener("open", (e: Event) => {
       val string:String =
         s"""{ "modal": "$input","""+
-        s""" "connector" : "${dependency.get.replace("\\","\\\\")}" }"""
+        s""" "connector" : "${dependency.get
+          .replace("\\","\\\\")
+          .replace('\n',' ')}" }"""
       socket.send(string)
     })
   }
