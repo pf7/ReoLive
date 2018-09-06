@@ -48,20 +48,20 @@ object WebReo extends{
         .attr("id","dragbar")
 
     // add InputArea
-    inputBox = new InputBox(reload)
-    inputBox.init(colDiv1)
+    inputBox = new InputBox(reload())
+    inputBox.init(colDiv1,true)
 
     errors = new ErrorBox
     errors.init(colDiv1)
 
     typeInfo = new TypeBox(inputBox, errors)
-    typeInfo.init(colDiv1)
+    typeInfo.init(colDiv1,true)
 
     instanceInfo = new InstanceBox(typeInfo, errors)
-    instanceInfo.init(colDiv1)
+    instanceInfo.init(colDiv1,true)
 
-    val buttonsDiv = new ButtonsBox(reload, inputBox.asInstanceOf[InputBox])
-    buttonsDiv.init(colDiv1)
+    val buttonsDiv = new ButtonsBox(reload(), inputBox.asInstanceOf[InputBox])
+    buttonsDiv.init(colDiv1,false)
 
     val svgDiv = rowDiv.append("div")
 //      .attr("class", "col-sm-8")
@@ -69,13 +69,13 @@ object WebReo extends{
 
 
     svg = new GraphBox(instanceInfo, errors)
-    svg.init(svgDiv)
+    svg.init(svgDiv,true)
 
     svgAut = new AutomataBox(instanceInfo, errors)
-    svgAut.init(svgDiv)
+    svgAut.init(svgDiv,false)
 
     mcrl2Box = new ModelBox(instanceInfo)
-    mcrl2Box.init(svgDiv)
+    mcrl2Box.init(svgDiv,false)
 
     reload()
 
@@ -87,8 +87,7 @@ object WebReo extends{
     * Function that parses the expressions written in the input box and
     * tests if they're valid and generates the output if they are.
     */
-  private def reload(): Unit={
-
+  private def reload(): Unit = {
     errors.clear
     inputBox.update
     typeInfo.update

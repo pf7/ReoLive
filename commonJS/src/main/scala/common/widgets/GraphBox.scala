@@ -16,9 +16,9 @@ class GraphBox(dependency: PanelBox[CoreConnector], errorBox: ErrorBox) extends 
   private val densityCirc = 0.5 // nodes per 100x100 px
 
 
-  override def init(div: Block): Unit = {
-    box = PanelBox.appendSvg(super.panelBox(div,true),"circuit")
-    dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+  override def init(div: Block, visible: Boolean): Unit = {
+    box = PanelBox.appendSvg(super.panelBox(div,visible),"circuit")
+    dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) => if(!isVisible) drawGraph() else deleteDrawing()}
 
   }

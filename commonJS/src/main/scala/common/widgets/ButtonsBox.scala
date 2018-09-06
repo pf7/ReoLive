@@ -4,7 +4,7 @@ import org.scalajs.dom.EventTarget
 
 import scala.scalajs.js.UndefOr
 
-class ButtonsBox(reload:() => Unit, inputBox: InputBox)
+class ButtonsBox(reload: => Unit, inputBox: InputBox)
     extends PanelBox[String]("examples", None){
 
   private val buttons = Seq(
@@ -114,8 +114,8 @@ unzip =
 
   override def get: String = "No class can be dependent on this one!"
 
-  override def init(div: Block): Unit = {
-    val buttonsDiv = super.panelBox(div,true).append("div")
+  override def init(div: Block, visible: Boolean): Unit = {
+    val buttonsDiv = super.panelBox(div,visible).append("div")
       .attr("id", "buttons")
       .attr("style","padding: 2pt;")
 
@@ -135,7 +135,7 @@ unzip =
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
       inputBox.inputAreaDom.value = ss._2
-      reload()
+      reload
     }} : button.DatumFunction[Unit])
   }
 }

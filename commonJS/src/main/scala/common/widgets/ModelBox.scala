@@ -12,8 +12,8 @@ class ModelBox(dependency: PanelBox[CoreConnector]) extends PanelBox[Model]("mCR
 
   override def get: Model = model
 
-  override def init(div: Block): Unit = {
-    box = panelBox(div, false).append("div")
+  override def init(div: Block, visible: Boolean): Unit = {
+    box = panelBox(div, visible).append("div")
       .attr("id", "mcrl2Box")
 
 

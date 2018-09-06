@@ -19,39 +19,48 @@ class RemoteModelBox(dependency: PanelBox[CoreConnector], errorBox: ErrorBox) ex
 
   override def get: Model = model
 
-  override def init(div: Block): Unit = {
-    box = panelBox(div, false, 90).append("div")
+  override def init(div: Block, visible: Boolean): Unit = {
+    box = panelBox(div, visible, List("padding-right"->"90pt")).append("div")
       .attr("id", "mcrl2Box")
 
-    val modelButton = wrap.select("table").append("th")
-      .attr("float", "right")
-      .attr("width", "4%")
-      .append("button").attr("class", "btn btn-default btn-sm").attr("float", "right")
-
-    modelButton.append("span").html("&dArr;")
-    modelButton.on("click", {(e: EventTarget, a: Int, b:UndefOr[Int])=> { download(s"/model/${id}")}})
-
-    val lpsButton = wrap.select("table").append("th")
-      .attr("float", "right")
-      .attr("width", "10%")
-      .append("button").attr("class", "btn btn-default btn-sm").attr("float", "right")
-
-    lpsButton.append("span").html("LPS")
-    lpsButton.on("click", {(e: EventTarget, a: Int, b:UndefOr[Int])=> { download(s"/lps/$id")}})
-
-
-    val ltsButton = wrap.select("table").append("th")
-      .attr("float", "right")
-      .attr("width", "10%")
-      .append("button").attr("class", "btn btn-default btn-sm").attr("float", "right")
+    val ltsButton = wrap
+      .select("div")
+      .append("button").attr("class", "btn btn-default btn-sm")
+      .style("float","right")
+      .style("margin-top","-15pt")
+      .style("max-height","19pt")
+      .style("margin-left","2pt")
 
     ltsButton.append("span").html("LTS")
     ltsButton.on("click", {(e: EventTarget, a: Int, b:UndefOr[Int])=> { download(s"/lts/$id")}})
 
+    val lpsButton = wrap
+      .select("div")
+      .append("button").attr("class", "btn btn-default btn-sm")
+        .style("float","right")
+        .style("margin-top","-15pt")
+        .style("max-height","19pt")
+        .style("margin-left","2pt")
+
+    lpsButton.append("span").html("LPS")
+    lpsButton.on("click", {(e: EventTarget, a: Int, b:UndefOr[Int])=> { download(s"/lps/$id")}})
+
+    val modelButton = wrap
+      .select("div")
+      .append("button").attr("class", "btn btn-default btn-sm")
+      .style("float","right")
+      .style("margin-top","-15pt")
+      .style("max-height","19pt")
+      .style("margin-left","2pt")
+
+
+    modelButton.append("span").html("&dArr;")
+    modelButton.on("click", {(e: EventTarget, a: Int, b:UndefOr[Int])=> { download(s"/model/${id}")}})
+
 
 
     dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = { (e: MouseEvent) => if (!isVisible) produceMcrl2 else deleteModel}
+      .onclick = { e: MouseEvent => if (!isVisible) produceMcrl2 else deleteModel}
   }
 
   private def download(url: String) = {

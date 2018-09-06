@@ -6,7 +6,7 @@ import org.scalajs.dom.raw.{Event, MessageEvent, WebSocket}
 import preo.ast.CoreConnector
 import preo.frontend.Show
 
-class TypeInstanceBox(reload:() => Unit, dependency: PanelBox[String], errors: ErrorBox)
+class TypeInstanceBox(reload: => Unit, dependency: PanelBox[String], errors: ErrorBox)
   extends PanelBox[CoreConnector]("Type", Some(dependency))
   {
     private var typeInfo: Block = _
@@ -45,8 +45,8 @@ class TypeInstanceBox(reload:() => Unit, dependency: PanelBox[String], errors: E
 
     override def get: CoreConnector = ccon
 
-    override def init(div: Block): Unit = {
-      typeInfo = panelBox(div, true).append("div")
+    override def init(div: Block, visible: Boolean): Unit = {
+      typeInfo = panelBox(div, visible).append("div")
         .attr("id", "typeBox")
 
       instanceInfo = panelBox("Concrete instance",div, true).append("div")
@@ -84,7 +84,7 @@ class TypeInstanceBox(reload:() => Unit, dependency: PanelBox[String], errors: E
               reducTyp)
           ccon = con
           this.id = ide
-          reload()
+          reload
         }
       }
     }

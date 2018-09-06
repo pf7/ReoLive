@@ -12,8 +12,8 @@ class InstanceBox(dependency: PanelBox[Connector], errorBox: ErrorBox) extends P
 
   override def get: CoreConnector = ccon
 
-  override def init(div: Block): Unit = {
-    box = panelBox(div, true).append("div")
+  override def init(div: Block, visible: Boolean): Unit = {
+    box = panelBox(div, visible).append("div")
       .attr("id", "instanceBox")
   }
 

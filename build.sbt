@@ -25,7 +25,7 @@ lazy val server = (project in file("server"))
       "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
     ),
     libraryDependencies ++= Seq(
-      "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",
+      "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.0",
       "com.typesafe.play" %% "play" % "2.6.11",
       jdbc , ehcache , ws , specs2 % Test , guice
     ),
@@ -44,7 +44,7 @@ lazy val javascript_settings = Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.1",
     "com.lihaoyi" %%% "scalatags" % "0.6.7",
     "org.singlespaced" %%% "scalajs-d3" % "0.3.4",
-    "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.1"
+    "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.0"
   ),
   unmanagedSourceDirectories in Compile += baseDirectory.value / "../lib/preo/src/main/scala"
 )

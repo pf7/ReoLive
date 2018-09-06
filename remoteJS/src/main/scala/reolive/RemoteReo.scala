@@ -53,23 +53,23 @@ object RemoteReo extends{
       .attr("id","dragbar")
 
     // add InputArea
-    inputBox = new InputBox(first_reload)
-    inputBox.init(colDiv1)
+    inputBox = new InputBox(first_reload())
+    inputBox.init(colDiv1,true)
 
     errors = new ErrorBox
     errors.init(colDiv1)
 
 
-    typeInstanceInfo = new TypeInstanceBox(second_reload,inputBox, errors)
-    typeInstanceInfo.init(colDiv1)
+    typeInstanceInfo = new TypeInstanceBox(second_reload(),inputBox, errors)
+    typeInstanceInfo.init(colDiv1,true)
 
-    val buttonsDiv = new ButtonsBox(first_reload, inputBox.asInstanceOf[InputBox])
-    buttonsDiv.init(colDiv1)
+    val buttonsDiv = new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputBox])
+    buttonsDiv.init(colDiv1,false)
 
     outputBox = new OutputBox()
 
-    modalBox = new ModalBox(third_reload, inputBox, outputBox)
-    modalBox.init(colDiv1)
+    modalBox = new ModalBox(third_reload(), inputBox, outputBox)
+    modalBox.init(colDiv1,true)
 
     outputBox.init(colDiv1)
 
@@ -78,13 +78,13 @@ object RemoteReo extends{
       .attr("id", "rightbar")
 
     svg = new GraphBox(typeInstanceInfo, errors)
-    svg.init(svgDiv)
+    svg.init(svgDiv,true)
 
     svgAut = new AutomataBox(typeInstanceInfo, errors)
-    svgAut.init(svgDiv)
+    svgAut.init(svgDiv,false)
 
     mcrl2Box = new RemoteModelBox(typeInstanceInfo, errors)
-    mcrl2Box.init(svgDiv)
+    mcrl2Box.init(svgDiv,true)
 
 
     first_reload()
@@ -93,15 +93,21 @@ object RemoteReo extends{
   }
 
   /**
-    * Function that parses the expressions written in the input box and
+    * Called by InputBox.
+    * Parse the expressions written in the input box and
     * tests if they're valid and generates the output if they are.
     */
   private def first_reload(): Unit= {
-
     errors.clear
     inputBox.update
     typeInstanceInfo.update
   }
+
+  /**
+    * Called by TypeInstance upon producing a new value.
+    * Retrieve the instance from the TypeInstance widget and
+    * triggers the circuit, svg, and mCRL2 generation.
+    */
   private def second_reload(): Unit = {
     mcrl2Box.id = typeInstanceInfo.id
     svg.update
@@ -109,6 +115,10 @@ object RemoteReo extends{
     mcrl2Box.update
   }
 
+  /**
+    * Called by the ModalBox when pressed the button or shift-enter.
+    * Triggers the ModalBox to query the server and process the reply.
+    */
   private def third_reload(): Unit = {
     outputBox.clear
     modalBox.update

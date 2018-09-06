@@ -16,8 +16,8 @@ class TypeBox(dependency: PanelBox[String], errorBox: ErrorBox) extends PanelBox
 
   override def get: Connector = con
 
-  override def init(div: Block): Unit = {
-    typeInfo = panelBox(div, true).append("div")
+  override def init(div: Block, visible: Boolean): Unit = {
+    typeInfo = panelBox(div, visible).append("div")
       .attr("id", "typeBox")
   }
 

@@ -7,8 +7,8 @@ import preo.DSL
 import preo.ast.Connector
 import preo.common.{GenerationException, TypeCheckException}
 import preo.frontend.Eval
+import MCRL2Bind._
 
-import sys.process._
 
 
 object ModalActor {
@@ -17,23 +17,16 @@ object ModalActor {
 
 
 class ModalActor(out: ActorRef) extends Actor{
+  /**
+    * Reacts to messages containing a JSON with a connector (string) and a modal formula (string),
+    * produces a mcrl2 model and its LPS from the connector,
+    * calls mcrl2 to verify the formula,
+    * wraps each into a new JSON (via process),
+    * and forwards the result to the "out" actor to generate an info (or error) box.
+    */
   def receive = {
     case msg: String =>
       out ! process(msg)
-  }
-
-  private def savepbes(): (Int, String) = {
-    val id = Thread.currentThread().getId
-    val stdout = new StringBuilder
-    val stderr = new StringBuilder
-    val status = s"lts2pbes /tmp/model_$id.lts /tmp/modal_$id.pbes --formula=/tmp/modal_$id.mu".!(ProcessLogger(stdout append _, stderr append _))
-    if(status == 0) (status, stdout.toString)
-    else (status, stderr.toString)
-  }
-
-  private def solvepbes() = {
-    val id = Thread.currentThread().getId
-    s"pbes2bool /tmp/modal_$id.pbes".!!
   }
 
   private def process(msg: String): String = {
@@ -55,8 +48,9 @@ class ModalActor(out: ActorRef) extends Actor{
 
               val model = preo.frontend.mcrl2.Model(coreConnector)
 
-              model.storeInFile
-              model.generateLTS
+              storeInFile(model)
+//              generateLTS
+              callLtsGraph
 
 
               val id = Thread.currentThread().getId
@@ -80,12 +74,15 @@ class ModalActor(out: ActorRef) extends Actor{
 
               case e: GenerationException =>
                 JsonCreater.createError("Generation failed: " + e.getMessage).toString
+
+              case e: java.io.IOException => // by solvepbes/savepbes/storeInFile/generateLTS
+                JsonCreater.createError("IO exception: " + e.getMessage).toString
             }
-          case preo.lang.Parser.Failure(msg,_) =>
-            JsonCreater.createError("Parser failure: " + msg).toString
+          case preo.lang.Parser.Failure(emsg,_) =>
+            JsonCreater.createError("Parser failure: " + emsg + " in "+raw_connector.get).toString
           //        instanceInfo.append("p").text("-")
-          case preo.lang.Parser.Error(msg,_) =>
-            JsonCreater.createError("Parser error: " + msg).toString
+          case preo.lang.Parser.Error(emsg,_) =>
+            JsonCreater.createError("Parser error: " + emsg + " in "+raw_connector.get).toString
           //        instanceInfo.append("p").text("-")
         }
       }

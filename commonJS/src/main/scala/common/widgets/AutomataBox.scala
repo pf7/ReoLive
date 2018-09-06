@@ -19,8 +19,8 @@ class AutomataBox(dependency: PanelBox[CoreConnector], errorBox: ErrorBox) exten
 
   override def get: Automata = automaton
 
-  override def init(div: Block): Unit = {
-    svg= PanelBox.appendSvg(panelBox(div, false),"automata")
+  override def init(div: Block, visible: Boolean): Unit = {
+    svg= PanelBox.appendSvg(panelBox(div, visible),"automata")
     dom.document.getElementById("Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) => if(!isVisible) drawAutomata() else deleteAutomaton()}
 
