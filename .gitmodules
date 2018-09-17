@@ -1,3 +1,6 @@
 [submodule "preo"]
 	path = lib/preo
-	url = https://github.com/joseproenca/preo.git
+	url = https://github.com/ReoLanguage/Preo.git
+[submodule "hprog"]
+  path = lib/hprog
+  url = https://github.com/arcalab/hybrid-programming.git
