@@ -3,8 +3,12 @@ project/build.properties
 project/project/
 project/target/
 target/
-localJS/src/main/resources/js/*.js
-LocalJS/src/main/resources/js/*.js.map
+localJS/src/main/resources/js/local_js-opt.js
+LocalJS/src/main/resources/js/local_js-opt.js.map
+localJS/src/main/resources/js/local_js-fastopt.js
+localJS/src/main/resources/js/local_js-fastopt.js.map
 LocalJS/target/
 server/app/assets/javascripts/local_js-opt.js
 server/app/assets/javascripts/remote_js-opt.js
+server/app/assets/javascripts/local_js-fastopt.js.map
+server/app/assets/javascripts/remote_js-fastopt.js.map
