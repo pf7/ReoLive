@@ -7,7 +7,7 @@ import org.singlespaced.d3js.d3
 import preo.backend._
 import preo.frontend.mcrl2.Model
 import preo.ast.CoreConnector
-import widgets.{ModalBox, OutputBox, RemoteModelBox, TypeInstanceBox}
+import widgets.{LogicBox, OutputArea, RemoteModelBox, RemoteInstanceBox}
 
 import scalajs.js.annotation.JSExportTopLevel
 
@@ -19,15 +19,15 @@ import scalajs.js.annotation.JSExportTopLevel
 object RemoteReo extends{
 
 
-  var inputBox: PanelBox[String] = _
-  var typeInstanceInfo: TypeInstanceBox = _
-  var errors: ErrorBox = _
+  var inputBox: Box[String] = _
+  var typeInstanceInfo: RemoteInstanceBox = _
+  var errors: ErrorArea = _
 
-  var modalBox: PanelBox[String] = _
-  var outputBox: OutputBox = _
+  var modalBox: Box[String] = _
+  var outputBox: OutputArea = _
 
-  var svg: PanelBox[Graph] = _
-  var svgAut: PanelBox[Automata] = _
+  var svg: Box[Graph] = _
+  var svgAut: Box[Automata] = _
   var mcrl2Box: RemoteModelBox = _
 
   @JSExportTopLevel("reolive.RemoteReo.main")
@@ -45,46 +45,48 @@ object RemoteReo extends{
 //      .attr("class", "row")
       .attr("id", "mytable")
 
-    val colDiv1 = rowDiv.append("div")
+    val leftside = rowDiv.append("div")
 //      .attr("class", "col-sm-4")
-      .attr("id", "leftbar")
+      .attr("id", "leftbar_wr")
+      .attr("class", "leftside")
+    leftside.append("div")
+      .attr("id","dragbar_wr")
+      .attr("class", "middlebar")
 
-    colDiv1.append("div")
-      .attr("id","dragbar")
+    val rightside = rowDiv.append("div")
+      //      .attr("class", "col-sm-8")
+      .attr("id", "rightbar_wr")
+      .attr("class", "rightside")
 
     // add InputArea
-    inputBox = new InputBox(first_reload())
-    inputBox.init(colDiv1,true)
+    inputBox = new InputBox(first_reload(), default="dupl  ;  fifo * lossy", id="wr",rows=4)
+    inputBox.init(leftside,true)
 
-    errors = new ErrorBox
-    errors.init(colDiv1)
+    errors = new ErrorArea
+    errors.init(leftside)
 
 
-    typeInstanceInfo = new TypeInstanceBox(second_reload(),inputBox, errors)
-    typeInstanceInfo.init(colDiv1,true)
+    typeInstanceInfo = new RemoteInstanceBox(second_reload(),inputBox, errors)
+    typeInstanceInfo.init(leftside,true)
 
     val buttonsDiv = new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputBox])
-    buttonsDiv.init(colDiv1,false)
+    buttonsDiv.init(leftside,false)
 
-    outputBox = new OutputBox()
+    outputBox = new OutputArea()
 
-    modalBox = new ModalBox(third_reload(), inputBox, outputBox)
-    modalBox.init(colDiv1,true)
+    modalBox = new LogicBox(third_reload(), inputBox, outputBox)
+    modalBox.init(leftside,true)
 
-    outputBox.init(colDiv1)
-
-    val svgDiv = rowDiv.append("div")
-//      .attr("class", "col-sm-8")
-      .attr("id", "rightbar")
+    outputBox.init(leftside)
 
     svg = new GraphBox(typeInstanceInfo, errors)
-    svg.init(svgDiv,true)
+    svg.init(rightside,true)
 
     svgAut = new AutomataBox(typeInstanceInfo, errors)
-    svgAut.init(svgDiv,false)
+    svgAut.init(rightside,false)
 
     mcrl2Box = new RemoteModelBox(typeInstanceInfo, errors)
-    mcrl2Box.init(svgDiv,true)
+    mcrl2Box.init(rightside,false)
 
 
     first_reload()

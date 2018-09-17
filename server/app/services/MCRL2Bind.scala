@@ -8,8 +8,8 @@ import sys.process._
 
 
 object MCRL2Bind {
-//  private val mcrl2path = "/Applications/mCRL2.app/Contents/bin/"
-  val mcrl2path = ""
+  private val mcrl2path = "/Applications/mCRL2.app/Contents/bin/"
+//  val mcrl2path = ""
 
   def savepbes(): (Int, String) = {
     val id = Thread.currentThread().getId
@@ -20,7 +20,7 @@ object MCRL2Bind {
     else (status, stderr.toString)
   }
 
-  def solvepbes() = {
+  def solvepbes(): String = {
     val id = Thread.currentThread().getId
     s"${mcrl2path}pbes2bool /tmp/modal_$id.pbes".!!
   }
@@ -34,20 +34,20 @@ object MCRL2Bind {
     pw.close()
   }
 
-  def generateLPS: Int = {
+  def generateLPS(): Int = {
     val id = Thread.currentThread().getId
     s"${mcrl2path}mcrl22lps /tmp/model_$id.mcrl2 /tmp/model_$id.lps".!
   }
 
-  def generateLTS: Int = {
+  def generateLTS(): Int = {
     val id = Thread.currentThread().getId
-    generateLPS
+    generateLPS()
     s"${mcrl2path}lps2lts /tmp/model_$id.lps /tmp/model_$id.lts".!
   }
 
-  def callLtsGraph: Unit = {
+  def callLtsGraph(): Unit = {
     val id = Thread.currentThread().getId
-    generateLTS
+    generateLTS()
     s"${mcrl2path}ltsgraph /tmp/model_$id.lts".run()
   }
 

@@ -8,7 +8,8 @@ import preo.backend.{Automata, PortAutomata}
 import preo.common.TimeoutException
 
 
-class AutomataBox(dependency: PanelBox[CoreConnector], errorBox: ErrorBox) extends PanelBox[Automata]("Automaton of the instance", Some(dependency)) {
+class AutomataBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
+    extends Box[Automata]("Automaton of the instance", Some(dependency)) {
   private var svg: Block = _
   private var automaton: Automata = _
 
@@ -20,7 +21,7 @@ class AutomataBox(dependency: PanelBox[CoreConnector], errorBox: ErrorBox) exten
   override def get: Automata = automaton
 
   override def init(div: Block, visible: Boolean): Unit = {
-    svg= PanelBox.appendSvg(panelBox(div, visible),"automata")
+    svg= GraphBox.appendSvg(panelBox(div, visible),"automata")
     dom.document.getElementById("Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) => if(!isVisible) drawAutomata() else deleteAutomaton()}
 

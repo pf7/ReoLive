@@ -45,7 +45,8 @@
         <!--~~~~~~~~~~~~~~~~~
           CHANGE TABS HERE
         ~~~~~~~~~~~~~~~~~~-->
-        <li class="active"><a href="#families" data-toggle="tab" aria-expanded="true">Families</a></li>
+        <li class="active"><a href="#families" data-toggle="tab" aria-expanded="true">Reo Families</a></li>
+        <li><a href="#hyprogs" data-toggle="tab" aria-expanded="false">Hybrid Programs</a></li>
         <li><a href="#about" data-toggle="tab" aria-expanded="false">About</a></li>
         <!--~~~~~~~~~~~~~~-->
 
@@ -63,14 +64,28 @@
 
   <div class="tab-pane fade active in" id="families">
   <div class="bs-component">
-    
-    <div id="contentWrap"></div>
+
+    <!-- Reo Families -->
+    <div id="ReoFamilies"></div>
 
   </div>
   </div>
 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~-->
+  <!--~~~ Hybrid Programs ~~~-->
+  <!--~~~~~~~~~~~~~~~~~~~~~~~-->
 
-  <!-- ~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <div class="tab-pane fade" id="hyprogs">
+      <div class="bs-component">
+
+          <!-- Hybrid Programs -->
+          <div id="HybridPrograms"></div>
+
+      </div>
+  </div>
+
+
+      <!-- ~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- ~~~~~~  Members  ~~~~~~ -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~ -->
 
@@ -125,11 +140,12 @@
 
   <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>-->
   <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
-  <script type="text/javascript" src="js/springy.min.js"> </script>
+  <!--<script type="text/javascript" src="js/springy.min.js"> </script>-->
   <script type="text/javascript" src="js/bootstrap.min.js"></script>
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script type="text/javascript" src="js/local_js-fastopt.js"></script>
-  <script type="text/javascript" src="js/remote_js-fastopt.js"></script>
+  <script type="text/javascript" src="js/d3.v4.min.js"></script>
+  <script type="text/javascript" src="../../../target/scala-2.12/local_js-fastopt.js"></script>
+  <!-- <script type="text/javascript" src="js/local_js-fastopt.js"></script> -->
+  <!--<script type="text/javascript" src="js/remote_js-fastopt.js"></script>-->
   <script>
       ////////////////////
       // ACTIVATING TABS BASED ON URL
@@ -161,18 +177,20 @@
   </script>
 
   <script>
-    reolive.WebReo.main(document.getElementById('contentWrap'));
+    reolive.WebReo.main(document.getElementById('ReoFamilies'));
+    reolive.Lince.main(document.getElementById('HybridPrograms'));
   </script>
 
   <script type="text/javascript">
       //// RESIZING
       var i = 0;
+      var id = "";
       var dragging = false;
-      $('#dragbar').mousedown(function(e){
+      $('#dragbar_wr').mousedown(function(e){
+          id = "wr";
           e.preventDefault();
-
           dragging = true;
-          var main = $('#rightbar');
+          var main = $('#rightbar_wr');
           var ghostbar = $('<div>',
               {id:'ghostbar',
                   css: {
@@ -185,7 +203,24 @@
           $(document).mousemove(function(e){
               ghostbar.css("left",e.pageX+2);
           });
+      });
+      $('#dragbar_Lince').mousedown(function(e){
+          id = "Lince";
+          e.preventDefault();
+          dragging = true;
+          var main = $('#rightbar_Lince');
+          var ghostbar = $('<div>',
+              {id:'ghostbar',
+                  css: {
+                      height: "100%", //main.outerHeight(),
+                      top: main.offset().top,
+                      left: main.offset().left
+                  }
+              }).appendTo('body');
 
+          $(document).mousemove(function(e){
+              ghostbar.css("left",e.pageX+2);
+          });
       });
       $(document).mouseup(function(e){
           if (dragging)
@@ -194,9 +229,9 @@
               var mainPercentage = 100-percentage;
               // $('#console').text("side:" + percentage + " main:" + mainPercentage);
 
-              $('#leftbar').css("width",percentage + "%");
-              $('#rightbar').css("width",mainPercentage + "%");
-              $('#dragbar').css("margin-left",(percentage) + "%");
+              $('#leftbar_'+id).css("width",percentage + "%");
+              $('#rightbar_'+id).css("width",mainPercentage + "%");
+              $('#dragbar_'+id).css("margin-left",(percentage) + "%");
               $('#ghostbar').remove();
               $(document).unbind('mousemove');
               dragging = false;

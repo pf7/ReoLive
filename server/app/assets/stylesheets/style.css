@@ -78,18 +78,18 @@ html {
     display: table;
     clear: both;
 }
-#rightbar{
+.rightside{
     float: right;
     width: 75%;
     padding-left: 15px;
 }
-#leftbar{
+.leftside{
     width:25%;
     float: left;
     overflow-y: hidden;
 }
 
-#dragbar{
+.middlebar{
     background-color: black;
     opacity: 0;
     height: 100%;

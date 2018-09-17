@@ -1,3 +1,5 @@
+ThisBuild / scalaVersion := "2.12.6"
+
 
 lazy val common_settings = Seq(
   scalaVersion := "2.12.4",
@@ -27,10 +29,14 @@ lazy val server = (project in file("server"))
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.0",
       "com.typesafe.play" %% "play" % "2.6.11",
+      // "com.typesafe.play" %% "play-json" % "2.6.9",
       jdbc , ehcache , ws , specs2 % Test , guice
     ),
     //    unmanagedResourceDirectories in Test +=  Seq(baseDirectory ( _ /"target/web/public/test" )),
-    unmanagedSourceDirectories in Compile += baseDirectory.value / "../lib/preo/src/main/scala"
+    unmanagedSourceDirectories in Compile ++= Seq(
+      baseDirectory.value / "../lib/preo/src/main/scala",
+      baseDirectory.value / "../lib/hprog/src/main/scala"
+    )
   )
 
 lazy val javascript_settings = Seq(
@@ -46,7 +52,10 @@ lazy val javascript_settings = Seq(
     "org.singlespaced" %%% "scalajs-d3" % "0.3.4",
     "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.0"
   ),
-  unmanagedSourceDirectories in Compile += baseDirectory.value / "../lib/preo/src/main/scala"
+  unmanagedSourceDirectories in Compile ++= Seq(
+    baseDirectory.value / "../lib/preo/src/main/scala",
+    baseDirectory.value / "../lib/hprog/src/main/scala"
+  )
 )
 
 
@@ -77,7 +86,14 @@ lazy val remoteJS= (project in file("remoteJS"))
   .settings(
     common_settings,
     name := "remote_js",
-    javascript_settings
+    javascript_settings,
+    resolvers ++= Seq(
+      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+    ),
+    libraryDependencies ++= Seq(
+      // "com.typesafe.play" %% "play" % "2.6.11"
+      "com.typesafe.play" %% "play-json" % "2.6.9"
+    )
   )
 
 

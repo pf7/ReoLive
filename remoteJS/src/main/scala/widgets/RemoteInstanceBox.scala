@@ -1,13 +1,13 @@
 package widgets
 
-import common.widgets.{ErrorBox, PanelBox}
+import common.widgets.{ErrorArea, Box}
 import json.Loader
 import org.scalajs.dom.raw.{Event, MessageEvent, WebSocket}
 import preo.ast.CoreConnector
 import preo.frontend.Show
 
-class TypeInstanceBox(reload: => Unit, dependency: PanelBox[String], errors: ErrorBox)
-  extends PanelBox[CoreConnector]("Type", Some(dependency))
+class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: ErrorArea)
+  extends Box[CoreConnector]("Type", Some(dependency))
   {
     private var typeInfo: Block = _
     private var instanceInfo: Block = _

@@ -3,7 +3,7 @@ package widgets
 import org.scalajs.dom
 import org.singlespaced.d3js.Selection
 
-class OutputBox {
+class OutputArea {
   type Block = Selection[dom.EventTarget]
 
   var outputs: Block = _

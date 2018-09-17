@@ -17,13 +17,13 @@ import scalajs.js.annotation.JSExportTopLevel
   */
 object WebReo extends{
 
-  var inputBox: PanelBox[String] = _
-  var typeInfo: PanelBox[Connector] = _
-  var instanceInfo: PanelBox[CoreConnector] = _
-  var errors: ErrorBox = _
-  var svg: PanelBox[Graph] = _
-  var svgAut: PanelBox[Automata] = _
-  var mcrl2Box: PanelBox[Model] = _
+  var inputBox: Box[String] = _
+  var typeInfo: Box[Connector] = _
+  var instanceInfo: Box[CoreConnector] = _
+  var errors: ErrorArea = _
+  var svg: Box[Graph] = _
+  var svgAut: Box[Automata] = _
+  var mcrl2Box: Box[Model] = _
 
   @JSExportTopLevel("reolive.WebReo.main")
   def main(content: html.Div): Unit = {
@@ -34,48 +34,50 @@ object WebReo extends{
     //      .append("h1").text("Reo Live - Connector Families")
 
     val contentDiv = d3.select(content).append("div")
-      .attr("id", "content")
+      .attr("class", "content")
 
     val rowDiv = contentDiv.append("div")
 //      .attr("class", "row")
-        .attr("id", "mytable")
+        .attr("id", "mytable_wr")
 
-    val colDiv1 = rowDiv.append("div")
+    val leftside = rowDiv.append("div")
     //      .attr("class", "col-sm-4")
-        .attr("id", "leftbar")
+        .attr("id", "leftbar_wr")
+        .attr("class", "leftside")
+    leftside.append("div")
+        .attr("id","dragbar_wr")
+        .attr("class", "middlebar")
 
-    colDiv1.append("div")
-        .attr("id","dragbar")
+    val rightside = rowDiv.append("div")
+      //      .attr("class", "col-sm-8")
+      .attr("id", "rightbar_wr")
+      .attr("class", "rightside")
+
 
     // add InputArea
-    inputBox = new InputBox(reload())
-    inputBox.init(colDiv1,true)
+    inputBox = new InputBox(reload(), default="dupl  ;  fifo * lossy", id="wr", rows=4)
+    inputBox.init(leftside,true)
 
-    errors = new ErrorBox
-    errors.init(colDiv1)
+    errors = new ErrorArea(id="wr")
+    errors.init(leftside)
 
     typeInfo = new TypeBox(inputBox, errors)
-    typeInfo.init(colDiv1,true)
+    typeInfo.init(leftside,true)
 
     instanceInfo = new InstanceBox(typeInfo, errors)
-    instanceInfo.init(colDiv1,true)
+    instanceInfo.init(leftside,true)
 
     val buttonsDiv = new ButtonsBox(reload(), inputBox.asInstanceOf[InputBox])
-    buttonsDiv.init(colDiv1,false)
-
-    val svgDiv = rowDiv.append("div")
-//      .attr("class", "col-sm-8")
-        .attr("id", "rightbar")
-
+    buttonsDiv.init(leftside,false)
 
     svg = new GraphBox(instanceInfo, errors)
-    svg.init(svgDiv,true)
+    svg.init(rightside,true)
 
     svgAut = new AutomataBox(instanceInfo, errors)
-    svgAut.init(svgDiv,false)
+    svgAut.init(rightside,false)
 
-    mcrl2Box = new ModelBox(instanceInfo)
-    mcrl2Box.init(svgDiv,false)
+    mcrl2Box = new Mcrl2Box(instanceInfo,errors)
+    mcrl2Box.init(rightside,false)
 
     reload()
 

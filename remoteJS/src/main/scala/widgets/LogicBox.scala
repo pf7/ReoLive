@@ -1,6 +1,6 @@
 package widgets
 
-import common.widgets.{ErrorBox, PanelBox}
+import common.widgets.{ErrorArea, Box}
 import json.Loader
 import org.scalajs.dom
 import org.scalajs.dom.raw.{Event, MessageEvent, WebSocket}
@@ -10,7 +10,7 @@ import preo.frontend.Show
 
 import scala.scalajs.js.UndefOr
 
-class ModalBox(reload: => Unit, dependency: PanelBox[String], outputBox: OutputBox)  extends PanelBox[String]("Modal Logic", Some(dependency)){
+class LogicBox(reload: => Unit, dependency: Box[String], outputBox: OutputArea)  extends Box[String]("Modal Logic", Some(dependency)){
   var input: String = "<dupl1out1fifo2in1 | dupl1out2lossy3in1 | dupl1in1 > true"
 
   var inputAreaDom: html.TextArea = _
@@ -18,25 +18,10 @@ class ModalBox(reload: => Unit, dependency: PanelBox[String], outputBox: OutputB
   override def get: String = input
 
   override def init(div: Block, visible: Boolean): Unit = {
-    val inputDiv = super.panelBox(div,visible, List("padding-right"->"25pt") /*, 80*/)
+    val inputDiv = super.panelBox(div,visible /*List("padding-right"->"25pt")*/ /*, 80*/
+        ,buttons = List(Right("glyphicon glyphicon-refresh")-> (()=>reload)))
       .append("div")
       .attr("id", "modalBox")
-
-
-    val button = wrap
-          .select("div")
-//      .select("table").append("th")
-//      .attr("float", "right")
-//      .attr("width", "20%")
-        .append("button").attr("class", "btn btn-default btn-sm")
-          .style("float","right")
-          .style("margin-top","-15pt")
-          .style("display","flex")
-//        .attr("float", "right")
-
-    button.append("span").attr("class", "glyphicon glyphicon-refresh")
-
-    button.on("click", {(e: EventTarget, a: Int, b:UndefOr[Int])=> { reload }})
 
     val inputArea = inputDiv.append("textarea")
       .attr("id", "modalInputArea")

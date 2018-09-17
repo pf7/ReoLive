@@ -5,7 +5,7 @@ import org.scalajs.dom.EventTarget
 import scala.scalajs.js.UndefOr
 
 class ButtonsBox(reload: => Unit, inputBox: InputBox)
-    extends PanelBox[String]("examples", None){
+    extends Box[String]("examples", None){
 
   private val buttons = Seq(
     "writer"->"writer", "reader"->"reader",

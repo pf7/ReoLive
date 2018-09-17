@@ -3,7 +3,7 @@ package common.widgets
 import org.scalajs.dom
 import org.singlespaced.d3js.Selection
 
-class ErrorBox{
+class ErrorArea(id:String=""){
   type Block = Selection[dom.EventTarget]
 
   var errors: Block = _
@@ -19,5 +19,5 @@ class ErrorBox{
     for(s <- msg.split('\n')) err.append("p").attr("style","margin-top: 0px;").text(s)
   }
 
-  def clear: Unit = errors.text("")
+  def clear(): Unit = errors.text("")
 }

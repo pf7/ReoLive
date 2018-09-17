@@ -1,40 +1,37 @@
-package widgets
+package common.widgets
 
-import common.widgets.{ErrorArea, Box}
+import java.util.Base64
+
 import org.scalajs.dom
-import org.scalajs.dom.raw.XMLHttpRequest
-import org.scalajs.dom.{EventTarget, MouseEvent, html}
+import org.scalajs.dom.{MouseEvent, XMLHttpRequest, html}
 import preo.ast.CoreConnector
 import preo.frontend.mcrl2.Model
 
-import scala.scalajs.js.UndefOr
-
-
-
-class RemoteModelBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extends Box[Model]("mCRL2 of the instance", Some(dependency)){
-
-  var id: Long = 0
+class Mcrl2Box(dependency: Box[CoreConnector], errorBox: ErrorArea)
+    extends Box[Model]("mCRL2 of the instance", Some(dependency))  {
   private var box: Block = _
   private var model: Model = _
 
   override def get: Model = model
 
   override def init(div: Block, visible: Boolean): Unit = {
-    box = panelBox(div, visible, List("padding-right"->"90pt"),
-      buttons=List(Left("&dArr;")-> (()=>download(s"/model/$id"))
-                  ,Left("LPS")   -> (()=>download(s"/lps/$id"))
-                  ,Left("LTS")   -> (()=>download(s"/lts/$id"))))
+    box = panelBox(div, visible,buttons=List(Left("&dArr;")-> (()=>download())))
       .append("div")
       .attr("id", "mcrl2Box")
 
 
     dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = { e: MouseEvent => if (!isVisible) produceMcrl2() else deleteMcrl2()}
+      .onclick = { e: MouseEvent => if (!isVisible) produceMcrl2 else deleteMcrl2}
   }
 
-  private def download(url: String): Unit = {
+  private def download(): Unit = {
+//    <a href="data:application/octet-stream;charset=utf-16le;base64,//5mAG8AbwAgAGIAYQByAAoA">text file</a>
+    val enc = Base64.getEncoder.encode(get.toString.getBytes()).map(_.toChar).mkString
+    val filename = "model.mcrl2"
+    val url= "data:application/octet-stream;charset=utf-16le;base64,"+enc
+    //
     val x = new XMLHttpRequest()
-    x.open("GET", url, async = true)
+    x.open("GET", url, true)
     x.onload = e => {
       if(x.status == 200){
         scalajs.js.eval(
@@ -43,6 +40,8 @@ class RemoteModelBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extend
             a.style = "display: none";
             document.body.appendChild(a);
             a.href = "$url";
+            a.download="$filename";
+            a.text = "hidden link";
             //programatically click the link to trigger the download
             a.click();
             //release the reference to the file by revoking the Object URL
@@ -55,7 +54,6 @@ class RemoteModelBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extend
       }
     }
     x.send()
-
   }
   override def update(): Unit = if(isVisible) produceMcrl2()
 
@@ -67,4 +65,5 @@ class RemoteModelBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extend
   private def deleteMcrl2(): Unit = {
     box.html("")
   }
+
 }

@@ -1,6 +1,6 @@
 package widgets
 
-import common.widgets.{PanelBox, ErrorBox}
+import common.widgets.{Box, ErrorArea}
 import preo.DSL
 import preo.ast.{BVal, Connector}
 import preo.common.TypeCheckException
@@ -8,7 +8,7 @@ import preo.frontend.Show
 
 
 //todo: this should be local to localJS
-class TypeBox(dependency: PanelBox[String], errorBox: ErrorBox) extends PanelBox[Connector]("Type", Some(dependency)){
+class TypeBox(dependency: Box[String], errorBox: ErrorArea) extends Box[Connector]("Type", Some(dependency)){
 
   var con: Connector = _
   var typeInfo: Block = _
@@ -21,7 +21,7 @@ class TypeBox(dependency: PanelBox[String], errorBox: ErrorBox) extends PanelBox
       .attr("id", "typeBox")
   }
 
-  override def update: Unit = {
+  override def update(): Unit = {
 
     typeInfo.text("")
     DSL.parseWithError(dependency.get) match {
