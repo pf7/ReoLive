@@ -76,7 +76,7 @@ lazy val localJS = (project  in file("localJS"))
   .settings(
     common_settings,
     name := "local_js",
-    javascript_settings
+    javascript_settings,
   )
 
 lazy val remoteJS= (project in file("remoteJS"))

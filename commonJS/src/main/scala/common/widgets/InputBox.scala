@@ -15,7 +15,7 @@ import scala.scalajs.js.UndefOr
   * @param rows
   */
 class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
-  extends Box[String]("Input", None){
+  extends Box[String]("Input", Nil){
 
   var input: String = default
 
@@ -29,9 +29,15 @@ class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
       .append("div")
       .attr("id", "textBox_"+id)
 
+//    scalajs.js.eval(s"""var myCodeMirror = CodeMirror(document.body, {
+//                       |  value: "function myScript(){return 100;}",
+//                       |  mode:  "javascript"
+//                       |});
+//                       |""".stripMargin)
+
     val inputArea = inputDiv.append("textarea")
       .attr("id", "inputArea_"+id)
-      .attr("class","my-textarea")
+      .attr("class","my-textarea prettyprint lang-java")
       .attr("rows", rows.toString)
       .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
       .attr("placeholder", input)

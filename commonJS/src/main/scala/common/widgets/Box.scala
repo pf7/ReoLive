@@ -9,7 +9,7 @@ import scala.scalajs.js.{JavaScriptException, UndefOr}
 
 
 //panel boxes are the abstract entities which contain each panel displayed on the website
-abstract class Box[A](title: String, dependency: Option[Box[_]]){
+abstract class Box[A](title: String, dependency: List[Box[_]]){
   type Block = Selection[dom.EventTarget]
 
   var wrap:Block = _
@@ -102,10 +102,30 @@ abstract class Box[A](title: String, dependency: Option[Box[_]]){
 
   def get: A
 
+  /**
+    * Executed once at creation time, to append the content to the inside of this box
+    * @param div Placeholder that will receive the "append" with the content of the box
+    * @param visible is true when this box is initially visible (i.e., expanded).
+    */
   def init(div: Block, visible: Boolean): Unit
 
+  /**
+    * Block of code that should read the dependencies and:
+    *  - update its output value, and
+    *  - produce side-effects (e.g., redraw a diagram)
+    */
   def update(): Unit
 
+}
+
+object Box {
+  type Block = Selection[dom.EventTarget]
+
+  /**
+    * Default function that catches exceptions and produces an error message based on the type of exception.
+    * @param errorBox is the placeholder where the exception will be appended to.
+    * @return the function to be placed at a catch point.
+    */
   def checkExceptions(errorBox: ErrorArea): PartialFunction[Throwable,Unit] = {
     // type error
     case e: TypeCheckException =>
@@ -121,9 +141,5 @@ abstract class Box[A](title: String, dependency: Option[Box[_]]){
     case e => errorBox.error("unknown error:"+e+" - "+e.getClass)
   }
 
-}
-
-object Box {
-  type Block = Selection[dom.EventTarget]
 }
 

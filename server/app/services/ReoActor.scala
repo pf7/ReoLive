@@ -42,7 +42,7 @@ class ReoActor(out: ActorRef) extends Actor {
 
           storeInFile(model)
           //generateLPS (called by generateLTS)
-          generateLTS
+//          generateLTS
 
           JsonCreater.create(typ, reducType, coreConnector).toString
         }

@@ -24,6 +24,6 @@ class OutputArea {
     for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").text(s)
   }
 
-  def clear: Unit = outputs.text("")
+  def clear(): Unit = outputs.text("")
 }
 

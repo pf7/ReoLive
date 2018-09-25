@@ -7,7 +7,7 @@ import play.api.libs.json.{JsDefined, JsString, JsValue, Json}
   * Maybe useless
   */
 object JsonLoader {
-  def parse(msg: String): (Option[String], Option[String]) = {
+  def parse(msg: String): (Option[String], Option[String], Option[String]) = {
     val result: JsValue = Json.parse(msg)
     val raw_connector = result\"connector"
     val connector = raw_connector match{
@@ -19,6 +19,12 @@ object JsonLoader {
       case JsDefined(x) => Some(x.asInstanceOf[JsString].value)
       case undefined => None
     }
-    (connector, modal)
+    val raw_op = result\"operation"
+    val operation = raw_op match{
+      case JsDefined(x) => Some(x.asInstanceOf[JsString].value)
+      case undefined => None
+    }
+
+    (connector, modal, operation)
   }
 }

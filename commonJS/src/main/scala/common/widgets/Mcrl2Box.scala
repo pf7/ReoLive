@@ -8,7 +8,7 @@ import preo.ast.CoreConnector
 import preo.frontend.mcrl2.Model
 
 class Mcrl2Box(dependency: Box[CoreConnector], errorBox: ErrorArea)
-    extends Box[Model]("mCRL2 of the instance", Some(dependency))  {
+    extends Box[Model]("mCRL2 of the instance", List(dependency))  {
   private var box: Block = _
   private var model: Model = _
 
@@ -21,7 +21,7 @@ class Mcrl2Box(dependency: Box[CoreConnector], errorBox: ErrorArea)
 
 
     dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = { e: MouseEvent => if (!isVisible) produceMcrl2 else deleteMcrl2}
+      .onclick = { _: MouseEvent => if (!isVisible) produceMcrl2() else deleteMcrl2()}
   }
 
   private def download(): Unit = {

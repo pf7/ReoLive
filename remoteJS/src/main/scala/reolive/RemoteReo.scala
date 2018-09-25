@@ -7,7 +7,8 @@ import org.singlespaced.d3js.d3
 import preo.backend._
 import preo.frontend.mcrl2.Model
 import preo.ast.CoreConnector
-import widgets.{LogicBox, OutputArea, RemoteModelBox, RemoteInstanceBox}
+import reolive.RemoteReo.outputBox
+import widgets.{OutputArea, RemoteInstanceBox, RemoteLogicBox, RemoteModelBox}
 
 import scalajs.js.annotation.JSExportTopLevel
 
@@ -19,16 +20,16 @@ import scalajs.js.annotation.JSExportTopLevel
 object RemoteReo extends{
 
 
-  var inputBox: Box[String] = _
-  var typeInstanceInfo: RemoteInstanceBox = _
-  var errors: ErrorArea = _
+  private var inputBox: Box[String] = _
+  private var typeInstanceInfo: RemoteInstanceBox = _
+  private var errors: ErrorArea = _
 
-  var modalBox: Box[String] = _
-  var outputBox: OutputArea = _
+  private var modalBox: Box[String] = _
+  private var outputBox: OutputArea = _
 
-  var svg: Box[Graph] = _
-  var svgAut: Box[Automata] = _
-  var mcrl2Box: RemoteModelBox = _
+  private var svg: Box[Graph] = _
+  private var svgAut: Box[Automata] = _
+  private var mcrl2Box: RemoteModelBox = _
 
   @JSExportTopLevel("reolive.RemoteReo.main")
   def main(content: html.Div): Unit = {
@@ -58,40 +59,36 @@ object RemoteReo extends{
       .attr("id", "rightbar_wr")
       .attr("class", "rightside")
 
-    // add InputArea
-    inputBox = new InputBox(first_reload(), default="dupl  ;  fifo * lossy", id="wr",rows=4)
-    inputBox.init(leftside,true)
-
-    errors = new ErrorArea
-    errors.init(leftside)
-
-
-    typeInstanceInfo = new RemoteInstanceBox(second_reload(),inputBox, errors)
-    typeInstanceInfo.init(leftside,true)
-
-    val buttonsDiv = new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputBox])
-    buttonsDiv.init(leftside,false)
-
+    // Create boxes (order matters)
+    inputBox =
+      new InputBox(first_reload(), default="dupl  ;  fifo * lossy", id="wr",rows=4)
+    errors =
+      new ErrorArea
+    typeInstanceInfo =
+      new RemoteInstanceBox(second_reload(),inputBox, errors)
+    val buttonsDiv =
+      new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputBox])
+    svg =
+      new GraphBox(typeInstanceInfo, errors)
+    svgAut =
+      new AutomataBox(typeInstanceInfo, errors)
+    mcrl2Box =
+      new RemoteModelBox(typeInstanceInfo, errors)
     outputBox = new OutputArea()
+    // must be after inputbox and mcrl2box
+    modalBox = new RemoteLogicBox(inputBox, typeInstanceInfo, outputBox)
 
-    modalBox = new LogicBox(third_reload(), inputBox, outputBox)
+    inputBox.init(leftside,true)
+    errors.init(leftside)
+    typeInstanceInfo.init(leftside,true)
+    buttonsDiv.init(leftside,false)
     modalBox.init(leftside,true)
-
     outputBox.init(leftside)
-
-    svg = new GraphBox(typeInstanceInfo, errors)
     svg.init(rightside,true)
-
-    svgAut = new AutomataBox(typeInstanceInfo, errors)
     svgAut.init(rightside,false)
-
-    mcrl2Box = new RemoteModelBox(typeInstanceInfo, errors)
     mcrl2Box.init(rightside,false)
 
-
     first_reload()
-
-
   }
 
   /**
@@ -115,15 +112,6 @@ object RemoteReo extends{
     svg.update
     svgAut.update
     mcrl2Box.update
-  }
-
-  /**
-    * Called by the ModalBox when pressed the button or shift-enter.
-    * Triggers the ModalBox to query the server and process the reply.
-    */
-  private def third_reload(): Unit = {
-    outputBox.clear
-    modalBox.update
   }
 
 }

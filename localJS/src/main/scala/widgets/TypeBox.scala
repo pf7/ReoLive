@@ -8,7 +8,8 @@ import preo.frontend.Show
 
 
 //todo: this should be local to localJS
-class TypeBox(dependency: Box[String], errorBox: ErrorArea) extends Box[Connector]("Type", Some(dependency)){
+class TypeBox(dependency: Box[String], errorBox: ErrorArea)
+    extends Box[Connector]("Type", List(dependency)){
 
   var con: Connector = _
   var typeInfo: Block = _
@@ -35,7 +36,7 @@ class TypeBox(dependency: Box[String], errorBox: ErrorArea) extends Box[Connecto
             errorBox.warning(s"Warning: did not check if ${Show(rest)}.")
           con = result
         }
-        catch checkExceptions(errorBox)
+        catch Box.checkExceptions(errorBox)
       case preo.lang.Parser.Failure(msg,_) =>
         errorBox.error("Parser failure: " + msg)
       //        instanceInfo.append("p").text("-")

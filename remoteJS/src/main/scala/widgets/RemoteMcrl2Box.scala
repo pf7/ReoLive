@@ -11,7 +11,8 @@ import scala.scalajs.js.UndefOr
 
 
 
-class RemoteModelBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extends Box[Model]("mCRL2 of the instance", Some(dependency)){
+class RemoteModelBox(connector: Box[CoreConnector], errorBox: ErrorArea)
+    extends Box[Model]("mCRL2 of the instance", List(connector)){
 
   var id: Long = 0
   private var box: Block = _
@@ -23,7 +24,9 @@ class RemoteModelBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extend
     box = panelBox(div, visible, List("padding-right"->"90pt"),
       buttons=List(Left("&dArr;")-> (()=>download(s"/model/$id"))
                   ,Left("LPS")   -> (()=>download(s"/lps/$id"))
-                  ,Left("LTS")   -> (()=>download(s"/lts/$id"))))
+                  ,Left("LTS")   -> (()=>download(s"/lts/$id"))
+//                  ,Left("MA")   -> (()=> debugNames)
+                  ))
       .append("div")
       .attr("id", "mcrl2Box")
 
@@ -31,6 +34,13 @@ class RemoteModelBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extend
     dom.document.getElementById("mCRL2 of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = { e: MouseEvent => if (!isVisible) produceMcrl2() else deleteMcrl2()}
   }
+
+//  private def debugNames(): Unit = {
+//    errorBox.clear()
+//    errorBox.warning(model.getMultiActionsMap
+//      .map(kv => kv._1+":"+kv._2.map("\n - "+_).mkString(""))
+//      .mkString("\n"))
+//  }
 
   private def download(url: String): Unit = {
     val x = new XMLHttpRequest()
@@ -60,7 +70,7 @@ class RemoteModelBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extend
   override def update(): Unit = if(isVisible) produceMcrl2()
 
   private def produceMcrl2(): Unit = {
-    model = Model(dependency.get)
+    model = Model(connector.get)
     box.html(model.webString)
   }
 

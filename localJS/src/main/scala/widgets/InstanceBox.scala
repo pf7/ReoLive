@@ -6,7 +6,8 @@ import preo.ast.{Connector, CoreConnector}
 import preo.frontend.{Eval, Show, Simplify}
 
 //todo: this should also be shared
-class InstanceBox(dependency: Box[Connector], errorBox: ErrorArea) extends Box[CoreConnector]("Concrete instance", Some(dependency)){
+class InstanceBox(dependency: Box[Connector], errorBox: ErrorArea)
+    extends Box[CoreConnector]("Concrete instance", List(dependency)){
   private var ccon: CoreConnector = _
   private var box: Block = _
 
@@ -17,7 +18,7 @@ class InstanceBox(dependency: Box[Connector], errorBox: ErrorArea) extends Box[C
       .attr("id", "instanceBox")
   }
 
-  override def update: Unit = try {
+  override def update(): Unit = try {
     box.text("")
     Eval.unsafeInstantiate(dependency.get) match {
       case Some(reduc) =>
@@ -32,6 +33,6 @@ class InstanceBox(dependency: Box[Connector], errorBox: ErrorArea) extends Box[C
         errorBox.warning("Failed to reduce connector: " + Show(Simplify.unsafe(dependency.get)))
     }
   }
-  catch checkExceptions(errorBox)
+  catch Box.checkExceptions(errorBox)
 }
 

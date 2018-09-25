@@ -20,10 +20,13 @@ object WebReo extends{
   var inputBox: Box[String] = _
   var typeInfo: Box[Connector] = _
   var instanceInfo: Box[CoreConnector] = _
+  var logicBox: Box[String] = _
   var errors: ErrorArea = _
   var svg: Box[Graph] = _
   var svgAut: Box[Automata] = _
   var mcrl2Box: Box[Model] = _
+  var outputLogic: ErrorArea = _
+
 
   @JSExportTopLevel("reolive.WebReo.main")
   def main(content: html.Div): Unit = {
@@ -56,28 +59,36 @@ object WebReo extends{
 
     // add InputArea
     inputBox = new InputBox(reload(), default="dupl  ;  fifo * lossy", id="wr", rows=4)
-    inputBox.init(leftside,true)
 
-    errors = new ErrorArea(id="wr")
-    errors.init(leftside)
+    errors      = new ErrorArea(id="wr")
+    outputLogic = new ErrorArea(id="wrLog")
 
     typeInfo = new TypeBox(inputBox, errors)
-    typeInfo.init(leftside,true)
 
     instanceInfo = new InstanceBox(typeInfo, errors)
-    instanceInfo.init(leftside,true)
+
+    logicBox = new LogicBox(instanceInfo,outputLogic)
 
     val buttonsDiv = new ButtonsBox(reload(), inputBox.asInstanceOf[InputBox])
-    buttonsDiv.init(leftside,false)
 
     svg = new GraphBox(instanceInfo, errors)
-    svg.init(rightside,true)
 
     svgAut = new AutomataBox(instanceInfo, errors)
-    svgAut.init(rightside,false)
 
     mcrl2Box = new Mcrl2Box(instanceInfo,errors)
-    mcrl2Box.init(rightside,false)
+
+    // place items
+    inputBox.init(leftside,visible = true)
+    errors.init(leftside)
+    typeInfo.init(leftside,visible = true)
+    instanceInfo.init(leftside,visible = true)
+    buttonsDiv.init(leftside,visible = false)
+    logicBox.init(leftside,visible = true)
+    outputLogic.init(leftside)
+
+    svg.init(rightside,visible = true)
+    svgAut.init(rightside,visible = false)
+    mcrl2Box.init(rightside,visible = false)
 
     reload()
 

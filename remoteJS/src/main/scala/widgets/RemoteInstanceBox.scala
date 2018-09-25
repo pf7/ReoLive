@@ -7,7 +7,7 @@ import preo.ast.CoreConnector
 import preo.frontend.Show
 
 class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: ErrorArea)
-  extends Box[CoreConnector]("Type", Some(dependency))
+  extends Box[CoreConnector]("Type", List(dependency))
   {
     private var typeInfo: Block = _
     private var instanceInfo: Block = _

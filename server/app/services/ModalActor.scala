@@ -30,7 +30,7 @@ class ModalActor(out: ActorRef) extends Actor{
   }
 
   private def process(msg: String): String = {
-    val (raw_connector, modal_instance) = JsonLoader.parse(msg)
+    val (raw_connector, modal_instance, operation) = JsonLoader.parse(msg)
     if(raw_connector.isEmpty){
       JsonCreater.createError("Parser error: Empty connector").toString
     }
@@ -48,23 +48,35 @@ class ModalActor(out: ActorRef) extends Actor{
 
               val model = preo.frontend.mcrl2.Model(coreConnector)
 
-              storeInFile(model)
-//              generateLTS
-              callLtsGraph
+              operation match {
+                case Some("view") =>
+                  storeInFile(model)
 
+                  // generateLTS
+                  callLtsGraph
+                  "ok"
+                case Some("check") =>
+                  val id = Thread.currentThread().getId
+                  storeInFile(model)
+                  generateLTS
 
-              val id = Thread.currentThread().getId
-              val file = new File(s"/tmp/modal_$id.mu")
-              file.setExecutable(true)
-              val pw = new PrintWriter(file)
-              pw.write(modal_instance.get)
-              pw.close()
+                  val file = new File(s"/tmp/modal_$id.mu")
+                  file.setExecutable(true)
+                  val pw = new PrintWriter(file)
+                  pw.write(modal_instance.get)
+                  pw.close()
 
-              val save_output = savepbes()
-              if(save_output._1 == 0)
-                JsonCreater.create(solvepbes()).toString
-              else
-                JsonCreater.createError("Modal Logic failed: " + save_output._2).toString
+                  val save_output = savepbes()
+                  if(save_output._1 == 0)
+                    JsonCreater.create(solvepbes()).toString
+                  else
+                    JsonCreater.createError("Modal Logic failed: " + save_output._2+
+                      "\n when parsing\n"+modal_instance.get).toString
+                case Some(op) =>
+                  JsonCreater.createError("unknown operation: "+op).toString()
+                case None =>
+                  JsonCreater.createError("no operation found.").toString()
+              }
 
             }
             catch {

@@ -7,7 +7,8 @@ import org.singlespaced.d3js.Selection
 import preo.ast.CoreConnector
 import preo.backend.Graph
 
-class GraphBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extends Box[Graph]("Circuit of the instance", Some(dependency)) {
+class GraphBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
+    extends Box[Graph]("Circuit of the instance", List(dependency)) {
   var graph: Graph = _
   var box: Block = _
   override def get: Graph = graph
@@ -35,7 +36,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: ErrorArea) extends Box[
     box.attr("viewBox", s"00 00 $width $height")
     scalajs.js.eval(GraphsToJS(graph))
   }
-  catch checkExceptions(errorBox)
+  catch Box.checkExceptions(errorBox)
 
     private def deleteDrawing(): Unit = {
       box.selectAll("g").html("")

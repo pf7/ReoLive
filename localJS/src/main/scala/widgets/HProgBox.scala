@@ -1,13 +1,14 @@
 package widgets
 
-import common.widgets.{ErrorArea, Box}
+import common.widgets.{Box, ErrorArea}
 import hprog.ast.Prog
 import hprog.DSL
 import hprog.frontend.Show
 
 
 //todo: this should be local to localJS
-class HProgBox(dependency: Box[String], errorBox: ErrorArea) extends Box[Prog]("Parsed program", Some(dependency)){
+class HProgBox(dependency: Box[String], errorArea: ErrorArea)
+    extends Box[Prog]("Parsed program", List(dependency)){
 
   // state
   var prog: Prog= _
@@ -30,10 +31,10 @@ class HProgBox(dependency: Box[String], errorBox: ErrorArea) extends Box[Prog]("
             .html(Show(result).replace("\n"," <br>\n"))
           prog = result
       case hprog.lang.Parser.Failure(msg,_) =>
-        errorBox.error("Parser failure: " + msg)
+        errorArea.error("Parser failure: " + msg)
       //        instanceInfo.append("p").text("-")
       case hprog.lang.Parser.Error(msg,_) =>
-        errorBox.error("Parser error: " + msg)
+        errorArea.error("Parser error: " + msg)
       //        instanceInfo.append("p").text("-")
     }
   }

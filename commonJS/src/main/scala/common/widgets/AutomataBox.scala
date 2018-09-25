@@ -9,7 +9,7 @@ import preo.common.TimeoutException
 
 
 class AutomataBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
-    extends Box[Automata]("Automaton of the instance", Some(dependency)) {
+    extends Box[Automata]("Automaton of the instance", List(dependency)) {
   private var svg: Block = _
   private var automaton: Automata = _
 
@@ -23,11 +23,11 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
   override def init(div: Block, visible: Boolean): Unit = {
     svg= GraphBox.appendSvg(panelBox(div, visible),"automata")
     dom.document.getElementById("Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible) drawAutomata() else deleteAutomaton()}
+      .onclick = {e: MouseEvent => if(!isVisible) drawAutomata() else deleteAutomaton()}
 
   }
 
-  override def update: Unit = if(isVisible) drawAutomata()
+  override def update(): Unit = if(isVisible) drawAutomata()
 
 
   private def drawAutomata(): Unit =
@@ -44,7 +44,7 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
 
     scalajs.js.eval(AutomataToJS(automaton))
   }
-  catch checkExceptions(errorBox)
+  catch Box.checkExceptions(errorBox)
 
   private def deleteAutomaton(): Unit = {
       svg.selectAll("g").html("")

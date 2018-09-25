@@ -19,10 +19,10 @@
 }
 
 .row {
-  /*padding-left: 15px;*/
-  /*padding-right: 15px;*/
-  margin-left: 0px;
-  margin-right: 0px;
+    /*padding-left: 15px;*/
+    /*padding-right: 15px;*/
+    margin-left: 0px;
+    margin-right: 0px;
 }
 
 .body {
@@ -47,11 +47,11 @@
 .my-textarea {border: none ;}
 
 .container {
-  /*padding: 0;*/
-  margin-left: 15px;
-  margin-right: 15px;
-  padding-left: 0px;
-  padding-right: 0px;
+    /*padding: 0;*/
+    margin-left: 15px;
+    margin-right: 15px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 .tab-pane {
@@ -78,26 +78,26 @@ html {
     display: table;
     clear: both;
 }
-#rightbar{
-   float: right;
+.rightside{
+    float: right;
     width: 75%;
-  padding-left: 15px;
+    padding-left: 15px;
 }
-#leftbar{
-  width:25%;
-  float: left;
-  overflow-y: hidden;
+.leftside{
+    width:25%;
+    float: left;
+    overflow-y: hidden;
 }
 
-#dragbar{
-  background-color: black;
-  opacity: 0;
-  height: 100%;
-  float: right;
-  width: 15px;
-  position: absolute;
-  cursor: col-resize;
-  margin-left: 25%;
+.middlebar{
+    background-color: black;
+    opacity: 0;
+    height: 100%;
+    float: right;
+    width: 15px;
+    position: absolute;
+    cursor: col-resize;
+    margin-left: 25%;
 }
 #ghostbar{
     width:3px;
