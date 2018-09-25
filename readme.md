@@ -15,14 +15,11 @@ How to compile local javascript and try-out
 
 * Generate the JavaScript code using sbt:
 
-> sbt ~localJS/fastOptJS
-
-* Copy the `local_js-fastopt.js` file in the target folder, 
- into the `resources/js` folder
+> sbt localJS/fastOptJS
 
 * Open the `index-dev.html` file, already linking to the generated JavaScript code:
 
-> open src/main/resources/index-dev.html
+> open localJS/src/main/resources/index-dev.html
 
 How to compile client-server project and try-out
 ==============
