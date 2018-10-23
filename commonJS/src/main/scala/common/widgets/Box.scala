@@ -81,7 +81,7 @@ abstract class Box[A](title: String, dependency: List[Box[_]]){
     val es = dom.document.getElementsByClassName("collapsed")
     var foundId = false
     for (i <- 0 until es.length) {
-      println(es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
+      // println(es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
       //      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
       foundId = foundId || es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == title
     }

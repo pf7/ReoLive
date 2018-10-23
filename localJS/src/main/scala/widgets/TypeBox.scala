@@ -37,8 +37,8 @@ class TypeBox(dependency: Box[String], errorBox: ErrorArea)
           con = result
         }
         catch Box.checkExceptions(errorBox)
-      case preo.lang.Parser.Failure(msg,_) =>
-        errorBox.error("Parser failure: " + msg)
+      case f@preo.lang.Parser.Failure(msg,_) =>
+        errorBox.error(f.toString())
       //        instanceInfo.append("p").text("-")
       case preo.lang.Parser.Error(msg,_) =>
         errorBox.error("Parser error: " + msg)

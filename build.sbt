@@ -1,5 +1,5 @@
 ThisBuild / scalaVersion := "2.12.6"
-
+val circeVersion = "0.9.3"
 
 lazy val common_settings = Seq(
   scalaVersion := "2.12.4",
@@ -50,7 +50,10 @@ lazy val javascript_settings = Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.1",
     "com.lihaoyi" %%% "scalatags" % "0.6.7",
     "org.singlespaced" %%% "scalajs-d3" % "0.3.4",
-    "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.0"
+    "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.0",
+    "io.circe" %% "circe-core" % circeVersion, // json parser
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.circe" %% "circe-parser" % circeVersion
   ),
   unmanagedSourceDirectories in Compile ++= Seq(
     baseDirectory.value / "../lib/preo/src/main/scala",

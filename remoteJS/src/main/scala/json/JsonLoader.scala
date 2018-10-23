@@ -25,7 +25,7 @@ object Loader{
 //    }
 
 
-    println(rawjs)
+    // println(rawjs)
     val json = JSON.parseRaw(rawjs).get.asInstanceOf[JSONObject]
     val parsed = JSON.parseFull(rawjs).get.asInstanceOf[Map[String, Any]]
     //    println(json.getClass)
@@ -66,14 +66,22 @@ object Loader{
       case "id" => CId(convertInterface(raw("i").asInstanceOf[String]))
       case "symmetry" => CSymmetry(convertInterface(raw("i").asInstanceOf[String]), convertInterface(raw("j").asInstanceOf[String]))
       case "trace" => CTrace(convertInterface(raw("i").asInstanceOf[String]), convertCon(raw("c").asInstanceOf[Map[String, Any]]))
-      case "prim" => CPrim(raw("name").asInstanceOf[String], convertInterface(raw("i").asInstanceOf[String]), convertInterface(raw("j").asInstanceOf[String]), None)
-      case "sub" => CSubConnector(raw("name").asInstanceOf[String], convertCon(raw("c").asInstanceOf[Map[String, Any]]), Nil)
+      case "prim" => CPrim(raw("name").asInstanceOf[String], convertInterface(raw("i").asInstanceOf[String]),
+          convertInterface(raw("j").asInstanceOf[String]), convertSome(raw("extra").asInstanceOf[String]))
+      case "sub" => CSubConnector(raw("name").asInstanceOf[String], convertCon(raw("c").asInstanceOf[Map[String, Any]]), convertAnns(raw("ann").asInstanceOf[Map[String,Any]]))
       case _ => null
     }
 
   }
 
   private def convertInterface(i: String): CoreInterface = CoreInterface(i.toInt)
+  private def convertSome(s:String): Option[String] = if (s.isEmpty) None else Some(s)
+  private def convertAnns(map: Map[String, Any]): List[Annotation] = map("type") match {
+    case "Nil" => Nil
+    case _ => convertAnn(map("head").asInstanceOf[Map[String,Any]]) :: convertAnns(map("tail").asInstanceOf[Map[String,Any]])
+  }
+  private def convertAnn(map: Map[String, Any]): Annotation = Annotation(map("name").asInstanceOf[String],None) // IGNORING VALUES
+
 
   def loadModalOutput(msg: String): Either[String, String] = {
 //    val js = Json.parse(msg)

@@ -60,6 +60,7 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
     // send request to process
     socket.onmessage = { e: MessageEvent => {process(e.data.toString); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
 
+    // build JSON and send it through the socket
     socket.addEventListener("open", (e: Event) => {
       val string:String =
         s"""{ "modal": "${LogicBox.expandFormula(input,model)

@@ -24,10 +24,10 @@ object GraphsToJS {
           .force('center', d3.forceCenter(width / 2, height / 2))
           .force('y', d3.forceY().y(function(d) { return 0;}))
           .force('x', d3.forceX().x(function(d) {
-            if (d.group >= 3){
+            if (d.group == 3 || d.group == 4){
               return width/2;
             }
-            if (d.group <=1){
+            if (d.group == 0 || d.group == 1){
               return -width/2;
             }
             return 0;
@@ -50,9 +50,9 @@ object GraphsToJS {
                 .attr("r", radius - 0.75)
                 .attr("id", function (d) {return d.id;})
                 .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended))
+                  .on("start", dragstarted)
+                  .on("drag", dragged)
+                  .on("end", dragended))
                 .style("stroke-opacity" , "1")
                 .style("stroke-width", "2px")
                 .style("stroke", function(d){
@@ -81,12 +81,14 @@ object GraphsToJS {
                 }));
 
             var rect = rects.enter();
-            var rg = rect
-                 .append("g")
-                 .attr("class","component");
-            rg.attr("id", function (d) {return d.id;});
+            var rg = rect;
+//                 .append("g")
+//                 .attr("class","component");
+//            rg.attr("id", function (d) {return d.id;});
             rg   .append("rect")
 //                .merge(rects)
+                 .attr("id", function (d) {return d.id;})
+                 .attr("class","component") // test
                  .attr('width', rectangle_width)
                  .attr('height', rectangle_height)
                  .attr("y","-10px")
@@ -102,6 +104,36 @@ object GraphsToJS {
                 //.text("TEXT HERE!");
 
             rects.exit().remove();
+
+            // add boxes (nodes "rect" with group 5)
+            var boxes = d3.select(".nodescircuit").selectAll(".box")
+                .data(nodes.filter(function(d){
+                  return d.group == 5
+                }));
+
+            var box = boxes.enter();
+            var rg = box
+                 .append("g")
+                 .attr("class","box");
+            rg.attr("id", function (d) {return d.id;});
+            rg   .append("rect")
+//                 .attr("class","box")
+//                 .attr("id", function (d) {return d.id;})
+                 .attr('width', function (d) {return ((d.name.length*8.3) + 10);} )
+                 .attr('height', rectangle_height)
+                 .attr("y","-10px")
+                 .call(d3.drag()
+                   .on("start", dragstarted)
+                   .on("drag", dragged)
+                   .on("end", dragended))
+                 .style("stroke", "black")
+                 .attr("fill", "#d2e2ff");
+            rg
+                .append("text")
+                .attr("transform","translate(5,4)")
+                .text( function (d) {return d.name;} );
+
+            boxes.exit().remove();
 
 
              //add links
@@ -182,24 +214,36 @@ object GraphsToJS {
         }
 
         function ticked() {
+            // MOVE NODES
             var node = d3.select(".nodescircuit").selectAll("circle")
                 .attr('cx', function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
                 .attr('cy', function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
 
+            // MOVE BOXES
+            var box = d3.select(".nodescircuit").selectAll(".box")
+                //.attr('x', function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
+                //.attr('y', function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y)); })
+//                .attr('cx', function(d) {d.x = Math.max(11, Math.min(width  - rectangle_width , d.x)); return d.x - rectangle_width/2;})
+//                .attr('cy', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;})
+                .attr("transform",function(d) {
+                    return "translate("+(d.x-((d.name.length*8.3) + 10)/2)+","+(d.y)+")"; } );
+
+            // MOVE COMPONENTS
             var rect = d3.select(".nodescircuit").selectAll(".component")
-               .attr('x', function(d) {
-                  if(d.group == 0){
-                    d.x = Math.max(rectangle_width, Math.min(width-1, d.x))
-                    return d.x - rectangle_width;
-                  }
-                  else{
-                    d.x = Math.max(5, Math.min(width - rectangle_width, d.x))
-                    return d.x -rectangle_width /10;
-                  }
-               })
-               .attr('y', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;})
+//               .attr('cx', function(d) {
+//                  if(d.group == 0){
+//                    d.x = Math.max(rectangle_width, Math.min(width-1, d.x))
+//                    return d.x - rectangle_width;
+//                  }
+//                  else{
+//                    d.x = Math.max(5, Math.min(width - rectangle_width, d.x))
+//                    return d.x -rectangle_width /10;
+//                  }
+//               })
+//               .attr('cy', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;})
                .attr("transform",function(d) { return "translate("+d.x+","+d.y+")"; } );
 
+            // MODIFY LINES AND TEXT
             var link = d3.select(".linkscircuit").selectAll("polyline")
                 .attr("points", function(d) {
                     return d.source.x + "," + d.source.y + " " +
@@ -237,7 +281,7 @@ object GraphsToJS {
         }
         function dragended(d) {
           if (!d3.event.active) simulation.alphaTarget(0);
-          if (d.group == 3 || d.group == 1){
+          if (d.group == 3 || d.group == 1 || d.group == 5){
             d.fx = null;
             d.fy = null;
           }
@@ -256,11 +300,11 @@ object GraphsToJS {
   private def processNodes(nodes: List[ReoNode]): String = nodes match{
     case ReoNode(id, name, nodeType, style) :: Nil => {
       val nodeGroup = typeToGroup(nodeType, style);
-      s"""{"id": "$id", "group": $nodeGroup }"""
+      s"""{"id": "$id", "group": $nodeGroup, "name": "${name.getOrElse("")}" }"""
     }
     case ReoNode(id, name, nodeType, style) :: y :: rest => {
       val nodeGroup = typeToGroup(nodeType, style);
-      s"""{"id": "$id", "group": $nodeGroup },""" + processNodes(y::rest)
+      s"""{"id": "$id", "group": $nodeGroup, "name": "${name.getOrElse("")}" },""" + processNodes(y::rest)
     }
     case Nil => ""
   }
@@ -272,16 +316,18 @@ object GraphsToJS {
     *  - 2: mixed node
     *  - 3: sink node
     *  - 4: sink component
+    *  - 5: box (container)
     * @param nodeType if it is source, sink, or mixed type
     * @param style optional field that may contain "component"
     * @return
     */
   private def typeToGroup(nodeType: NodeType, style: Option[String]):String = (nodeType, style) match{
-    case (Source, Some(s)) => if(s.contains("component")) "0" else "1"
-    case (Source, None) => "1"
-    case (Sink, None) => "3"
-    case (Sink, Some(s)) => if(s.contains("component")) "4" else "3"
-    case (Mixed, _) => "2"
+    case (Source, Some(s))     => if(s.contains("component")) "0" else "1"
+    case (Source, None)        => "1"
+    case (Sink,   None)        => "3"
+    case (Sink,   Some(s))     => if(s.contains("component")) "4" else "3"
+    case (Mixed,  Some(s))     => if(s.contains("box")) "5" else "2"
+    case (Mixed,  _)           => "2"
   }
 
   private def processEdges(channels: List[ReoChannel]): String = channels match{

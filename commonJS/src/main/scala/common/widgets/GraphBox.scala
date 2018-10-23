@@ -15,7 +15,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
 
   private val widthCircRatio = 7
   private val heightCircRatio = 3
-  private val densityCirc = 0.5 // nodes per 100x100 px
+  private val densityCirc = 0.3 // nodes per 100x100 px
 
 
   override def init(div: Block, visible: Boolean): Unit = {
@@ -24,7 +24,10 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
       .onclick = {e: MouseEvent => if(!isVisible) drawGraph() else deleteDrawing()}
   }
 
-  override def update(): Unit = if(isVisible) drawGraph()
+  override def update(): Unit = if(isVisible) {
+    deleteDrawing()
+    drawGraph()
+  }
 
 
   private def drawGraph(): Unit = try{

@@ -1,9 +1,7 @@
 package common.widgets
 
 import org.scalajs.dom
-import org.scalajs.dom.{EventTarget, html}
-
-import scala.scalajs.js.UndefOr
+import org.scalajs.dom.html
 
 //todo: f must execute this.update
 //todo: improve param function type
@@ -14,12 +12,13 @@ import scala.scalajs.js.UndefOr
   * @param id
   * @param rows
   */
-class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
+class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
   extends Box[String]("Input", Nil){
 
   var input: String = default
   var inputAreaDom: html.TextArea = _
 
+  private var code: scalajs.js.Dynamic = _
   val boxId = "inputArea_"+id
 
   override def get: String = input
@@ -30,34 +29,37 @@ class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
       .append("div")
       .attr("id", "textBox_"+id)
 
-
-//    scalajs.js.eval(s"""var myCodeMirror = CodeMirror(document.body, {
-//                       |  value: "function myScript(){return 100;}",
-//                       |  mode:  "javascript"
-//                       |});
-//                       |""".stripMargin)
-
     val inputArea = inputDiv.append("textarea")
       .attr("id", boxId)
       .attr("name", boxId)
       .attr("class","my-textarea prettyprint lang-java")
       .attr("rows", rows.toString)
       .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
-      .attr("placeholder", input)
-    //    <textarea style="height: 50vh; display: none;" form="debuggerRunForm" name="debuggerCode" id="debuggerCode"></textarea>
 
-    inputAreaDom = dom.document.getElementById("inputArea_"+id).asInstanceOf[html.TextArea]
+    buildCodeArea(default)
+    val x = code.getValue()
+    println(s"## got $x : ${x.getClass}")
 
-    inputAreaDom.onkeydown = {e: dom.KeyboardEvent =>
-      if(e.keyCode == 13 && e.shiftKey){e.preventDefault(); reload}
-      else ()
-    }
   }
 
-  //todo: this function can be centralized. maybe....
+  //  private def getTextArea() = scalajs.js.eval(
+  //    s"""CodeMirror.fromTextArea(document.getElementById("$boxId"), {
+  //       |    lineNumbers: true,
+  //       |    matchBrackets: true,
+  //       |    theme: "monokai"
+  //       |  });  """.stripMargin)
+
+  private def buildCodeArea(txt: String) = {
+    val codemirror = scalajs.js.Dynamic.global.CodeMirror
+    val lit = scalajs.js.Dynamic.literal(lineNumbers = true, matchBrackets = true, theme = "neat")
+    code = codemirror.fromTextArea(dom.document.getElementById(boxId),lit)
+    code.setValue(txt)
+  }
+
+
   override def update: Unit = {
-    val inputAreaDom = dom.document.getElementById("inputArea_"+id).asInstanceOf[html.TextArea]
-    if(input != default || inputAreaDom.value != "")
-      input = inputAreaDom.value
+    val x = code.getValue()
+    if (x != null) input = x.toString
+//    println(s"## got $x : ${x.getClass}")
   }
 }

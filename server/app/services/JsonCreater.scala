@@ -72,15 +72,20 @@ object JsonCreater {
         "type" -> JsString("prim"),
         "name" -> JsString(name),
         "i" -> convert(i),
-        "j" -> convert(j)
+        "j" -> convert(j),
+        "extra" -> (extra match {
+          case Some(ob) => JsString(ob.toString)
+          case None => JsString("")
+        })
       ))
     }
 
-    case CSubConnector(name, c, _) => {
+    case CSubConnector(name, c, ann) => {
       JsObject(Map(
         "type" -> JsString("sub"),
         "name" -> JsString(name),
-        "c" -> convert(c)
+        "c" -> convert(c),
+        "ann" -> convertAnns(ann)
       ))
     }
   }
@@ -90,4 +95,23 @@ object JsonCreater {
   private def convert(i: Interface): JsValue = JsString(Show(i))
 
   private def convert(t : Type): JsValue = JsString(t.toString)
+
+  private def convertAnns(annotations: List[Annotation]): JsValue = annotations match {
+    case Nil => JsObject(Map(
+      "type" -> JsString("Nil")
+    ))
+    case ann::rest => JsObject(Map(
+      "type" -> JsString("Some"),
+      "head" -> convertAnn(ann),
+      "tail" -> convertAnns(rest)
+    ))
+  }
+  private def convertAnn(annotation: Annotation): JsValue = JsObject(Map(
+    "name" -> JsString(annotation.name),
+    "hasValue" -> JsTrue,
+    "value" -> (annotation.value match {
+      case None => JsString("")
+      case Some(e) => JsString(Show(e))
+    })
+  ))
 }

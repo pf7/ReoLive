@@ -56,7 +56,7 @@ class LogicBox(connector: Box[CoreConnector], outputBox: ErrorArea)
     else {
       val model = Model(connector.get)
       outputBox.warning(model.getMultiActionsMap
-        .map(kv => "'" + kv._1 + "'" + ":" + kv._2.map("\n - " + _).mkString(""))
+        .map(kv => "'" + kv._1 + "'" + ":" + kv._2.map("\n - " + _.mkString(", ")).mkString(""))
         .mkString("\n"))
     }
   }
@@ -74,11 +74,9 @@ object LogicBox {
   def expandFormula(input:String, model: Model): String = {
     val names = model.getMultiActionsMap
 
-    val res = "[a-z][a-zA-Z0-9]+( *[|] *[a-z][a-zA-Z0-9]+)*".r
-               .replaceAllIn(input,x => getMNames(x.toString,names))
-//    val res2 = "[a-z][a-zA-Z0-9]+".r
-//               .replaceAllIn(res1,x => getNames(x.toString,names))
-//    val res = input.replaceAll("([a-z][a-zA-Z0-9]+)", getNames("$1",names.toMap))
+    val input1 = "/".r.replaceAllIn(input,"_")
+    val res = "[a-z][a-zA-Z_0-9]*( *[|] *[a-z][a-zA-Z_0-9]*)*".r
+               .replaceAllIn(input1,x => getMNames(x.toString,names))
     res
   }
 
@@ -102,7 +100,7 @@ object LogicBox {
       case None => str //s"##${str}/${actions.mkString("/")}##"
       case Some(set) =>
         if (set.isEmpty) "false"
-        else set.map(_.mkString("|")).mkString("("," + ",")")
+        else set.map(_.mkString("|")).mkString("("," || ",")")
     }
   }
 

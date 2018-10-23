@@ -58,7 +58,7 @@ object WebReo extends{
 
 
     // add InputArea
-    inputBox = new InputBox(reload(), default="dupl  ;  fifo * lossy", id="wr", rows=4)
+    inputBox = new InputCodeBox(reload(), default="dupl  ;  fifo * lossy", id="wr", rows=4)
 
     errors      = new ErrorArea(id="wr")
     outputLogic = new ErrorArea(id="wrLog")
@@ -69,7 +69,7 @@ object WebReo extends{
 
     logicBox = new LogicBox(instanceInfo,outputLogic)
 
-    val buttonsDiv = new ButtonsBox(reload(), inputBox.asInstanceOf[InputBox])
+    val buttonsDiv = new ButtonsBox(reload(), inputBox.asInstanceOf[InputCodeBox])
 
     svg = new GraphBox(instanceInfo, errors)
 

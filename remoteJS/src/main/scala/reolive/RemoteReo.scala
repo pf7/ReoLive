@@ -67,7 +67,7 @@ object RemoteReo extends{
     typeInstanceInfo =
       new RemoteInstanceBox(second_reload(),inputBox, errors)
     val buttonsDiv =
-      new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputBox])
+      new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputCodeBox])
     svg =
       new GraphBox(typeInstanceInfo, errors)
     svgAut =

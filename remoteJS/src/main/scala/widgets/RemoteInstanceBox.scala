@@ -1,10 +1,11 @@
 package widgets
 
-import common.widgets.{ErrorArea, Box}
+import common.widgets.{Box, ErrorArea}
 import json.Loader
 import org.scalajs.dom.raw.{Event, MessageEvent, WebSocket}
 import preo.ast.CoreConnector
 import preo.frontend.Show
+
 
 class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: ErrorArea)
   extends Box[CoreConnector]("Type", List(dependency))
@@ -69,13 +70,29 @@ class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: ErrorA
       instanceInfo.text("")
 
       val result = Loader(receivedData)
-      println(result)
+//      val result = io.circe.parser.parse(receivedData)
+      // println(result)
 
       //    println(result)
       result match {
         case Right(message) => {
           errors.error(message)
         }
+//        case Right(js:Json) => {
+//          js.as[ConnectorMsg] match {
+//            case Left(value) => errors.error(value.getMessage())
+//            case Right(value) => {
+//              typeInfo.append("p")
+////                .text(Show(value.typ))
+////              instanceInfo.append("p")
+////                .text(Show(value.con) + ":\n  " +
+////                  value.reductyp)
+////              ccon = value.con
+//              this.id = value.id
+//              reload
+//            }
+//          }
+//        }
         case Left((typ, reducTyp, con, ide)) => {
           typeInfo.append("p")
             .text(typ)

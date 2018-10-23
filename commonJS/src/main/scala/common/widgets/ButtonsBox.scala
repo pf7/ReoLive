@@ -4,7 +4,7 @@ import org.scalajs.dom.EventTarget
 
 import scala.scalajs.js.UndefOr
 
-class ButtonsBox(reload: => Unit, inputBox: InputBox)
+class ButtonsBox(reload: => Unit, inputBox: InputCodeBox)
     extends Box[String]("examples", Nil){
 
   private val buttons = Seq(
@@ -20,6 +20,7 @@ class ButtonsBox(reload: => Unit, inputBox: InputBox)
     "(\\x. lossy^x |x>2) ; ..." -> "(\\x. lossy^x |x>2) ; (\\n. merger^n | n>1 & n<6)",
     ".. ; merger!" -> "writer^8 ; merger! ; merger! ; reader!",
     "x;y{x=..,y=..}" -> "x ; y {x = lossy * fifo , y = merger}",
+    "barrier=.."->"dupl*dupl ; id*drain*id",
     "exrouter=.."->"""dupl ; dupl*id ;
                      |(lossy;dupl)*(lossy;dupl)*id ;
                      |id*merger*id*id ;
@@ -106,6 +107,8 @@ unzip =
         |  unzip     = unzip,
         |  fifoloop  = fifoloop,
         |  sequencer = sequencer
+        |  barrier   = barrier
+        |  barriers  = barriers
         |}
       """.stripMargin
   )
