@@ -18,7 +18,7 @@ class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
   extends Box[String]("Input", Nil){
 
   var input: String = default
-  var inputAreaDom: html.TextArea = _
+  private var inputAreaDom: html.TextArea = _
 
   val boxId = "inputArea_"+id
 
@@ -59,5 +59,9 @@ class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
     val inputAreaDom = dom.document.getElementById("inputArea_"+id).asInstanceOf[html.TextArea]
     if(input != default || inputAreaDom.value != "")
       input = inputAreaDom.value
+  }
+
+  def setValue(str: String) = {
+    inputAreaDom.value = str
   }
 }

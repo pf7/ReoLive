@@ -61,7 +61,7 @@ object RemoteReo extends{
 
     // Create boxes (order matters)
     inputBox =
-      new InputBox(first_reload(), default="dupl  ;  fifo * lossy", id="wr",rows=4)
+      new InputCodeBox(first_reload(), default="dupl  ;  fifo * lossy", id="wr",rows=4)
     errors =
       new ErrorArea
     typeInstanceInfo =

@@ -16,7 +16,7 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
   extends Box[String]("Input", Nil){
 
   var input: String = default
-  var inputAreaDom: html.TextArea = _
+  private var inputAreaDom: html.TextArea = _
 
   private var code: scalajs.js.Dynamic = _
   val boxId = "inputArea_"+id
@@ -54,6 +54,10 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
     val lit = scalajs.js.Dynamic.literal(lineNumbers = true, matchBrackets = true, theme = "neat")
     code = codemirror.fromTextArea(dom.document.getElementById(boxId),lit)
     code.setValue(txt)
+  }
+
+  def setValue(str: String) = {
+    code.setValue(str)
   }
 
 

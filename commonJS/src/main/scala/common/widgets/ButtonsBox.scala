@@ -137,7 +137,7 @@ unzip =
       .text(ss._1)
 
     button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
-      inputBox.inputAreaDom.value = ss._2
+      inputBox.setValue(ss._2)
       reload
     }} : button.DatumFunction[Unit])
   }
