@@ -36,9 +36,17 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
       .attr("rows", rows.toString)
       .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
 
+
     buildCodeArea(default)
-    val x = code.getValue()
-    println(s"## got $x : ${x.getClass}")
+//    val x = code.getValue()
+//    println(s"## got $x : ${x.getClass}")
+
+    val realTxt = dom.document.getElementById("textBox_wr")
+        .childNodes(1).childNodes(0).childNodes(0).asInstanceOf[html.TextArea]
+    realTxt.onkeydown = {e: dom.KeyboardEvent =>
+      if(e.keyCode == 13 && e.shiftKey){e.preventDefault(); reload}
+      else ()
+    }
 
   }
 
@@ -51,7 +59,7 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
 
   private def buildCodeArea(txt: String) = {
     val codemirror = scalajs.js.Dynamic.global.CodeMirror
-    val lit = scalajs.js.Dynamic.literal(lineNumbers = true, matchBrackets = true, theme = "neat")
+    val lit = scalajs.js.Dynamic.literal(lineNumbers = true, matchBrackets = true, theme = "neat", id="strangeID")
     code = codemirror.fromTextArea(dom.document.getElementById(boxId),lit)
     code.setValue(txt)
   }

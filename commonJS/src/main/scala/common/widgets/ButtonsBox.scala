@@ -106,8 +106,8 @@ unzip =
         |  zip       = zip,
         |  unzip     = unzip,
         |  fifoloop  = fifoloop,
-        |  sequencer = sequencer
-        |  barrier   = barrier
+        |  sequencer = sequencer,
+        |  barrier   = barrier,
         |  barriers  = barriers
         |}
       """.stripMargin

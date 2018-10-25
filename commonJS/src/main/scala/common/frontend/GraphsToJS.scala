@@ -281,10 +281,10 @@ object GraphsToJS {
         }
         function dragended(d) {
           if (!d3.event.active) simulation.alphaTarget(0);
-          if (d.group == 3 || d.group == 1 || d.group == 5){
+//          if (d.group == 3 || d.group == 1 || d.group == 5){
             d.fx = null;
             d.fy = null;
-          }
+//          }
         }
       """
   }
