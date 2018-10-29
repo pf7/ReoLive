@@ -1,4 +1,4 @@
-package widgets
+package common.widgets
 
 import org.scalajs.dom
 import org.singlespaced.d3js.Selection

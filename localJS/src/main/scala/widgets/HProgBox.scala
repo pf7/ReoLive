@@ -1,13 +1,13 @@
 package widgets
 
-import common.widgets.{Box, ErrorArea}
+import common.widgets.{Box, OutputArea}
 import hprog.ast.Prog
 import hprog.DSL
 import hprog.frontend.Show
 
 
 //todo: this should be local to localJS
-class HProgBox(dependency: Box[String], errorArea: ErrorArea)
+class HProgBox(dependency: Box[String], errorArea: OutputArea)
     extends Box[Prog]("Parsed program", List(dependency)){
 
   // state

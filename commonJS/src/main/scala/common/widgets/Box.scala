@@ -126,7 +126,7 @@ object Box {
     * @param errorBox is the placeholder where the exception will be appended to.
     * @return the function to be placed at a catch point.
     */
-  def checkExceptions(errorBox: ErrorArea): PartialFunction[Throwable,Unit] = {
+  def checkExceptions(errorBox: OutputArea): PartialFunction[Throwable,Unit] = {
     // type error
     case e: TypeCheckException =>
       errorBox.error(/*Show(result)+ */"Type error: " + e.getMessage)

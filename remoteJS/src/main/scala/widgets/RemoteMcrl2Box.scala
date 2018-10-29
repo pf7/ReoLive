@@ -1,6 +1,6 @@
 package widgets
 
-import common.widgets.{ErrorArea, Box}
+import common.widgets.{Box, OutputArea}
 import org.scalajs.dom
 import org.scalajs.dom.raw.XMLHttpRequest
 import org.scalajs.dom.{EventTarget, MouseEvent, html}
@@ -11,7 +11,7 @@ import scala.scalajs.js.UndefOr
 
 
 
-class RemoteModelBox(connector: Box[CoreConnector], errorBox: ErrorArea)
+class RemoteModelBox(connector: Box[CoreConnector], errorBox: OutputArea)
     extends Box[Model]("mCRL2 of the instance", List(connector)){
 
   var id: Long = 0

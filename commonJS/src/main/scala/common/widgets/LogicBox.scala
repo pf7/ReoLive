@@ -7,12 +7,12 @@ import preo.frontend.mcrl2.{Action, Model}
 
 import scala.collection.mutable
 
-class LogicBox(connector: Box[CoreConnector], outputBox: ErrorArea)
+class LogicBox(connector: Box[CoreConnector], outputBox: OutputArea)
   extends Box[String]("Modal Logic", List(connector)) {
 
   var input: String = "<true>[fifo] false"
 
-  var inputAreaDom: html.TextArea = _
+//  var inputAreaDom: html.TextArea = _
 
   override def get: String = input
 
@@ -22,8 +22,13 @@ class LogicBox(connector: Box[CoreConnector], outputBox: ErrorArea)
       input = inputAreaDom.value
   }
 
+  def setValue(str: String): Unit = {
+    val inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
+    inputAreaDom.value = str
+  }
+
   override def init(div: Block, visible: Boolean): Unit = {
-    val inputDiv = super.panelBox(div, visible /*List("padding-right"->"25pt")*/
+    val inputDiv = panelBox(div, visible /*List("padding-right"->"25pt")*/
       /*, 80*/
       , buttons = List(
         Right("glyphicon glyphicon-refresh") -> (() => reload),
@@ -32,14 +37,14 @@ class LogicBox(connector: Box[CoreConnector], outputBox: ErrorArea)
       .append("div")
       .attr("id", "modalBox")
 
-    val inputArea = inputDiv.append("textarea")
+    inputDiv.append("textarea")
       .attr("id", "modalInputArea")
       .attr("class", "my-textarea")
       .attr("rows", "3")
       .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
       .attr("placeholder", input)
 
-    inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
+    val inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
 
     inputAreaDom.onkeydown = { e: dom.KeyboardEvent =>
       if (e.keyCode == 13 && e.shiftKey) {
@@ -93,6 +98,7 @@ object LogicBox {
           res = Some(mas)
 //          println(s"reset res - ${res.mkString(".")}")
         case (None,_) =>
+          if (a=="id") Some("sync")
 //          println(s"## left res - ${res.mkString(".")}")
       }
     }

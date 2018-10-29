@@ -1,13 +1,13 @@
 package widgets
 
-import common.widgets.{Box, ErrorArea}
+import common.widgets.{Box, OutputArea}
 import json.Loader
 import org.scalajs.dom.raw.{Event, MessageEvent, WebSocket}
 import preo.ast.CoreConnector
 import preo.frontend.Show
 
 
-class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: ErrorArea)
+class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: OutputArea)
   extends Box[CoreConnector]("Type", List(dependency))
   {
     private var typeInfo: Block = _
@@ -54,7 +54,7 @@ class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: ErrorA
       //      .attr("id", "instanceBox")
     }
 
-    override def update: Unit = {
+    override def update(): Unit = {
       val socket = new WebSocket("ws://localhost:9000/message")
 
       socket.onmessage = { e: MessageEvent => {process(e.data.toString); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }

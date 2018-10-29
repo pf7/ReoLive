@@ -19,6 +19,12 @@ cp remoteJS/target/scala-2.12/remote_js-fastopt.js.map \
 cp localJS/src/main/resources/css/style.css \
    server/app/assets/stylesheets/
 
+# Copy syntax-highlighting from localJS to server
+cp localJS/src/main/resources/js/codemirror/mode/preo/preo.js \
+   server/public/javascripts/codemirror/mode/preo/preo.js
+cp localJS/src/main/resources/css/codemirror/codemirror.css \
+   server/app/assets/stylesheets/codemirror/codemirror.css
+
 # Compile the server, after having the updated JS
 sbt server/compile
 

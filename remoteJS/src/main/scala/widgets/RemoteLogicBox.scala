@@ -1,6 +1,6 @@
 package widgets
 
-import common.widgets.{Box, LogicBox}
+import common.widgets.{Box, LogicBox, OutputArea}
 import json.Loader
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -9,39 +9,43 @@ import preo.ast.CoreConnector
 import preo.frontend.mcrl2.Model
 
 class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], outputBox: OutputArea)
-    extends Box[String]("Modal Logic", List(formulaStr,connector)){
+  extends LogicBox(connector,outputBox){
+
+  //    extends Box[String]("Modal Logic", List(formulaStr,connector)){
 
 
   val default = "<true> [lossy] false"
-  var input: String = default
+//  var input: String = default
   var model: Model = _
   var operation: String = "check"
 
-  var inputAreaDom: html.TextArea = _
+//  var inputAreaDom: html.TextArea = _
 
-  override def get: String = input
+//  override def get: String = input
 
   override def init(div: Block, visible: Boolean): Unit = {
-    val inputDiv = super.panelBox(div,visible /*List("padding-right"->"25pt")*/ /*, 80*/
+    val inputDiv = panelBox(div,visible /*List("padding-right"->"25pt")*/ /*, 80*/
         ,buttons = List(
           Right("glyphicon glyphicon-refresh")-> (()=>reload("check")),
           Left("View")-> (()=>reload("view")),
-          Left("MA")   -> (()=> debugNames)
+          Left("MA")   -> (()=> debugNames())
         ))
       .append("div")
       .attr("id", "modalBox")
 
-    val inputArea = inputDiv.append("textarea")
+    inputDiv.append("textarea")
       .attr("id", "modalInputArea")
       .attr("class","my-textarea")
       .attr("rows", "3")
       .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
       .attr("placeholder", input)
 
-    inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
+    val inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
 
     inputAreaDom.onkeydown = {e: dom.KeyboardEvent =>
-      if(e.keyCode == 13 && e.shiftKey){e.preventDefault(); reload("check") }
+      if(e.keyCode == 13 && e.shiftKey) {
+        e.preventDefault(); reload("check")
+      }
       else ()
     }
   }
@@ -49,12 +53,14 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
   //todo: this function can be centralized. maybe....
   override def update(): Unit = {
     val inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
-//    if(input != default || inputAreaDom.value != "")
-//      input = LogicBox.expandFormula(inputAreaDom.value,connector.get)
+    //    if(input != default || inputAreaDom.value != "")
+    //      input = LogicBox.expandFormula(inputAreaDom.value,connector.get)
     model = Model(connector.get)
     if (inputAreaDom.value != "")
       input = inputAreaDom.value
+  }
 
+  private def callMcrl2(): Unit = {
     val socket = new WebSocket("ws://localhost:9000/modal")
 
     // send request to process
@@ -65,10 +71,10 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
       val string:String =
         s"""{ "modal": "${LogicBox.expandFormula(input,model)
           .replace("\\","\\\\")
-          .replace('\n',' ')}","""+
+          .replace("\n","\\n")}","""+
         s""" "connector" : "${formulaStr.get
           .replace("\\","\\\\")
-          .replace('\n',' ')}", """+
+          .replace("\n","\\n")}", """+
         s""" "operation" : "$operation" }"""
       socket.send(string)
     })
@@ -89,6 +95,7 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
   }
 
   private def debugNames(): Unit = {
+    update()
     outputBox.clear()
     if (connector.get==null)
       outputBox.message("null model...")
@@ -106,6 +113,7 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
     outputBox.clear()
     operation = op
     update()
+    callMcrl2()
   }
 
 }

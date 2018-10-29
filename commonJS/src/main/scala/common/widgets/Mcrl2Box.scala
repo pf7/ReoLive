@@ -7,7 +7,7 @@ import org.scalajs.dom.{MouseEvent, XMLHttpRequest, html}
 import preo.ast.CoreConnector
 import preo.frontend.mcrl2.Model
 
-class Mcrl2Box(dependency: Box[CoreConnector], errorBox: ErrorArea)
+class Mcrl2Box(dependency: Box[CoreConnector], errorBox: OutputArea)
     extends Box[Model]("mCRL2 of the instance", List(dependency))  {
   private var box: Block = _
   private var model: Model = _

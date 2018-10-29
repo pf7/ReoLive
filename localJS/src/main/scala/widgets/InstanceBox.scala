@@ -1,12 +1,12 @@
 package widgets
 
-import common.widgets.{ErrorArea, Box}
+import common.widgets.{Box, OutputArea}
 import preo.DSL
 import preo.ast.{Connector, CoreConnector}
 import preo.frontend.{Eval, Show, Simplify}
 
 //todo: this should also be shared
-class InstanceBox(dependency: Box[Connector], errorBox: ErrorArea)
+class InstanceBox(dependency: Box[Connector], errorBox: OutputArea)
     extends Box[CoreConnector]("Concrete instance", List(dependency)){
   private var ccon: CoreConnector = _
   private var box: Block = _

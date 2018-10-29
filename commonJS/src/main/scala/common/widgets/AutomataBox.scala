@@ -8,7 +8,7 @@ import preo.backend.{Automata, PortAutomata}
 import preo.common.TimeoutException
 
 
-class AutomataBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
+class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     extends Box[Automata]("Automaton of the instance", List(dependency)) {
   private var svg: Block = _
   private var automaton: Automata = _

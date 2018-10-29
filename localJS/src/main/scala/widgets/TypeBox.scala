@@ -1,6 +1,6 @@
 package widgets
 
-import common.widgets.{Box, ErrorArea}
+import common.widgets.{Box, OutputArea}
 import preo.DSL
 import preo.ast.{BVal, Connector}
 import preo.common.TypeCheckException
@@ -8,7 +8,7 @@ import preo.frontend.Show
 
 
 //todo: this should be local to localJS
-class TypeBox(dependency: Box[String], errorBox: ErrorArea)
+class TypeBox(dependency: Box[String], errorBox: OutputArea)
     extends Box[Connector]("Type", List(dependency)){
 
   var con: Connector = _

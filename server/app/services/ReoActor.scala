@@ -59,8 +59,8 @@ class ReoActor(out: ActorRef) extends Actor {
           case e: java.io.IOException => // by generateLPS/LTS/storeInFile
             JsonCreater.createError("IO exception: " + e.getMessage).toString
           }
-      case preo.lang.Parser.Failure(msg,_) =>
-        JsonCreater.createError("Parser failure: " + msg).toString
+      case f@preo.lang.Parser.Failure(_,_) =>
+        JsonCreater.createError("Parser failure: " + f.toString()).toString
       //        instanceInfo.append("p").text("-")
       case preo.lang.Parser.Error(msg,_) =>
         JsonCreater.createError("Parser error: " + msg).toString

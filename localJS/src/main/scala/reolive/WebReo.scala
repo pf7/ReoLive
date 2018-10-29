@@ -17,15 +17,15 @@ import scalajs.js.annotation.JSExportTopLevel
   */
 object WebReo extends{
 
-  var inputBox: Box[String] = _
-  var typeInfo: Box[Connector] = _
-  var instanceInfo: Box[CoreConnector] = _
-  var logicBox: Box[String] = _
-  var errors: ErrorArea = _
-  var svg: Box[Graph] = _
-  var svgAut: Box[Automata] = _
-  var mcrl2Box: Box[Model] = _
-  var outputLogic: ErrorArea = _
+  var inputBox: InputCodeBox = _
+  var typeInfo: TypeBox = _
+  var instanceInfo: InstanceBox = _
+  var logicBox: LogicBox = _
+  var errors: OutputArea = _
+  var svg: GraphBox = _
+  var svgAut: AutomataBox = _
+  var mcrl2Box: Mcrl2Box = _
+  var outputLogic: OutputArea = _
 
 
   @JSExportTopLevel("reolive.WebReo.main")
@@ -60,8 +60,8 @@ object WebReo extends{
     // add InputArea
     inputBox = new InputCodeBox(reload(), default="dupl  ;  fifo * lossy", id="wr", rows=4)
 
-    errors      = new ErrorArea(id="wr")
-    outputLogic = new ErrorArea(id="wrLog")
+    errors      = new OutputArea //(id="wr")
+    outputLogic = new OutputArea //(id="wrLog")
 
     typeInfo = new TypeBox(inputBox, errors)
 
@@ -69,7 +69,7 @@ object WebReo extends{
 
     logicBox = new LogicBox(instanceInfo,outputLogic)
 
-    val buttonsDiv = new ButtonsBox(reload(), inputBox.asInstanceOf[InputCodeBox])
+    val buttonsDiv = new ButtonsBox(reload(), inputBox,logicBox)
 
     svg = new GraphBox(instanceInfo, errors)
 

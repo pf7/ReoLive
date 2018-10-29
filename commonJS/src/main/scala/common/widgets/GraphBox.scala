@@ -7,7 +7,7 @@ import org.singlespaced.d3js.Selection
 import preo.ast.CoreConnector
 import preo.backend.Graph
 
-class GraphBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
+class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     extends Box[Graph]("Circuit of the instance", List(dependency)) {
   var graph: Graph = _
   var box: Block = _
@@ -19,7 +19,10 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
 
 
   override def init(div: Block, visible: Boolean): Unit = {
-    box = GraphBox.appendSvg(super.panelBox(div,visible),"circuit")
+    box = GraphBox.appendSvg(super.panelBox(div,visible,
+      buttons = List(
+        Left("&dArr;")-> (() => saveSvg())
+      )),"circuit")
     dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {e: MouseEvent => if(!isVisible) drawGraph() else deleteDrawing()}
   }
@@ -41,9 +44,64 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: ErrorArea)
   }
   catch Box.checkExceptions(errorBox)
 
-    private def deleteDrawing(): Unit = {
-      box.selectAll("g").html("")
-    }
+  private def deleteDrawing(): Unit = {
+    box.selectAll("g").html("")
+  }
+
+  private def saveSvg(): Unit = {
+    scalajs.js.eval(
+      """svgEl = document.getElementById("circuit");
+        |name = "circuit.svg";
+        |
+        |svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        |var svgData = svgEl.outerHTML;
+        |
+        |// Firefox, Safari root NS issue fix
+        |svgData = svgData.replace('xlink=', 'xmlns:xlink=');
+        |// Safari xlink NS issue fix
+        |//svgData = svgData.replace(/NS\d+:href/gi, 'xlink:href');
+        |svgData = svgData.replace(/NS\d+:href/gi, 'href');
+        |// drop "stroke-dasharray: 1px, 0px;"
+        |svgData = svgData.replace(/stroke-dasharray: 1px, 0px;/gi, '');
+        |
+        |var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+        |var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+        |var svgUrl = URL.createObjectURL(svgBlob);
+        |var downloadLink = document.createElement("a");
+        |downloadLink.href = svgUrl;
+        |downloadLink.download = name;
+        |document.body.appendChild(downloadLink);
+        |downloadLink.click();
+        |document.body.removeChild(downloadLink);
+      """.stripMargin)
+
+//    //val svgEl = dom.document.getElementById("circuit")
+//    val svgEl = box
+//    val name = "circuit.svg"
+//
+//    svgEl.attr("xmlns", "http://www.w3.org/2000/svg")
+//    var svgData = svgEl.html()
+//
+//    // Firefox, Safari root NS issue fix
+//    svgData = svgData.replace("xlink=", "xmlns:xlink=")
+//    // Safari xlink NS issue fix
+//    //svgData = svgData.replace(/NS\d+:href/gi, 'xlink:href');
+//    svgData = svgData.replaceAll("NS\\d+:href", "href")
+//    // drop "stroke-dasharray: 1px, 0px;"
+//    svgData = svgData.replace("stroke-dasharray: 1px, 0px;", "")
+//
+//    val preface = """<?xml version="1.0" standalone="no"?>\r\n"""
+//    val svgBlob = scalajs.js.Dynamic.newInstance(scalajs.js.Dynamic.global.Blob)(
+//      List(preface,svgData), // does not type check... should be "[preface, svgData]"
+//      Map("type" -> "image/svg+xml;charset=utf-8"))
+//    val svgUrl = scalajs.js.Dynamic.global.URL.createObjectURL(svgBlob)
+//    val downloadLink = dom.document.createElement("a")
+//    downloadLink.setAttribute("href",svgUrl.asInstanceOf[String])
+//    downloadLink.setAttribute("download",name)
+//    dom.document.body.appendChild(downloadLink)
+//    scalajs.js.Dynamic.global.downloadLink.click()
+//    dom.document.body.removeChild(downloadLink)
+  }
 
 }
 
@@ -87,7 +145,7 @@ object GraphBox {
       .append("svg:path")
       .attr("d", "M 0,-5 L 10 ,0 L 0,5")
       .attr("fill", "#000")
-      .style("stroke","none");
+      .style("stroke","none")
 
     //arrowhead inverted for sync drains
     svg.append("defs")
@@ -103,7 +161,7 @@ object GraphBox {
       .append("svg:path")
       .attr("d", "M 10,-5 L 0 ,0 L 10,5")
       .attr("fill", "#000")
-      .style("stroke","none");
+      .style("stroke","none")
 
     svg.append("defs")
       .append("marker")
@@ -118,7 +176,7 @@ object GraphBox {
       .append("svg:path")
       .attr("d", "M 0,-5 L -10 ,0 L 0,5")
       .attr("fill", "#000")
-      .style("stroke","none");
+      .style("stroke","none")
 
     svg.append("defs")
       .append("marker")
@@ -133,7 +191,7 @@ object GraphBox {
       .append("svg:path")
       .attr("d", "M -10,-5 L 0 ,0 L -10,5")
       .attr("fill", "#000")
-      .style("stroke","none");
+      .style("stroke","none")
 
     svg.append("defs")
       .append("marker")

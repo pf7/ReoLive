@@ -18,7 +18,7 @@ object Lince extends{
   var inputBox: Box[String] = _
 //  var typeInfo: PanelBox[Connector] = _
   var information: Box[Prog] = _
-  var errors: ErrorArea = _
+  var errors: OutputArea = _
 
   @JSExportTopLevel("reolive.Lince.main")
   def main(content: html.Div): Unit = {
@@ -50,7 +50,7 @@ object Lince extends{
     inputBox = new InputBox(reload(),default = "v:=0;p:=0;p=v,v=10&p<=0 /\\ v<=0 ; v:=v* -0.5",id = "Lince",rows=3)
     inputBox.init(leftColumn,true)
 
-    errors = new ErrorArea(id="Lince")
+    errors = new OutputArea //(id="Lince")
     errors.init(leftColumn)
 
 //    typeInfo = new TypeBox(inputBox, errors)

@@ -8,7 +8,7 @@ import preo.backend._
 import preo.frontend.mcrl2.Model
 import preo.ast.CoreConnector
 import reolive.RemoteReo.outputBox
-import widgets.{OutputArea, RemoteInstanceBox, RemoteLogicBox, RemoteModelBox}
+import widgets.{RemoteInstanceBox, RemoteLogicBox, RemoteModelBox}
 
 import scalajs.js.annotation.JSExportTopLevel
 
@@ -20,15 +20,15 @@ import scalajs.js.annotation.JSExportTopLevel
 object RemoteReo extends{
 
 
-  private var inputBox: Box[String] = _
+  private var inputBox: InputCodeBox = _
   private var typeInstanceInfo: RemoteInstanceBox = _
-  private var errors: ErrorArea = _
+  private var errors: OutputArea = _
 
-  private var modalBox: Box[String] = _
+  private var modalBox: RemoteLogicBox = _
   private var outputBox: OutputArea = _
 
-  private var svg: Box[Graph] = _
-  private var svgAut: Box[Automata] = _
+  private var svg: GraphBox = _
+  private var svgAut: AutomataBox = _
   private var mcrl2Box: RemoteModelBox = _
 
   @JSExportTopLevel("reolive.RemoteReo.main")
@@ -63,11 +63,9 @@ object RemoteReo extends{
     inputBox =
       new InputCodeBox(first_reload(), default="dupl  ;  fifo * lossy", id="wr",rows=4)
     errors =
-      new ErrorArea
+      new OutputArea
     typeInstanceInfo =
       new RemoteInstanceBox(second_reload(),inputBox, errors)
-    val buttonsDiv =
-      new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputCodeBox])
     svg =
       new GraphBox(typeInstanceInfo, errors)
     svgAut =
@@ -77,6 +75,8 @@ object RemoteReo extends{
     outputBox = new OutputArea()
     // must be after inputbox and mcrl2box
     modalBox = new RemoteLogicBox(inputBox, typeInstanceInfo, outputBox)
+    val buttonsDiv =
+      new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputCodeBox],modalBox)
 
     inputBox.init(leftside,true)
     errors.init(leftside)
