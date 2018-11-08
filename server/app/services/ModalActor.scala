@@ -58,7 +58,7 @@ class ModalActor(out: ActorRef) extends Actor{
                 case Some("check") =>
                   val id = Thread.currentThread().getId
                   storeInFile(model)
-                  generateLTS()
+                  minimiseLTS()
 
                   val file = new File(s"/tmp/modal_$id.mu")
                   file.setExecutable(true)

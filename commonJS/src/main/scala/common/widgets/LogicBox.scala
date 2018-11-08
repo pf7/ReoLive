@@ -3,7 +3,9 @@ package common.widgets
 import org.scalajs.dom
 import org.scalajs.dom.html
 import preo.ast.CoreConnector
-import preo.frontend.mcrl2.{Action, Model}
+import preo.common.GenerationException
+import preo.frontend.mcrl2._
+import preo.lang.FormulaParser
 
 import scala.collection.mutable
 
@@ -70,21 +72,49 @@ class LogicBox(connector: Box[CoreConnector], outputBox: OutputArea)
     update()
     outputBox.clear()
     val model = Model(connector.get)
-    val newForm = LogicBox.expandFormula(input,model)
+//    val newForm = LogicBox.expandFormula(input,model)
+    val newForm = FormulaParser.parse(input) match {
+      case FormulaParser.Success(result, next) =>
+        try result.toString + "\n\n" + LogicBox.formula2mCRL2(result,model.getMultiActionsMap)
+        catch {
+          case e:Throwable => {outputBox.error(e.getMessage); input}
+        }
+      case f: FormulaParser.NoSuccess => f.toString
+    }
     outputBox.warning(newForm)
   }
 }
 
 object LogicBox {
+
+  /**
+    * Replaces all names of known containers
+    * @param input String with the logical formula
+    * @param model mCRL2 model to extract actions containing known containers
+    * @return New logical formula with container names replaced by regular expressions
+    */
+  @deprecated("Old primitive style to adapt mCRL2 formulas","")
   def expandFormula(input:String, model: Model): String = {
     val names = model.getMultiActionsMap
 
-    val input1 = "/".r.replaceAllIn(input,"_")
+    val input1 = "%.*\n".r.replaceAllIn(input,"\n")
+    val input2 = "/".r.replaceAllIn(input1,"_")
     val res = "[a-z][a-zA-Z_0-9]*( *[|] *[a-z][a-zA-Z_0-9]*)*".r
-               .replaceAllIn(input1,x => getMNames(x.toString,names))
+               .replaceAllIn(input2,x => getMNames(x.toString,names))
     res
   }
 
+  def formula2mCRL2(f:Formula,names: mutable.Map[String, Set[Set[Action]]]): String =
+    Formula.formula2mCRL2(f,list => getMNames(list.map(_.name).reverse.mkString("_"),names))
+
+
+  /**
+    * replace a given container name by a "or" of channel names
+    * in the mCRL2 spec.
+    * @param str name of the container
+    * @param names mapping from container names to channels where they are used
+    * @return "Or" list of the associated channels
+//    */
   private def getMNames(str: String, names: mutable.Map[String, Set[Set[Action]]]): String = {
     val actions = str.split(" *[|] *")
     var res: Option[Set[Set[Action]]] = None

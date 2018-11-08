@@ -201,7 +201,7 @@ CodeMirror.defineMode("preo", function(_config, modeConfig) {
       "==", ">", ">=", "^", "||", "*", ";");
 
     setType("builtin")( // types and constructors
-      "I", "B");
+      "I", "B", "hide");
 
     setType("builtin")(
       "fifo","fifofull","lossy","drain","id","sync","merger","dupl","exrouter",

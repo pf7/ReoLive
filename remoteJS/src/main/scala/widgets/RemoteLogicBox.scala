@@ -7,6 +7,7 @@ import org.scalajs.dom.html
 import org.scalajs.dom.raw.{Event, MessageEvent, WebSocket}
 import preo.ast.CoreConnector
 import preo.frontend.mcrl2.Model
+import preo.lang.FormulaParser
 
 class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], outputBox: OutputArea)
   extends LogicBox(connector,outputBox){
@@ -60,8 +61,21 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
       input = inputAreaDom.value
   }
 
+  private def parseFormula: String = FormulaParser.parse(input) match {
+    case FormulaParser.Success(result, next) =>
+      try {LogicBox.formula2mCRL2(result,model.getMultiActionsMap)}
+      catch {
+        case e:Throwable => {outputBox.error(e.getMessage); input}
+      }
+    case f: FormulaParser.NoSuccess => {outputBox.error(f.msg); input}
+  }
+
+
   private def callMcrl2(): Unit = {
     val socket = new WebSocket("ws://localhost:9000/modal")
+    // parse formula
+//    val modalForm = LogicBox.expandFormula(input,model)
+    val modalForm = parseFormula
 
     // send request to process
     socket.onmessage = { e: MessageEvent => {process(e.data.toString); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
@@ -69,7 +83,7 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
     // build JSON and send it through the socket
     socket.addEventListener("open", (e: Event) => {
       val string:String =
-        s"""{ "modal": "${LogicBox.expandFormula(input,model)
+        s"""{ "modal": "${modalForm
           .replace("\\","\\\\")
           .replace("\n","\\n")}","""+
         s""" "connector" : "${formulaStr.get
@@ -89,7 +103,7 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
         case Right(message) =>
           outputBox.error(message)
         case Left(message) =>
-          outputBox.message(message + "\n\n- Expanded formula:\n" + LogicBox.expandFormula(input,model) + "")
+          outputBox.message("- "+message.filterNot(_=='\n')+" -\n\nExpanded formula:\n" + parseFormula + "")
       }
     }
   }

@@ -42,12 +42,18 @@ object MCRL2Bind {
   def generateLTS(): Int = {
     val id = Thread.currentThread().getId
     generateLPS()
-    s"${mcrl2path}lps2lts /tmp/model_$id.lps /tmp/model_$id.lts".!
+    s"${mcrl2path}lps2lts /tmp/model_$id.lps /tmp/model1_$id.lts".!
+  }
+
+  def minimiseLTS(): Int = {
+    val id = Thread.currentThread().getId
+    generateLTS()
+    s"${mcrl2path}ltsconvert -ebranching-bisim /tmp/model1_$id.lts /tmp/model_$id.lts".!
   }
 
   def callLtsGraph(): Unit = {
     val id = Thread.currentThread().getId
-    generateLTS()
+    minimiseLTS()
     s"${mcrl2path}ltsgraph /tmp/model_$id.lts".run()
   }
 
