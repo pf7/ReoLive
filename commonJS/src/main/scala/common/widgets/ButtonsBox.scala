@@ -8,12 +8,12 @@ class ButtonsBox(reload: => Unit, inputBox: InputCodeBox, logicBox: LogicBox)
     extends Box[String]("examples", Nil){
 
   private val buttons: Seq[((String,String),String)] = Seq(
-    "writer"->"writer"->"// can always write\n<true*.writer>true",
-    "reader"->"reader"->"// can always read\n<true*.reader>true",
-    "fifo"->"fifo"->"// can always fire\n<true*.fifo>true",
-    "merger"->"merger"->"// can always fire\n<true*.merger>true",
-    "dupl"->"dupl"->"// can always fire\n<true*.dupl>true",
-    "drain"->"drain"->"// can always fire\n<true*.drain>true",
+    "writer"->"writer"->"// can always write\n<all*.writer>true",
+    "reader"->"reader"->"// can always read\n<all*.reader>true",
+    "fifo"->"fifo"->"// can always fire\n<all*.fifo>true",
+    "merger"->"merger"->"// can always fire\n<all*.merger>true",
+    "dupl"->"dupl"->"// can always fire\n<all*.dupl>true",
+    "drain"->"drain"->"// can always fire\n<all*.drain>true",
     "fifo*writer ; drain"->"fifo*writer ; drain"->"// writer fails first write\n[writer]false",
     "\\x . fifo^x*writer ; drain^2" -> "\\x . fifo^x*writer ; drain^2"->"",
     "(\\x.fifo^x) ; (\\n.drain^n)" -> "(\\x.fifo^x) ; (\\n.drain^n)"->"",
@@ -23,13 +23,13 @@ class ButtonsBox(reload: => Unit, inputBox: InputCodeBox, logicBox: LogicBox)
     "(\\x. lossy^x |x>2)" -> "(\\x. lossy^x |x>2) ; (\\n. merger^n | n>1 & n<6)"->"",
     "merger!" -> "writer^8 ; merger! ; merger! ; reader!"->"",
     "x;y{x=..,y=..}" -> "x ; y ; z {\n  x = lossy * fifo ,\n  y = merger,\n  [hide] z = lossy }"->"[all*] @x <!fifo> true",
-    "barrier"->"dupl*dupl ; id*drain*id"->"// drain can always fire\n<true*.drain>true",
+    "barrier"->"dupl*dupl ; id*drain*id"->"// drain can always fire\n<all*.drain>true",
     "exrouter"->"""dupl ; dupl*id ;
                      |(lossy;dupl)*(lossy;dupl)*id ;
                      |id*merger*id*id ;
                      |id*id*swap ;
                      |id*drain*id ;
-                     |out1*out2""".stripMargin ->"// out1 and out2 cannot go together\n[true*.(out1 && out2)] false &&\n// always: either out1 or out2 is active\n<true*.(out1 || out2)> true",
+                     |out1*out2""".stripMargin ->"// out1 and out2 cannot go together\n[all*.(out1 && out2)] false &&\n// always: either out1 or out2 is active\n<all*.(out1 || out2)> true",
     //    "exrouter=.."->"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2",
     "zip"-> """zip_ 3
 {
@@ -129,7 +129,7 @@ unzip_ =
         |    xor*dupl;
         |    id*swap*id;
         |    gateOpen * gateClosed
-        |}""".stripMargin->"// sometimes gateOpen cannot fire\n<true*>@switcher[gateOpen]false",
+        |}""".stripMargin->"// sometimes gateOpen cannot fire\n<all*>@switcher[gateOpen]false",
     "Prelude"->
       """id
         |{
@@ -156,7 +156,7 @@ unzip_ =
         |  barrier_   = barrier,
         |  barriers_  = barriers
         |}
-      """.stripMargin->"// can always fire\n<true*.sync>true"
+      """.stripMargin->"// can always fire\n<all*.sync>true"
   )
 
 

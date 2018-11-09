@@ -19,7 +19,7 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
   private var inputAreaDom: html.TextArea = _
 
   private var code: scalajs.js.Dynamic = _
-  val boxId = "inputArea_"+id
+  private val boxId = "inputArea_"+id
 
   override def get: String = input
 
@@ -29,7 +29,7 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
       .append("div")
       .attr("id", "textBox_"+id)
 
-    val inputArea = inputDiv.append("textarea")
+    inputDiv.append("textarea")
       .attr("id", boxId)
       .attr("name", boxId)
       .attr("class","my-textarea prettyprint lang-java")
@@ -41,7 +41,7 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
 //    val x = code.getValue()
 //    println(s"## got $x : ${x.getClass}")
 
-    val realTxt = dom.document.getElementById("textBox_wr")
+    val realTxt = dom.document.getElementById("textBox_"+id)
         .childNodes(1).childNodes(0).childNodes(0).asInstanceOf[html.TextArea]
     realTxt.onkeydown = {e: dom.KeyboardEvent =>
       if(e.keyCode == 13 && e.shiftKey){e.preventDefault(); reload}
@@ -59,7 +59,8 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
 
   private def buildCodeArea(txt: String) = {
     val codemirror = scalajs.js.Dynamic.global.CodeMirror
-    val lit = scalajs.js.Dynamic.literal(lineNumbers = true, matchBrackets = true, theme = "neat", id="strangeID")
+    val lit = scalajs.js.Dynamic.literal(
+      lineNumbers = true, matchBrackets = true, theme = "neat", id="strangeID", mode="preo")
     code = codemirror.fromTextArea(dom.document.getElementById(boxId),lit)
     code.setValue(txt)
   }

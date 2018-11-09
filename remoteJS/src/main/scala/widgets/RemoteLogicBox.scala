@@ -15,8 +15,12 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
   //    extends Box[String]("Modal Logic", List(formulaStr,connector)){
 
 
-  val default = "<true> [lossy] false"
-//  var input: String = default
+//  private val default = "<all>[fifo] false"
+//
+//  private var code: scalajs.js.Dynamic = _
+//  private val boxId = "modalInputArea"
+
+  //  var input: String = default
   var model: Model = _
   var operation: String = "check"
 
@@ -34,36 +38,53 @@ class RemoteLogicBox(formulaStr: Box[String], connector: Box[CoreConnector], out
       .append("div")
       .attr("id", "modalBox")
 
+//    inputDiv.append("textarea")
+    ////      .attr("id", boxId)
+    ////      .attr("class","my-textarea")
+    ////      .attr("rows", "3")
+    ////      .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
+    ////      .attr("placeholder", input)
+    ////
+    ////    val inputAreaDom = dom.document.getElementById(boxId).asInstanceOf[html.TextArea]
+    ////
+    ////    inputAreaDom.onkeydown = {e: dom.KeyboardEvent =>
+    ////      if(e.keyCode == 13 && e.shiftKey) {
+    ////        e.preventDefault(); reload("check")
+    ////      }
+    ////      else ()
+    ////    }
     inputDiv.append("textarea")
-      .attr("id", "modalInputArea")
-      .attr("class","my-textarea")
-      .attr("rows", "3")
+      .attr("id", boxId)
+      .attr("name", boxId)
+      .attr("class","my-textarea prettyprint lang-java")
+      //      .attr("rows", rows.toString)
       .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
-      .attr("placeholder", input)
 
-    val inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
+    buildCodeArea(default)
 
-    inputAreaDom.onkeydown = {e: dom.KeyboardEvent =>
-      if(e.keyCode == 13 && e.shiftKey) {
-        e.preventDefault(); reload("check")
-      }
+    val realTxt = dom.document.getElementById("modalBox")
+      .childNodes(1).childNodes(0).childNodes(0).asInstanceOf[html.TextArea]
+    realTxt.onkeydown = {e: dom.KeyboardEvent =>
+      if(e.keyCode == 13 && e.shiftKey){e.preventDefault(); reload("check")}
       else ()
     }
   }
 
-  //todo: this function can be centralized. maybe....
+//  todo: this function can be centralized. maybe....
   override def update(): Unit = {
-    val inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
-    //    if(input != default || inputAreaDom.value != "")
-    //      input = LogicBox.expandFormula(inputAreaDom.value,connector.get)
+//    val inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
+//    //    if(input != default || inputAreaDom.value != "")
+//    //      input = LogicBox.expandFormula(inputAreaDom.value,connector.get)
+//    model = Model(connector.get)
+//    if (inputAreaDom.value != "")
+//      input = inputAreaDom.value
     model = Model(connector.get)
-    if (inputAreaDom.value != "")
-      input = inputAreaDom.value
+    super.update()
   }
 
   private def parseFormula: String = FormulaParser.parse(input) match {
     case FormulaParser.Success(result, next) =>
-      try {LogicBox.formula2mCRL2(result,model.getMultiActionsMap)}
+      try {LogicBox.formula2mCRL2(result,model.getMultiActionsMap,outputBox)}
       catch {
         case e:Throwable => {outputBox.error(e.getMessage); input}
       }
