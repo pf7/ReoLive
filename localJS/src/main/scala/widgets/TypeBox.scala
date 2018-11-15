@@ -25,7 +25,7 @@ class TypeBox(dependency: Box[String], errorBox: OutputArea)
   override def update(): Unit = {
 
     typeInfo.text("")
-    DSL.parseWithError(dependency.get) match {
+    try DSL.parseWithError(dependency.get) match {
       case preo.lang.Parser.Success(result, _) =>
         try {
           val typ = DSL.unsafeCheckVerbose(result)
@@ -44,5 +44,6 @@ class TypeBox(dependency: Box[String], errorBox: OutputArea)
         errorBox.error("Parser error: " + msg)
       //        instanceInfo.append("p").text("-")
     }
+    catch Box.checkExceptions(errorBox)
   }
 }

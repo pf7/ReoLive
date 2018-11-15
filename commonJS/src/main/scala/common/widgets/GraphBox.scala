@@ -15,7 +15,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 
   private val widthCircRatio = 7
   private val heightCircRatio = 3
-  private val densityCirc = 0.2 // nodes per 100x100 px
+  private val densityCirc = 0.5 // nodes per 100x100 px
 
 
   override def init(div: Block, visible: Boolean): Unit = {

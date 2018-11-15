@@ -23,6 +23,8 @@ class ButtonsBox(reload: => Unit, inputBox: InputCodeBox, logicBox: LogicBox)
     "(\\x. lossy^x |x>2)" -> "(\\x. lossy^x |x>2) ; (\\n. merger^n | n>1 & n<6)"->"",
     "merger!" -> "writer^8 ; merger! ; merger! ; reader!"->"",
     "x;y{x=..,y=..}" -> "x ; y ; z {\n  x = lossy * fifo ,\n  y = merger,\n  [hide] z = lossy }"->"[all*] @x <!fifo> true",
+    "Treo" -> "a*b ; alt ; c {\n alt(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c) \n }"
+           -> "// sometimes b cannot fire\n<all*> [!b] false",
     "barrier"->"dupl*dupl ; id*drain*id"->"// drain can always fire\n<all*.drain>true",
     "exrouter"->"""dupl ; dupl*id ;
                      |(lossy;dupl)*(lossy;dupl)*id ;
@@ -131,7 +133,7 @@ unzip_ =
         |    gateOpen * gateClosed
         |}""".stripMargin->"// sometimes gateOpen cannot fire\n<all*>@switcher[gateOpen]false",
     "Prelude"->
-      """id
+      """id_
         |{
         |  writer_    = writer,
         |  reader_    = reader,
@@ -143,6 +145,8 @@ unzip_ =
         |  lossy_     = lossy,
         |  merger_    = merger,
         |  swap_      = swap,
+        |  noSrc_     = noSrc,
+        |  noSnk_     = noSnk,
         |  exrouter_  = exrouter,
         |  exrouters_ = exrouters,
         |  ids_       = ids,
