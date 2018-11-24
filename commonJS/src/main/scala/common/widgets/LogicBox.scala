@@ -4,7 +4,7 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 import preo.ast.CoreConnector
 import preo.frontend.mcrl2._
-import preo.lang.FormulaParser
+import preo.lang.{FormulaParser, ParserUtils}
 
 import scala.collection.mutable
 
@@ -104,83 +104,23 @@ class LogicBox(connector: Box[CoreConnector], outputBox: OutputArea)
   private def reload(): Unit = {
     update()
     outputBox.clear()
-    val model = Model(connector.get)
-//    val newForm = LogicBox.expandFormula(input,model)
-    val newForm = FormulaParser.parse(input) match {
-      case FormulaParser.Success(result, next) =>
-        try result.toString + "\n\n" + LogicBox.formula2mCRL2(result,model.getMultiActionsMap,outputBox)
-        catch {
-          case e:Throwable => {outputBox.error(e.getMessage); input}
-        }
-      case f: FormulaParser.NoSuccess => f.toString
-    }
-    outputBox.warning(newForm)
-  }
-}
+//    val model = Model(connector.get)
+////    val newForm = LogicBox.expandFormula(input,model)
+//    val newForm = parseFormula(model,input)
+    //    outputBox.warning(newForm)
 
-object LogicBox {
-
-//  /**
-//    * Replaces all names of known containers
-//    * @param input String with the logical formula
-//    * @param model mCRL2 model to extract actions containing known containers
-//    * @return New logical formula with container names replaced by regular expressions
-//    */
-//  @deprecated("Old primitive style to adapt mCRL2 formulas","")
-//  def expandFormula(input:String, model: Model): String = {
-//    val names = model.getMultiActionsMap
-//
-//    val input1 = "%.*\n".r.replaceAllIn(input,"\n")
-//    val input2 = "/".r.replaceAllIn(input1,"_")
-//    val res = "[a-z][a-zA-Z_0-9]*( *[|] *[a-z][a-zA-Z_0-9]*)*".r
-//               .replaceAllIn(input2,x => getMNames(x.toString,names))
-//    res
-//  }
-
-  def formula2mCRL2(f:Formula,names: mutable.Map[String, Set[Set[Action]]],
-                    outbox:OutputArea): String =
-    Formula.formula2mCRL2(f,list => getMNames(list.map(_.name).reverse.mkString("_"),names,outbox))
-
-
-  /**
-    * replace a given container name by a "or" of channel names
-    * in the mCRL2 spec.
-    * @param str name of the container
-    * @param names mapping from container names to channels where they are used
-    * @return "Or" list of the associated channels
-//    */
-  private def getMNames(str: String, names: mutable.Map[String, Set[Set[Action]]],
-                        outbox: OutputArea): String = {
-    val actions = str.split(" *[|] *")
-    var res: Option[Set[Set[Action]]] = None
-//    println(s"starting: ${actions.mkString(".")}")
-    for (a <- actions) {
-      (names.get(a),res) match {
-        case (Some(mas),Some(acc)) =>
-          res = Some(acc intersect mas)
-//          println(s"updated res - ${res.mkString(".")}")
-        case (Some(mas),None) =>
-          res = Some(mas)
-//          println(s"reset res - ${res.mkString(".")}")
-        case (None,_) =>
-          if (a=="id") Some("sync")
-//          println(s"## left res - ${res.mkString(".")}")
+    ParserUtils.parseFormula(input) match {
+      case Left(err) => outputBox.error(err)
+      case Right(form) =>
+        val prefixes = Formula.notToHide(form).filterNot(_==Nil)
+        if (prefixes.nonEmpty)
+          outputBox.message(s"Exposing ${prefixes.map(_.map(_.name).mkString("[", "/", "]")).mkString(",")}")
+        ParserUtils.hideBasedOnFormula(form,connector.get) match {
+          case Left(err) => outputBox.error(err)
+          case Right((_,formExpanded)) =>
+            outputBox.message("Expanded formula:\n" + formExpanded)
       }
     }
-    res match {
-      case None =>
-        outbox.error(s"unknown container: ${actions.mkString("/")}")
-        str //s"##${str}/${actions.mkString("/")}##"
-      case Some(set) =>
-        if (set.isEmpty) "false"
-        else set.map(_.mkString("|")).mkString("("," || ",")")
-    }
   }
 
-//  private def getNames(str: String,names:mutable.Map[String,Set[Set[Action]]]): String = {
-//    names.get(str) match {
-//      case Some(acts) => acts.map(_.mkString("|")).mkString("("," + ",")")
-//      case None => str
-//    }
-//  }
 }

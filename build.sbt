@@ -29,6 +29,7 @@ lazy val server = (project in file("server"))
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.0",
       "com.typesafe.play" %% "play" % "2.6.11",
+      "javax.xml.bind" % "jaxb-api" % "2.3.0",
       // "com.typesafe.play" %% "play-json" % "2.6.9",
       jdbc , ehcache , ws , specs2 % Test , guice
     ),
