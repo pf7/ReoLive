@@ -4,14 +4,12 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 import preo.ast.CoreConnector
 import preo.frontend.mcrl2._
-import preo.lang.{FormulaParser, ParserUtils}
+import preo.lang.ParserUtils
 
-import scala.collection.mutable
-
-class LogicBox(connector: Box[CoreConnector], outputBox: OutputArea)
+class LogicBox(connector: Box[CoreConnector], default: String, outputBox: OutputArea)
   extends Box[String]("Modal Logic", List(connector)) {
 
-  protected val default = "<all*> <fifo> true"
+//  protected val default = "<all*> <fifo> true"
 
   protected var input: String = default
 
@@ -23,16 +21,11 @@ class LogicBox(connector: Box[CoreConnector], outputBox: OutputArea)
   override def get: String = input
 
   override def update(): Unit = {
-//    val inputAreaDom = dom.document.getElementById(boxId).asInstanceOf[html.TextArea]
-//    if (input != "<true>[fifo] false" || inputAreaDom.value != "")
-//      input = inputAreaDom.value
     val x = code.getValue()
     if (x != null) input = x.toString
   }
 
   def setValue(str: String): Unit = {
-//    val inputAreaDom = dom.document.getElementById(boxId).asInstanceOf[html.TextArea]
-//    inputAreaDom.value = str
     code.setValue(str)
   }
 
@@ -46,21 +39,6 @@ class LogicBox(connector: Box[CoreConnector], outputBox: OutputArea)
       .append("div")
       .attr("id", "modalBox")
 
-//    inputDiv.append("textarea")
-//      .attr("id", boxId)
-//      .attr("class", "my-textarea")
-//      .attr("rows", "3")
-//      .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
-//      .attr("placeholder", input)
-//
-//    val inputAreaDom = dom.document.getElementById(boxId).asInstanceOf[html.TextArea]
-//
-//    inputAreaDom.onkeydown = { e: dom.KeyboardEvent =>
-//      if (e.keyCode == 13 && e.shiftKey) {
-//        e.preventDefault(); reload()
-//      }
-//      else ()
-//    }
     inputDiv.append("textarea")
       .attr("id", boxId)
       .attr("name", boxId)
@@ -69,8 +47,6 @@ class LogicBox(connector: Box[CoreConnector], outputBox: OutputArea)
       .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
 
     buildCodeArea(default)
-    //    val x = code.getValue()
-    //    println(s"## got $x : ${x.getClass}")
 
     val realTxt = dom.document.getElementById("modalBox")
       .childNodes(1).childNodes(0).childNodes(0).asInstanceOf[html.TextArea]

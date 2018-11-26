@@ -59,9 +59,16 @@ object RemoteReo extends{
       .attr("id", "rightbar_wr")
       .attr("class", "rightside")
 
+    // configure defaults
+    val search = scalajs.js.Dynamic.global.window.location.search.asInstanceOf[String]
+    val args = common.Utils.parseSearchUri(search)
+    val conn = args.getOrElse("c", "dupl  ;  fifo * lossy")
+    val form = args.getOrElse("f", "<all*> <fifo> true")
+
+
     // Create boxes (order matters)
     inputBox =
-      new InputCodeBox(first_reload(), default="dupl  ;  fifo * lossy", id="wr",rows=4)
+      new InputCodeBox(first_reload(), export, conn, id="wr",rows=4)
     errors =
       new OutputArea
     typeInstanceInfo =
@@ -74,7 +81,7 @@ object RemoteReo extends{
       new RemoteModelBox(typeInstanceInfo, errors)
     outputBox = new OutputArea()
     // must be after inputbox and mcrl2box
-    modalBox = new RemoteLogicBox(inputBox, typeInstanceInfo, outputBox)
+    modalBox = new RemoteLogicBox(inputBox, form, typeInstanceInfo, outputBox)
     val buttonsDiv =
       new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputCodeBox],modalBox)
 
@@ -112,6 +119,17 @@ object RemoteReo extends{
     svg.update
     svgAut.update
     mcrl2Box.update
+  }
+
+  private def export(): Unit = {
+    val loc = scalajs.js.Dynamic.global.window.location
+    val ori = loc.origin.toString
+    val path = loc.pathname.toString
+    val hash = loc.hash.toString
+    val search = common.Utils.buildSearchUri(List("c"->inputBox.get,"f"->modalBox.get))
+
+    errors.clear()
+    errors.message(ori+path+search+hash)
   }
 
 }

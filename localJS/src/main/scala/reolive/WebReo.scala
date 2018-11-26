@@ -1,15 +1,13 @@
 package reolive
 
-import org.scalajs.dom
-import dom.html
-import org.singlespaced.d3js.d3
-import preo.backend._
-import preo.ast.{Connector, CoreConnector}
-import preo.frontend.mcrl2.Model
+import java.net.URLDecoder
+
 import common.widgets._
+import org.scalajs.dom.html
+import org.singlespaced.d3js.d3
 import widgets._
 
-import scalajs.js.annotation.JSExportTopLevel
+import scala.scalajs.js.annotation.JSExportTopLevel
 
 
 /**
@@ -56,9 +54,15 @@ object WebReo extends{
       .attr("id", "rightbar_wr")
       .attr("class", "rightside")
 
+    // configure defaults
+    val search = scalajs.js.Dynamic.global.window.location.search.asInstanceOf[String]
+    val args = common.Utils.parseSearchUri(search)
+    val conn = args.getOrElse("c", "dupl  ;  fifo * lossy")
+    val form = args.getOrElse("f", "<all*> <fifo> true")
+
 
     // add InputArea
-    inputBox = new InputCodeBox(reload(), default="dupl  ;  fifo * lossy", id="wr", rows=4)
+    inputBox = new InputCodeBox(reload(), export(), conn, id="wr", rows=4)
 
     errors      = new OutputArea //(id="wr")
     outputLogic = new OutputArea //(id="wrLog")
@@ -67,7 +71,7 @@ object WebReo extends{
 
     instanceInfo = new InstanceBox(typeInfo, errors)
 
-    logicBox = new LogicBox(instanceInfo,outputLogic)
+    logicBox = new LogicBox(instanceInfo, form, outputLogic)
 
     val buttonsDiv = new ButtonsBox(reload(), inputBox,logicBox)
 
@@ -76,6 +80,7 @@ object WebReo extends{
     svgAut = new AutomataBox(instanceInfo, errors)
 
     mcrl2Box = new Mcrl2Box(instanceInfo,errors)
+
 
     // place items
     inputBox.init(leftside,visible = true)
@@ -109,6 +114,21 @@ object WebReo extends{
     svg.update
     svgAut.update
     mcrl2Box.update
+
+//    val search = scalajs.js.Dynamic.global.window.location.search.asInstanceOf[String]
+//    val args = common.Utils.parseSearchUri(search)
+//    errors.message(s"-- $search")
+//    errors.message(s"-- $args")
   }
 
+  private def export(): Unit = {
+    val loc = scalajs.js.Dynamic.global.window.location
+    val ori = loc.origin.toString
+    val path = loc.pathname.toString
+    val hash = loc.hash.toString
+    val search = common.Utils.buildSearchUri(List("c"->inputBox.get,"f"->logicBox.get))
+
+    errors.clear()
+    errors.message(ori+path+search+hash)
+  }
 }

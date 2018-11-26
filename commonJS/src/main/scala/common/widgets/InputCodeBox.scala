@@ -12,7 +12,7 @@ import org.scalajs.dom.html
   * @param id
   * @param rows
   */
-class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
+class InputCodeBox(reload: => Unit, export: => Unit, default:String="", id:String="", rows:Int = 10)
   extends Box[String]("Input", Nil){
 
   var input: String = default
@@ -25,7 +25,8 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
 
   override def init(div: Block, visible: Boolean): Unit = {
     val inputDiv = super.panelBox(div,visible /*, 80*/ ,
-      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload)))
+      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload),
+                   Left("URL")-> (()=>export)))
       .append("div")
       .attr("id", "textBox_"+id)
 
@@ -68,7 +69,6 @@ class InputCodeBox(reload: => Unit, default:String="", id:String="", rows:Int = 
   def setValue(str: String) = {
     code.setValue(str)
   }
-
 
   override def update: Unit = {
     val x = code.getValue()

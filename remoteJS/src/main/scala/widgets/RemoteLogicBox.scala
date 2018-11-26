@@ -7,24 +7,17 @@ import org.scalajs.dom.html
 import org.scalajs.dom.raw.{Event, MessageEvent, WebSocket}
 import preo.ast.CoreConnector
 import preo.frontend.mcrl2.{Formula, Model}
-import preo.lang.{FormulaParser, ParserUtils}
+import preo.lang.ParserUtils
 
-class RemoteLogicBox(connectorStr: Box[String], connector: Box[CoreConnector], outputBox: OutputArea)
-  extends LogicBox(connector,outputBox){
+class RemoteLogicBox(connectorStr: Box[String], default:String, connector: Box[CoreConnector], outputBox: OutputArea)
+  extends LogicBox(connector,default,outputBox){
 
-  //    extends Box[String]("Modal Logic", List(formulaStr,connector)){
-
-
-//  private val default = "<all>[fifo] false"
-//
 //  private var code: scalajs.js.Dynamic = _
 //  private val boxId = "modalInputArea"
 
   //  var input: String = default
   var model: Model = _
   var operation: String = "check"
-
-//  var inputAreaDom: html.TextArea = _
 
 //  override def get: String = input
 
@@ -38,21 +31,6 @@ class RemoteLogicBox(connectorStr: Box[String], connector: Box[CoreConnector], o
       .append("div")
       .attr("id", "modalBox")
 
-//    inputDiv.append("textarea")
-    ////      .attr("id", boxId)
-    ////      .attr("class","my-textarea")
-    ////      .attr("rows", "3")
-    ////      .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
-    ////      .attr("placeholder", input)
-    ////
-    ////    val inputAreaDom = dom.document.getElementById(boxId).asInstanceOf[html.TextArea]
-    ////
-    ////    inputAreaDom.onkeydown = {e: dom.KeyboardEvent =>
-    ////      if(e.keyCode == 13 && e.shiftKey) {
-    ////        e.preventDefault(); reload("check")
-    ////      }
-    ////      else ()
-    ////    }
     inputDiv.append("textarea")
       .attr("id", boxId)
       .attr("name", boxId)
@@ -72,12 +50,6 @@ class RemoteLogicBox(connectorStr: Box[String], connector: Box[CoreConnector], o
 
 //  todo: this function can be centralized. maybe....
   override def update(): Unit = {
-//    val inputAreaDom = dom.document.getElementById("modalInputArea").asInstanceOf[html.TextArea]
-//    //    if(input != default || inputAreaDom.value != "")
-//    //      input = LogicBox.expandFormula(inputAreaDom.value,connector.get)
-//    model = Model(connector.get)
-//    if (inputAreaDom.value != "")
-//      input = inputAreaDom.value
     model = Model(connector.get)
     super.update()
   }
