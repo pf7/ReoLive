@@ -39,8 +39,6 @@ class InputCodeBox(reload: => Unit, export: => Unit, default:String="", id:Strin
 
 
     buildCodeArea(default)
-//    val x = code.getValue()
-//    println(s"## got $x : ${x.getClass}")
 
     val realTxt = dom.document.getElementById("textBox_"+id)
         .childNodes(1).childNodes(0).childNodes(0).asInstanceOf[html.TextArea]
@@ -50,13 +48,6 @@ class InputCodeBox(reload: => Unit, export: => Unit, default:String="", id:Strin
     }
 
   }
-
-  //  private def getTextArea() = scalajs.js.eval(
-  //    s"""CodeMirror.fromTextArea(document.getElementById("$boxId"), {
-  //       |    lineNumbers: true,
-  //       |    matchBrackets: true,
-  //       |    theme: "monokai"
-  //       |  });  """.stripMargin)
 
   private def buildCodeArea(txt: String) = {
     val codemirror = scalajs.js.Dynamic.global.CodeMirror
