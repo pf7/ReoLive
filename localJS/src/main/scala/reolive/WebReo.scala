@@ -24,7 +24,7 @@ object WebReo extends{
   var svgAut: AutomataBox = _
   var mcrl2Box: Mcrl2Box = _
   var outputLogic: OutputArea = _
-
+  var ifta: IFTABox =_
 
   @JSExportTopLevel("reolive.WebReo.main")
   def main(content: html.Div): Unit = {
@@ -81,6 +81,7 @@ object WebReo extends{
 
     mcrl2Box = new Mcrl2Box(instanceInfo,errors)
 
+    ifta = new IFTABox(instanceInfo,errors)
 
     // place items
     inputBox.init(leftside,visible = true)
@@ -94,6 +95,7 @@ object WebReo extends{
     svg.init(rightside,visible = true)
     svgAut.init(rightside,visible = false)
     mcrl2Box.init(rightside,visible = false)
+    ifta.init(rightside,visible = false)
 
     reload()
 
@@ -114,6 +116,8 @@ object WebReo extends{
     svg.update
     svgAut.update
     mcrl2Box.update
+
+    ifta.update
 
 //    val search = scalajs.js.Dynamic.global.window.location.search.asInstanceOf[String]
 //    val args = common.Utils.parseSearchUri(search)
