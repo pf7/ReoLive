@@ -1,8 +1,7 @@
-package widgets
+package common.widgets
 
-import common.widgets.{Box, OutputArea}
-import hprog.ast.Prog
 import hprog.DSL
+import hprog.ast.Prog
 import hprog.frontend.Show
 
 

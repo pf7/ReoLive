@@ -7,7 +7,7 @@
     <body>
 
         <!-- Number reflects index of the tab -->
-        @topnav(2)
+        @topnav(3)
 
     <div id="myTabContent" class="container">
         <div class="row">
@@ -30,13 +30,15 @@
     <script type="text/javascript" src='@routes.Assets.versioned("javascripts/bootstrap.min.js")'></script>
     <script type="text/javascript" src='@routes.Assets.versioned("javascripts/d3.v4.min.js")'></script>
     <script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/codemirror.js")'></script>
+    <script type="text/javascript" src='@routes.Assets.versioned("javascripts/plotly.min.js")'></script>
     <script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/addon/edit/matchbrackets.js")'></script>
     <script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/mode/preo/preo.js")'></script>
     <script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/mode/modal/modal.js")'></script>
+    <!--<script type="text/javascript" src='@routes.Assets.versioned("javascripts/remote_js-opt.js")'></script>-->
     <script type="text/javascript" src='@routes.Assets.versioned("javascripts/remote_js-opt.js")'></script>
     <script type="text/javascript" src='@routes.Assets.versioned("../assets/javascripts/starter.js")'></script>
 
-    <script type="text/javascript">reolive.RemoteReo.main(document.getElementById('contentWrap'));</script>
+    <script type="text/javascript">reolive.RemoteLince.main(document.getElementById('contentWrap'));</script>
 
     <script type="text/javascript">
       //// RESIZING

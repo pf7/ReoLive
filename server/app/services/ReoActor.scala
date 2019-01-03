@@ -24,6 +24,11 @@ class ReoActor(out: ActorRef) extends Actor {
       out ! process(msg)
   }
 
+  /**
+    * Gets a message, does the server processing, and returns the result as a string (using JSON here)
+    * @param msg incomming message with the connector
+    * @return type of the connector and an instance (type and core connector) using JSON
+    */
   private def process(msg: String): String = {
     var warnings: List[String] = List()
     // println(msg)

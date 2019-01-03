@@ -106,14 +106,15 @@ object WebReo extends{
     * tests if they're valid and generates the output if they are.
     */
   private def reload(): Unit = {
-    errors.clear
-    inputBox.update
-    typeInfo.update
-    instanceInfo.update
+    errors.clear()
+    outputLogic.clear()
+    inputBox.update()
+    typeInfo.update()
+    instanceInfo.update()
 
-    svg.update
-    svgAut.update
-    mcrl2Box.update
+    svg.update()
+    svgAut.update()
+    mcrl2Box.update()
 
 //    val search = scalajs.js.Dynamic.global.window.location.search.asInstanceOf[String]
 //    val args = common.Utils.parseSearchUri(search)

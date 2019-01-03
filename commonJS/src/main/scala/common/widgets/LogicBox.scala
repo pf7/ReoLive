@@ -33,8 +33,8 @@ class LogicBox(connector: Box[CoreConnector], default: String, outputBox: Output
     val inputDiv = panelBox(div, visible /*List("padding-right"->"25pt")*/
       /*, 80*/
       , buttons = List(
-        Right("glyphicon glyphicon-refresh") -> (() => reload),
-        Left("MA") -> (() => debugNames)
+        Right("glyphicon glyphicon-refresh") -> (() => reload, "Load the logical formula (shift-enter)"),
+        Left("MA") -> (() => debugNames, "Map actions in the formula to sets of actions in the mCRL2 specification")
       ))
       .append("div")
       .attr("id", "modalBox")

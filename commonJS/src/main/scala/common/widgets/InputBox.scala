@@ -26,7 +26,7 @@ class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
 
   override def init(div: Block, visible: Boolean): Unit = {
     val inputDiv = super.panelBox(div,visible /*, 80*/ ,
-      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload)))
+      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload, "Load the connector (shift-enter)")))
       .append("div")
       .attr("id", "textBox_"+id)
 

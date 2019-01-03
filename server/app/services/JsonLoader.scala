@@ -1,5 +1,7 @@
 package services
 
+import hprog.ast.{Prog, Trajectory}
+import hprog.common.ParserException
 import play.api.libs.json.{JsDefined, JsString, JsValue, Json}
 
 /**@
