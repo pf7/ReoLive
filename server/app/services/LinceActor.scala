@@ -1,12 +1,7 @@
 package services
 
-import java.io.{File, PrintWriter}
-
 import akka.actor._
-import hprog.ast.Prog
 import hprog.common.ParserException
-
-import scala.collection.immutable.NumericRange
 
 
 
@@ -38,21 +33,26 @@ class LinceActor(out: ActorRef) extends Actor{
 
     try {
       println(s"building trajectory from $cleanMsg")
-      val prog = hprog.DSL.parse(cleanMsg)
-      println("a")
-      val (traj,_) = hprog.ast.Trajectory.hprogToTraj(Map(),prog)
-      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
-      val max: Double = traj.sup.getOrElse(10)
-      var traces = (traj.vars zip List[List[Double]]()).toMap.withDefaultValue(List())
-      println(s"c - max=$max")
-      val range = 0.0 to max by (max / 100)
-      for (t: Double <- range)
+      val syntax = hprog.DSL.parse(cleanMsg)
+//      println("a")
+//      val (traj,_) = hprog.ast.Trajectory.hprogToTraj(Map(),prog)
+      val prog = hprog.frontend.Semantics.syntaxToValuation(syntax)
+      val traj = prog.traj(Map())
+//      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
+      val max: Double = traj.dur.getOrElse(10)
+      val x0 = traj(0)
+      var traces =  (x0.keys zip List[List[Double]]())
+                   .toMap.withDefaultValue(List())
+        //(traj.vars zip List[List[Double]]()).toMap.withDefaultValue(List())
+//      println(s"c - max=$max")
+      val samples = 0.0 to max by (max / 100)
+      for (t: Double <- samples)
         for ((variable, value) <- traj(t))
           traces += variable -> (value::traces(variable))
-      println("d")
+//      println("d")
       var js = ""
-      val rangeTxt = "x: "+range.mkString("[",",","]")
-      println("e")
+      val rangeTxt = "x: "+samples.mkString("[",",","]")
+//      println("e")
       for ((variable, values) <- traces)
         js += s"""var t$variable = {
                  |   $rangeTxt,
@@ -64,7 +64,7 @@ class LinceActor(out: ActorRef) extends Actor{
       js += s"var data = ${traces.keys.map("t"+_).mkString("[",",","]")};" +
         s"\nvar layout = {};" +
         s"\nPlotly.newPlot('graphic', data, layout, {showSendToCloud: true});"
-      println("done:\n"+js)
+//      println("done:\n"+js)
       js
     }
     catch {

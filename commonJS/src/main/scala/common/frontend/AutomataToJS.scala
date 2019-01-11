@@ -184,6 +184,7 @@ object AutomataToJS {
                   new_target_x = d.target.x + 2000;
                   new_source_y = new_source_x * m  +b;
                   new_target_y = new_target_x * m +b;
+                  //return 'M ' + new_source_x +' '+ new_source_y  +' L '+ new_target_x +' '+ new_target_y;
                   return 'M ' + new_source_x +' '+ new_source_y  +' L '+ new_target_x +' '+ new_target_y;
               });
               d3.select(".labelsautomata").selectAll(".edgelabel").attr('transform', function (d) {

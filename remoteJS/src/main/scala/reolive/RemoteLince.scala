@@ -1,10 +1,10 @@
 package reolive
 
 import common.widgets._
-import hprog.ast.{Prog, Trajectory}
+import hprog.ast.Syntax
 import org.scalajs.dom.html
 import org.singlespaced.d3js.d3
-import widgets.GraphicBox
+import widgets.RemoteGraphicBox
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 
@@ -14,7 +14,7 @@ object RemoteLince {
 
     var inputBox: Box[String] = _
     //  var typeInfo: PanelBox[Connector] = _
-    var information: Box[Prog] = _
+    var information: Box[Syntax] = _
     var graphic: Box[Unit] = _
     var errors: OutputArea = _
 
@@ -58,7 +58,7 @@ object RemoteLince {
       information = new HProgBox(inputBox, errors)
       information.init(rightColumn,true)
 
-      graphic= new GraphicBox(inputBox, errors)
+      graphic= new RemoteGraphicBox(inputBox, errors)
       graphic.init(rightColumn,true)
 
       reload()

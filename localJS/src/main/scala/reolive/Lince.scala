@@ -7,7 +7,7 @@ import org.singlespaced.d3js.d3
 import widgets._
 
 import scala.scalajs.js.annotation.JSExportTopLevel
-import hprog.ast.Prog
+import hprog.ast.Syntax
 
 
 /**
@@ -17,7 +17,8 @@ object Lince extends{
 
   var inputBox: Box[String] = _
 //  var typeInfo: PanelBox[Connector] = _
-  var information: Box[Prog] = _
+  var information: Box[Syntax] = _
+  var graphics: Box[Unit] = _
   var errors: OutputArea = _
 
   @JSExportTopLevel("reolive.Lince.main")
@@ -47,7 +48,7 @@ object Lince extends{
       .attr("class", "rightside")
 
     // add InputArea
-    inputBox = new InputBox(reload(),default = "v:=0;p:=0;p=v,v=10&p<=0 /\\ v<=0 ; v:=v* -0.5",id = "Lince",rows=3)
+    inputBox = new InputBox(reload(),default = "v:=5; p:=10; c:=0;\nwhile (c<4) {\n  v=-9.8, p=v & p<0 /\\ v<0;\n  v:=-0.5*v; c:=c+1\n}",id = "Lince",rows=5)
     inputBox.init(leftColumn,true)
 
     errors = new OutputArea //(id="Lince")
@@ -57,7 +58,10 @@ object Lince extends{
 //    typeInfo.init(colDiv1,true)
 
     information = new HProgBox(inputBox, errors)
-    information.init(rightColumn,true)
+    information.init(leftColumn,true)
+
+    graphics = new GraphicBox(inputBox,errors)
+    graphics.init(rightColumn,visible = true)
 
     reload()
 
@@ -72,6 +76,7 @@ object Lince extends{
     errors.clear()
     inputBox.update()
     information.update()
+    graphics.update()
   }
 
 }

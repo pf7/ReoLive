@@ -86,7 +86,7 @@ object WebReo extends{
     inputBox.init(leftside,visible = true)
     errors.init(leftside)
     typeInfo.init(leftside,visible = true)
-    instanceInfo.init(leftside,visible = true)
+    instanceInfo.init(leftside,visible = false)
     buttonsDiv.init(leftside,visible = false)
     logicBox.init(leftside,visible = true)
     outputLogic.init(leftside)
