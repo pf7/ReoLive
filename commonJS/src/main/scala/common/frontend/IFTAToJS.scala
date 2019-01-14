@@ -12,21 +12,6 @@ object IFTAToJS {
 
   def apply(ifta:IFTA): String = generateJS(getNodes(ifta), getLinks(ifta))
 
-  def toVis(ifta:IFTA): String = ""
-
-//  private def mkVis()
-
-//  def toVis(ifta:IFTA): String = {
-//
-//    val edges = ifta.edges.zipWithIndex
-//    val featsNotused = ifta.feats -- ifta.fm.feats.toSet
-//    val fm =
-//      if (featsNotused.isEmpty) ifta.fm
-//      else  ifta.fm && (featsNotused.foldLeft[FExp](FNot(FTrue))(_ || Feat(_)) || Feat("__feat__"))
-//    val fsOptions = getSols(fm,edges.map(e => (e._2,e._1.fe)).toMap)
-//    mkVis(mkIFTAData(ifta),fsOptions)
-//  }
-
   private def generateJS(nodes: String, edges: String): String = {
 
     s"""
@@ -178,10 +163,7 @@ object IFTAToJS {
                   .text(function (d) {
                     return d.type;
                   });
-//              textpath.append("tspan")
-//                  .text("T")
-//                  .attr("fill","red")
-//                  .attr("baseline-shift","sub")
+
           }
 
           function tickedAut() {

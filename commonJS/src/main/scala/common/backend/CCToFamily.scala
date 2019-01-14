@@ -1,8 +1,8 @@
 package common.backend
 
+
 import ifta._
 import ifta.analyse.Simplify
-import ifta.backend.Show
 import ifta.reo.Connectors._
 import preo.ast.{CPrim, CoreConnector}
 import preo.backend.ReoGraph
@@ -13,41 +13,17 @@ import preo.common.GenerationException
   */
 
 
-object CCToNIFTA {
+object CCToFamily {
 
-  def apply(cc:CoreConnector,hideInternal:Boolean):IFTA ={
+//  def cc2NReoIFTA(cc:CoreConnector): NReoIFTA = {
+//    val reoGraph = ReoGraph.toGraphOneToOne(cc,hideClosed = false)
+//    NReoIFTA(reoGraph.edges.map(e => ReoIFTA(edgeToIFTA(e),e)).toSet)
+//  }
+
+  def toIFTA(cc:CoreConnector,showFullName:Boolean,hideInternal:Boolean):IFTA ={
     val reoGraph = ReoGraph.toGraphOneToOne(cc,hideClosed = false)
-    buildNIFTA(reoGraph).getReoIFTA(hideInternal)
+    buildNIFTA(reoGraph).getReoIFTA(showFullName,hideInternal)
   }
-
-//  def niftaToReoIFTA(nifta: NIFTA): IFTA = {
-//    val conByKind: Map[String, Set[IFTA]] = nifta.iFTAs.groupBy(_.shortname)
-//    val conByKindWithIndex = conByKind.map(g => g._2.zipWithIndex)
-//
-//    // (oldname,newname)
-//    var newActs:Map[String, String] = Map()
-//
-//    var ifta = nifta.flatten
-//
-//    for (iFTA  <- nifta.iFTAs) {
-//      var currentInputs = ifta.in.intersect(iFTA.interface)
-//      var currentOutputs = ifta.out.intersect(iFTA.interface)
-//      if ()
-//    }
-//
-//
-//
-//    DSL.newifta
-//  }
-
-//  private def updateNames(ifta: IFTA, conByKind: Map[String, Set[IFTA]]): IFTA = {
-//    for (act in ifta.interface) {
-//      conByKind
-//    }
-////    for (tr <- ifta.edges)
-//
-//  }
-
 
   private def buildNIFTA(reoGraph: ReoGraph): NReoIFTA = {
 
@@ -63,7 +39,7 @@ object CCToNIFTA {
       var currentEdge = reoGraph.edges.head
       var restEdges = reoGraph.edges.toSet - currentEdge
 
-      var nifta = NIFTA(Set(edgeToIFTA(currentEdge)))
+      //      var nifta = NIFTA(Set(edgeToIFTA(currentEdge)))
       var nReoIFTA:NReoIFTA = NReoIFTA(Set(ReoIFTA(edgeToIFTA(currentEdge),currentEdge)))
       var nextEdges = getNeighbours(currentEdge)
 
@@ -71,24 +47,25 @@ object CCToNIFTA {
         while (nextEdges.nonEmpty) {
           currentEdge = nextEdges.head
           nextEdges = nextEdges.tail
-          nifta = nifta || edgeToIFTA(currentEdge)
+          //          nifta = nifta || edgeToIFTA(currentEdge)
           nReoIFTA = NReoIFTA(nReoIFTA.reoIFTAs ++ Set(ReoIFTA(edgeToIFTA(currentEdge),currentEdge)))
           restEdges -= currentEdge
         }
         if (restEdges.nonEmpty) {
           currentEdge = restEdges.head
           restEdges = restEdges.tail
-          nifta = nifta || edgeToIFTA(currentEdge)
+          //          nifta = nifta || edgeToIFTA(currentEdge)
           nReoIFTA = NReoIFTA(nReoIFTA.reoIFTAs ++ Set(ReoIFTA(edgeToIFTA(currentEdge),currentEdge)))
           nextEdges = getNeighbours(currentEdge)
         }
       }
-//      nifta
+      //      nifta
       nReoIFTA
     }
     else
       NReoIFTA(Set())
   }
+
 
   private def edgeToIFTA(e: ReoGraph.Edge):IFTA = e match {
     case ReoGraph.Edge(CPrim("sync",_,_,_),List(a),List(b),_) =>
@@ -121,58 +98,21 @@ object CCToNIFTA {
       sync(a.toString,b.toString) name name
 
     case ReoGraph.Edge(p, _, _,_) =>
-      throw new GenerationException(s"Unknown port automata for primitive $p")
+      throw new GenerationException(s"Unknown ifta automata for primitive $p")
   }
 }
 
-//case class ReoNIFTA(nifta:NIFTA) {
-//
-//  lazy val ifta = nifta.flatten
-//  lazy val inputs = ifta.in
-//  lazy val outputs = ifta.out
-//
-//  lazy val reoIFTA:IFTA = {
-//    val conByKind: Map[String, Set[IFTA]] = nifta.iFTAs.groupBy(_.shortname)
-//    val conByKindWithIndex = conByKind.map(g => g._1 -> g._2.zipWithIndex)
-//
-//    // (oldname,newname)
-////    var newActNames:Map[String, List[(IFTA, String, String, String)]] = Map()
-//    var newActNames:Map[String,List[String]]= Map()
-//    //
-//    for (conKind <- conByKindWithIndex) {
-//      for ((iFTA,index) <- conKind._2) {
-////        newActNames ++= iFTA.in.map(i => i -> (newActNames.getOrElse(i,List()) ++ List((iFTA, iFTA.shortname, index.toString, "↓"))))
-////        newActNames ++= iFTA.out.map(o => o -> (newActNames.getOrElse(o,List()) ++ List((iFTA, iFTA.shortname, index.toString, "↑"))))
-//        newActNames ++= iFTA.in.map(a => a -> (newActNames.getOrElse(a,List()) ++ List(iFTA.shortname + "<sub>" + index + "</sub>" + "↓")))
-//        newActNames ++= iFTA.in.map(a => a -> (newActNames.getOrElse(a,List()) ++ List(iFTA.shortname + "<sub>" + index + "</sub>" + "↑")))
-//      }
-//    }
-//
-//    DSL.newifta
-//  }
-//
-//
-////
-////  def getNewTrans(e:Edge,newNames:Map[String, List[(IFTA, String, String, String)]]):Edge = {
-//////    var newActs: Set[List[(IFTA, String, String, String)]] = e.act.map(a => newNames.getOrElse(a,List()))
-////    var newActs = Set()
-////    for (a <- e.act) {
-////      val (iFTA,name,index,dir) = newNames.getOrElse(a,a)
-////
-////    }
-////
-////  }
-//
-//}
 
 case class ReoIFTA(ifta:IFTA, edge:ReoGraph.Edge) {
 
-//  lazy val reoIFTA:IFTA = DSL.newifta
   lazy val conName = getName
 
-  lazy val actNames:Map[String,(String,String,String)] = {
-    val inIndexes:List[(String,String)] = edge.ins.map(_.toString).zip ((Stream from 1).map(_.toString))
-    val outIndexes:List[(String,String)] = edge.outs.map(_.toString).zip ((Stream from 1).map(_.toString))
+  // oldName -> (conName, actIndex, dir)
+  lazy val actsNames:Map[String,(String,String,String)] = {
+    val inIndexes:List[(String,String)] =
+      edge.ins.map(_.toString).zip ((Stream from 1).map(_.toString))
+    val outIndexes:List[(String,String)] =
+      edge.outs.map(_.toString).zip ((Stream from 1).map(_.toString))
 
     inIndexes.foldLeft(Map[String,(String,String,String)]()){
       (m,i) => m + (i._1 -> (getName, if(inIndexes.size ==1) "" else i._2, "↓"))} ++
@@ -180,16 +120,17 @@ case class ReoIFTA(ifta:IFTA, edge:ReoGraph.Edge) {
       (m,o) => m + (o._1 -> (getName, if(outIndexes.size == 1) "" else o._2, "↑"))}
   }
 
-  lazy val featNames:Map[String,(String,String,String)] = {
+  //not necesary for now
+  // oldFeatName -> (correspondingConName,actIndex,dir)
+  lazy val featsNames:Map[String,(String,String,String)] = {
     var res:Map[String,(String,String,String)] = Map()
     for (f <- ifta.feats) {
       var actName = f.slice(2,f.size) // remove v_ to get act name of the feature
-      var n = actNames.getOrElse(f,(f,"",""))
+      var n = actsNames.getOrElse(f,(f,"",""))
       res += f -> (s"f${n._1}", n._2,n._3)
     }
     res
   }
-
 
   private def getName:String = edge.parents match {
     case Nil     => primName(edge.prim)
@@ -208,52 +149,55 @@ case class ReoIFTA(ifta:IFTA, edge:ReoGraph.Edge) {
 
 case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
 
+  private lazy val ifta = NIFTA(reoIFTAs.map(_.ifta)).flatten
 
+  def getLocs:Set[Int] = ifta.locs
 
-  lazy val ifta = NIFTA(reoIFTAs.map(_.ifta)).flatten
+  def getInit:Int = ifta.init
 
-//  lazy val reoIFTA = {
-//    IFTA(ifta.locs,ifta.init,mkNewActs(ifta.act),ifta.clocks
-//      ,mkNewFeats(ifta.feats),ifta.edges.map(mkNewEdge(_)),ifta.cInv,mkNewFE(ifta.fm)
-//      ,mkNewActs(ifta.in),mkNewActs(ifta.out),ifta.aps,ifta.shortname)
-//  }
-
-  def getReoIFTA(hideInternal: Boolean): IFTA = {
+  def getReoIFTA(allNames:Boolean,hideInternal: Boolean): IFTA = {
+    if (allNames)  actNames = actNamesFull else actNames = actNamesSimple
     IFTA(ifta.locs,ifta.init,mkNewActs(ifta.act),ifta.clocks
       ,mkNewFeats(ifta.feats),ifta.edges.map(mkNewEdge(_,hideInternal)),ifta.cInv,mkNewFE(ifta.fm)
       ,mkNewActs(ifta.in),mkNewActs(ifta.out),ifta.aps,ifta.shortname)
   }
 
-  private lazy val actNames:Map[String, Set[(String,String,String)]] = {
-      reoIFTAs.map(_.actNames.toSeq)
+  // (oldAct, Set((conName,IndexOfInOrOut,InOrOut))
+  private var actNames:Map[String, Set[(String,String,String)]] = _
+
+  private lazy val actNamesSimple:Map[String, Set[(String,String,String)]] = {
+      reoIFTAs.map(_.actsNames.toSeq)
         .foldRight(Seq[(String,(String,String,String))]())(_++_)
         .groupBy(_._1)
       .mapValues(_.map(_._2).toSet)
   }
 
-  private lazy val actNames2:Map[String, Set[(String,String,String)]] = {
+  private lazy val actNamesFull:Map[String, Set[(String,String,String)]] = {
     var consByName:Map[String, Set[ReoIFTA]] = reoIFTAs.groupBy(_.conName)
     var res:Map[String,Set[(String,String,String)]] = Map()
     var temp:Seq[(String,(String,String,String))] = Seq()
     for (con <- consByName)
       if (con._2.size <= 1)
-        temp = temp ++ con._2.map(_.actNames.toSeq).
+        temp = temp ++ con._2.map(_.actsNames.toSeq).
           foldRight(Seq[(String,(String,String,String))]())(_++_)
       else {
         var mapIndex = con._2 zip ((Stream from 1).map(_.toString))
         for ((r,i) <- mapIndex)
-          temp = temp ++ (r.actNames.mapValues(a => (a._1+i,a._2,a._3))).toSeq
-//            .foldRight(Seq[(String,(String,String,String))]())(_++_)
+          temp = temp ++ (r.actsNames.mapValues(a => (a._1+i,a._2,a._3))).toSeq
       }
       temp.groupBy(_._1).mapValues(_.map(_._2).toSet)
-//    reoIFTAs.map(_.actNames.toSeq)
-//      .foldRight(Seq[(String,(String,String,String))]())(_++_)
-//      .groupBy(_._1)
-//      .mapValues(_.map(_._2).toSet)
   }
 
+
   private def mkNewEdge(e:Edge,hideInternal:Boolean):Edge = {
-    Edge(e.from,e.cCons,if (hideInternal) mkNewActs(e.act.intersect(ifta.interface)) else mkNewActs(e.act),e.cReset,mkNewFE(e.fe),e.to)
+    Edge(e.from,e.cCons,
+      if (hideInternal) mkNewActs(e.act.intersect(ifta.interface)) else mkNewActs(e.act)
+      ,e.cReset,mkNewFE(e.fe),e.to)
+  }
+
+  private def mkNewActs(act: Set[String]): Set[String] = {
+    var acts = (for (a <- act) yield actNames.getOrElse(a,Set())).flatten
+    getCleanNames(acts)
   }
 
   private def getCleanNames(acts: Set[(String, String, String)]): Set[String] = {
@@ -261,50 +205,33 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
     var byName = acts.groupBy(_._1)
     for ((n,ns) <- byName) {
       var byDir = ns.groupBy(_._3)
-        var indIn:String = ""
-        var indOut:String = ""
-        for ((d, ds) <- byDir) d match{
-          case "↓" => indIn = ds.map(_._2).mkString(",")
-          case "↑" => indOut = ds.map(_._2).mkString(",")
-        }
-        if (byDir.size>1)
-          newNames = newNames + (n+mkInOut(indIn,indOut))
-        else byDir.head._1 match {
-          case "↓" => newNames = newNames + (n+mkIn(indIn))
-          case "↑" => newNames = newNames + (n+mkOut(indOut))
-        }
+      var indIn:String = ""
+      var indOut:String = ""
+      for ((d, ds) <- byDir) d match{
+        case "↓" => indIn = ds.map(_._2).mkString(",")
+        case "↑" => indOut = ds.map(_._2).mkString(",")
+      }
+      if (byDir.size>1)
+        newNames = newNames + (n+mkInOut(indIn,indOut))
+      else byDir.head._1 match {
+        case "↓" => newNames = newNames + (n+mkIn(indIn))
+        case "↑" => newNames = newNames + (n+mkOut(indOut))
+      }
     }
     newNames
-  }
-
-  private def mkIn(s:String):String = s"↓$s"
-    //s"""↓<tspan baseline-shift="sub">$s</tspan>"""
-
-
-  private def mkOut(s:String):String = s"↑$s"
-//    s"<p>↑<sup>$s</sup></p>"
-
-  private def mkInOut(in:String,out:String):String =
-    if (in.isEmpty && out.isEmpty) "↕" else s"↕${in}_${out}"
-//    s"<p>↕<sup>$out</sup><sub style='position: relative; left: -.5em;'>$in</sub></p>"
-
-  private def mkNewActs(act: Set[String]): Set[String] = {
-    var acts = (for (a <- act) yield actNames.getOrElse(a,Set())).flatten
-    getCleanNames(acts)
   }
 
   private def mkNewFE(fe: FExp): FExp = {
     var mapFE:Map[String,Set[String]] = Map()
     var feats = fe.feats.map(f => f.slice(2,f.size))
-    mapFE = actNames.map(a => a._1 -> a._2.map(mkName(_))).filter(m => feats.contains(m._1))
-//    println(Show(fe))
+    mapFE = actNames.map(a => a._1 -> a._2.map(mkActName(_))).filter(m => feats.contains(m._1))
     Simplify(replaceFE(fe,mapFE))
   }
 
   private def mkNewFeats(feats:Set[String]):Set[String] = {
     var mapFeats:Map[String,Set[String]] = Map()
     var featNames = feats.map(f => f.slice(2,f.size))
-    mapFeats = actNames.map(a => a._1 -> a._2.map(mkName(_))).filter(m => feats.contains(m._1))
+    mapFeats = actNames.map(a => a._1 -> a._2.map(mkActName(_))).filter(m => feats.contains(m._1))
 
     mapFeats.map(_._2).flatten.map(f => s"f$f").toSet
   }
@@ -319,10 +246,22 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
     case FEq(e1,e2)   => FEq(replaceFE(e1,map),replaceFE(e2,map))
   }
 
-  private def mkName(act:(String,String,String)):String = act._3 match {
+  private def mkActName(act:(String,String,String)):String = act._3 match {
     case "↓" => act._1 + mkIn(act._2) //+ act._3
     case "↑" => act._1 + mkOut(act._2) //+ act._3
   }
 
+  private def mkIn(s:String):String = s"↓$s"
+  //s"""↓<tspan baseline-shift="sub">$s</tspan>"""
+
+  private def mkOut(s:String):String = s"↑$s"
+  //    s"<p>↑<sup>$s</sup></p>"
+
+  private def mkInOut(in:String,out:String):String =
+    if (in.isEmpty && out.isEmpty) "↕" else s"↕${in}_${out}"
+  //    s"<p>↕<sup>$out</sup><sub style='position: relative; left: -.5em;'>$in</sub></p>"
+
 
 }
+
+
