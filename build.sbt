@@ -7,7 +7,7 @@ lazy val common_settings = Seq(
     "junit" % "junit" % "4.12",
     "org.choco-solver" % "choco-solver" % "4.0.6",
     "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-    "org.ow2.sat4j" % "org.ow2.sat4j.core" % "2.3.5" withSources() withJavadoc()
+    "org.ow2.sat4j" % "org.ow2.sat4j.core" % "2.3.5" withSources() withJavadoc(),
 //    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",
     // Last stable release
     "org.scalanlp" %% "breeze" % "0.13.2",
