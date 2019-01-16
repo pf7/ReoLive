@@ -10,7 +10,10 @@ import ifta.{Edge, IFTA}
 
 object IFTAToJS {
 
-  def apply(ifta:IFTA): String = generateJS(getNodes(ifta), getLinks(ifta))
+  def apply(ifta:IFTA): String = {
+    val edgesIndex = ifta.edges.zipWithIndex
+    generateJS(getNodes(ifta.init, edgesIndex), getLinks(edgesIndex))
+  }
 
   private def generateJS(nodes: String, edges: String): String = {
 
@@ -227,20 +230,22 @@ object IFTAToJS {
       """
   }
 
-  private def getNodes(ifta: IFTA): String =
-    ifta.edges.flatMap(processNode(ifta.init, _)).mkString("[",",","]")
+  private def getNodes(init:Int, edges:Set[(Edge,Int)]): String =
+    edges.flatMap(e => processNode(init,e._1,e._2)).mkString("[",",","]")
+//    ifta.edges.flatMap(processNode(ifta.init, _)).mkString("[",",","]")
 
-  private def getLinks(ifta:IFTA): String =
-    ifta.edges.flatMap(processEdge).mkString("[",",","]")
+  private def getLinks(edges:Set[(Edge,Int)]): String =
+    edges.flatMap(e => processEdge(e._1,e._2)).mkString("[",",","]")
+//    ifta.edges.flatMap(processEdge).mkString("[",",","]")
 
 
-  private def processNode(init:Int,edge:Edge): Set[String] = edge match{
+  private def processNode(init:Int,edge:Edge, id:Int): Set[String] = edge match{
     case Edge(from,cCons,acts,cReset,fe,to) =>
       val (gfrom,gto,gp1,gp2) = nodeGroups(init,from,to)
       Set(s"""{"id": "$from", "group": $gfrom }""",
         s"""{"id": "$to", "group": $gto }""",
-        s"""{"id": "$from-1-$to-${(acts,Show(fe)).hashCode().toString}", "group": "$gp1"}""",
-        s"""{"id": "$to-2-$from-${(acts,Show(fe)).hashCode().toString}", "group": "$gp2" }""")
+        s"""{"id": "$from-1-$to-${id}", "group": "$gp1"}""",
+        s"""{"id": "$to-2-$from-${id}", "group": "$gp2" }""")
   }
 
   //  private def processNode(initAut:Int,trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match{
@@ -264,11 +269,11 @@ object IFTAToJS {
       , "2" , "2"
     )
 
-  private def processEdge(edge:Edge): Set[String] = edge match {
+  private def processEdge(edge:Edge, id:Int): Set[String] = edge match {
     case Edge(from,cCons,acts,cReset,fe,to) =>
-      Set(s"""{"source": "$from", "target": "$from-1-$to-${(acts,Show(fe)).hashCode().toString}", "type":"", "start":"start", "end": "end"}""",
-        s"""{"source": "$from-1-$to-${(acts,Show(fe)).hashCode().toString}", "target": "$to-2-$from-${(acts,Show(fe)).hashCode().toString}", "type":"${acts.mkString(".")}", "start":"start", "end": "end"}""",
-        s"""{"source": "$to-2-$from-${(acts,Show(fe)).hashCode().toString}", "target": "$to", "type":"", "start":"start", "end": "endarrowoutiftaAutomata"}""")
+      Set(s"""{"source": "$from", "target": "$from-1-$to-${id}", "type":"", "start":"start", "end": "end"}""",
+        s"""{"source": "$from-1-$to-${id}", "target": "$to-2-$from-${id}", "type":"${acts.mkString(".")}", "start":"start", "end": "end"}""",
+        s"""{"source": "$to-2-$from-${id}", "target": "$to", "type":"", "start":"start", "end": "endarrowoutiftaAutomata"}""")
   }
   //  private def processEdge(trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match {
   //    case (from, (to, fire, es)) => {

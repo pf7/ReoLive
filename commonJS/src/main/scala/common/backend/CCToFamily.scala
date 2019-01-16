@@ -3,6 +3,7 @@ package common.backend
 
 import ifta._
 import ifta.analyse.Simplify
+import ifta.common.FExpOverflowException
 import ifta.reo.Connectors._
 import preo.ast.{CPrim, CoreConnector}
 import preo.backend.ReoGraph
@@ -149,13 +150,26 @@ case class ReoIFTA(ifta:IFTA, edge:ReoGraph.Edge) {
 
 case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
 
-  private lazy val ifta = NIFTA(reoIFTAs.map(_.ifta)).flatten
+  private var ifta:IFTA = _
+
+  private lazy val iftaSimple = // try {
+    NIFTA(reoIFTAs.map(_.ifta)).flatten(30000)
+//  } catch {
+//    case e:Throwable => throw new RuntimeException("exception at flatten")
+//  }
+
+  private lazy val iftaHiden = //try {
+    NIFTA(reoIFTAs.map(_.ifta)).hideFlatten(30000)
+//  } catch {
+//    case e:Throwable => throw new RuntimeException("exception at hideFlatten" + "\n" + e.getMessage)
+//  }
 
   def getLocs:Set[Int] = ifta.locs
 
   def getInit:Int = ifta.init
 
   def getReoIFTA(allNames:Boolean,hideInternal: Boolean): IFTA = {
+    if (hideInternal) ifta = iftaHiden else ifta = iftaSimple
     if (allNames)  actNames = actNamesFull else actNames = actNamesSimple
     IFTA(ifta.locs,ifta.init,mkNewActs(ifta.act),ifta.clocks
       ,mkNewFeats(ifta.feats),ifta.edges.map(mkNewEdge(_,hideInternal)),ifta.cInv,mkNewFE(ifta.fm)
@@ -166,9 +180,9 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
   private var actNames:Map[String, Set[(String,String,String)]] = _
 
   private lazy val actNamesSimple:Map[String, Set[(String,String,String)]] = {
-      reoIFTAs.map(_.actsNames.toSeq)
-        .foldRight(Seq[(String,(String,String,String))]())(_++_)
-        .groupBy(_._1)
+    reoIFTAs.map(_.actsNames.toSeq)
+      .foldRight(Seq[(String,(String,String,String))]())(_++_)
+      .groupBy(_._1)
       .mapValues(_.map(_._2).toSet)
   }
 
@@ -185,7 +199,7 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
         for ((r,i) <- mapIndex)
           temp = temp ++ (r.actsNames.mapValues(a => (a._1+i,a._2,a._3))).toSeq
       }
-      temp.groupBy(_._1).mapValues(_.map(_._2).toSet)
+    temp.groupBy(_._1).mapValues(_.map(_._2).toSet)
   }
 
 
@@ -239,12 +253,12 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
   private def replaceFE(fe:FExp,map:Map[String,Set[String]]):FExp = fe match {
     case Feat(n)      => map.getOrElse(n.slice(2,n.size),Set()).map(f => Feat(s"f$f")).foldLeft[FExp](FTrue)(FAnd(_,_))
     case FTrue        => FTrue
-    case FAnd(e1, e2) => FAnd(replaceFE(e1,map),replaceFE(e2,map))
-    case FOr(e1, e2)  => FOr(replaceFE(e1,map),replaceFE(e2,map))
+    case FAnd(e1, e2) => replaceFE(e1,map) && replaceFE(e2,map)
+    case FOr(e1, e2)  => replaceFE(e1,map) || replaceFE(e2,map)
     case FNot(e)      => FNot(replaceFE(e,map))
-    case FImp(e1,e2)  => FImp(replaceFE(e1,map),replaceFE(e2,map))
-    case FEq(e1,e2)   => FEq(replaceFE(e1,map),replaceFE(e2,map))
-  }
+    case FImp(e1,e2)  => replaceFE(e1,map) --> replaceFE(e2,map)
+    case FEq(e1,e2)   => replaceFE(e1,map) <-> replaceFE(e2,map)
+    }
 
   private def mkActName(act:(String,String,String)):String = act._3 match {
     case "↓" => act._1 + mkIn(act._2) //+ act._3

@@ -1,9 +1,12 @@
 package common.widgets
 
+import java.io.{PrintWriter, StringWriter}
+
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
 import org.singlespaced.d3js.{Selection, d3}
 import preo.common.{GenerationException, TimeoutException, TypeCheckException}
+import ifta.common.{FExpOverflowException,TimeoutException}
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 
@@ -133,12 +136,20 @@ object Box {
     //            instanceInfo.append("p").text("-")
     case e: GenerationException =>
       errorBox.warning(/*Show(result)+ */"Generation failed: " + e.getMessage)
-    case e: TimeoutException =>
+    case e: preo.common.TimeoutException =>
       errorBox.error("Timeout: " + e.getMessage)
-    case e: JavaScriptException =>
-      errorBox.error(/*Show(result)+ */"JavaScript error : "+e+" - "+e.getClass)
+    case e: ifta.common.TimeoutException =>
+      errorBox.error("Timeout: " + e.getMessage)
+    case e:FExpOverflowException =>
+      errorBox.error("Overflow:" + e.getMessage)
+    case e: JavaScriptException => {
+//      val sw = new StringWriter
+//      e.printStackTrace(new PrintWriter(sw))
+//      errorBox.error(/*Show(result)+ */ "JavaScript error : " + e + " - " + e.getClass + "\n" + sw.toString )
+      errorBox.error(/*Show(result)+ */ "JavaScript error : " + e + " - " + e.getClass)
+    }
     //            instanceInfo.append("p").text("-")
-    case e => errorBox.error("unknown error:"+e+" - "+e.getClass)
+    case e => errorBox.error("unknown error: "+e+" - "+e.getClass)
   }
 
 }
