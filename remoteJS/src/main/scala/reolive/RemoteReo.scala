@@ -8,7 +8,7 @@ import preo.backend._
 import preo.frontend.mcrl2.Model
 import preo.ast.CoreConnector
 import reolive.RemoteReo.outputBox
-import widgets.{RemoteInstanceBox, RemoteLogicBox, RemoteModelBox}
+import widgets.{RemoteIFTABox, RemoteInstanceBox, RemoteLogicBox, RemoteModelBox}
 
 import scalajs.js.annotation.JSExportTopLevel
 
@@ -30,7 +30,7 @@ object RemoteReo extends{
   private var svg: GraphBox = _
   private var svgAut: AutomataBox = _
   private var mcrl2Box: RemoteModelBox = _
-  private var ifta: IFTABox = _
+  private var ifta: RemoteIFTABox = _
 
   @JSExportTopLevel("reolive.RemoteReo.main")
   def main(content: html.Div): Unit = {
@@ -85,7 +85,8 @@ object RemoteReo extends{
     modalBox = new RemoteLogicBox(inputBox, form, typeInstanceInfo, outputBox)
     val buttonsDiv =
       new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputCodeBox],modalBox)
-    ifta = new IFTABox(typeInstanceInfo,errors)
+    ifta =
+      new RemoteIFTABox(typeInstanceInfo,errors)
 
     inputBox.init(leftside,true)
     errors.init(leftside)
@@ -93,10 +94,11 @@ object RemoteReo extends{
     buttonsDiv.init(leftside,false)
     modalBox.init(leftside,true)
     outputBox.init(leftside)
+    ifta.init(leftside,visible = false)
     svg.init(rightside,true)
     svgAut.init(rightside,false)
     mcrl2Box.init(rightside,false)
-    ifta.init(rightside,visible = false)
+
 
 
     first_reload()

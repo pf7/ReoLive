@@ -21,6 +21,11 @@ object CCToFamily {
 //    NReoIFTA(reoGraph.edges.map(e => ReoIFTA(edgeToIFTA(e),e)).toSet)
 //  }
 
+  def toRifta(cc:CoreConnector):NReoIFTA = {
+    val reoGraph = ReoGraph.toGraphOneToOne(cc,hideClosed = false)
+    buildNIFTA(reoGraph)
+  }
+
   def toIFTA(cc:CoreConnector,showFullName:Boolean,hideInternal:Boolean):IFTA ={
     val reoGraph = ReoGraph.toGraphOneToOne(cc,hideClosed = false)
     buildNIFTA(reoGraph).getReoIFTA(showFullName,hideInternal)
@@ -163,6 +168,8 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
 //  } catch {
 //    case e:Throwable => throw new RuntimeException("exception at hideFlatten" + "\n" + e.getMessage)
 //  }
+
+  def getIFTA(hideIntenal:Boolean) = if (hideIntenal) iftaHiden else iftaSimple
 
   def getLocs:Set[Int] = ifta.locs
 
