@@ -23,7 +23,7 @@ abstract class Box[A](title: String, dependency: List[Box[_]]){
   protected def panelBox(parent:Block,
                          visible:Boolean,
                          headerStyle: List[(String,String)] = Nil,
-                         buttons:List[(Either[String,String], ()=>Unit )] = Nil) : Block = {
+                         buttons:List[(Either[String,String], (()=>Unit,String) )] = Nil) : Block = {
 //    val percentage=100
 
     var expander: Block = parent
@@ -56,7 +56,7 @@ abstract class Box[A](title: String, dependency: List[Box[_]]){
       .append("div").attr("class","panel-body my-panel-body")
 
     // Buttons
-    for ((name,action) <- buttons.reverse) {
+    for ((name,(action,title)) <- buttons.reverse) {
 //      .append("button").attr("class", "btn btn-default btn-sm")
 //        .style("float","right")
 //        .style("margin-top","-15pt")
@@ -70,6 +70,7 @@ abstract class Box[A](title: String, dependency: List[Box[_]]){
         .style("max-height","19pt")
         .style("margin-left","2pt")
         .style("display","flex")
+      if (title.nonEmpty) button.attr("title",title)
       name match {
         case Left(str) => button.append("span").html(str)
         case Right(str) => button.append("span").attr("class", "glyphicon glyphicon-refresh")
@@ -149,7 +150,8 @@ object Box {
       errorBox.error(/*Show(result)+ */ "JavaScript error : " + e + " - " + e.getClass)
     }
     //            instanceInfo.append("p").text("-")
-    case e => errorBox.error("unknown error: "+e+" - "+e.getClass)
+    case e: java.lang.AssertionError => errorBox.error(e.getMessage)
+    case e => errorBox.error("unknown error:"+e+" - "+e.getClass)
   }
 
 }

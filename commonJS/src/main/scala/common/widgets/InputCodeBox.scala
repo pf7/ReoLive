@@ -25,8 +25,8 @@ class InputCodeBox(reload: => Unit, export: => Unit, default:String="", id:Strin
 
   override def init(div: Block, visible: Boolean): Unit = {
     val inputDiv = super.panelBox(div,visible /*, 80*/ ,
-      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload),
-                   Left("URL")-> (()=>export)))
+      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload,"Load the connector (shift-enter)"),
+                   Left("URL")-> (()=>export,"Generate link with the current connector")))
       .append("div")
       .attr("id", "textBox_"+id)
 

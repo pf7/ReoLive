@@ -24,9 +24,9 @@ class RemoteLogicBox(connectorStr: Box[String], default:String, connector: Box[C
   override def init(div: Block, visible: Boolean): Unit = {
     val inputDiv = panelBox(div,visible /*List("padding-right"->"25pt")*/ /*, 80*/
         ,buttons = List(
-          Right("glyphicon glyphicon-refresh")-> (()=>reload("check")),
-          Left("View")-> (()=>reload("view")),
-          Left("MA")   -> (()=> debugNames())
+          Right("glyphicon glyphicon-refresh")-> (()=>reload("check"),"Check if the property holds (shift-enter)"),
+          Left("View")-> (()=>reload("view"),"View mCRL2 behaviour using ltsgraph"),
+          Left("MA")   -> (()=> debugNames(), "Map actions in the formula to sets of actions in the mCRL2 specification")
         ))
       .append("div")
       .attr("id", "modalBox")
@@ -57,26 +57,30 @@ class RemoteLogicBox(connectorStr: Box[String], default:String, connector: Box[C
 
 
   private def callMcrl2(): Unit = {
-    val socket = new WebSocket("ws://localhost:9000/modal")
-    // parse formula
-//    val modalForm = LogicBox.expandFormula(input,model)
-    val modalForm = input //parseFormula
-
-    // send request to process
-    socket.onmessage = { e: MessageEvent => {process(e.data.toString); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
-
-    // build JSON and send it through the socket
-    socket.addEventListener("open", (e: Event) => {
-      val string:String =
-        s"""{ "modal": "${modalForm
-          .replace("\\","\\\\")
-          .replace("\n","\\n")}","""+
-        s""" "connector" : "${connectorStr.get
-          .replace("\\","\\\\")
-          .replace("\n","\\n")}", """+
-        s""" "operation" : "$operation" }"""
-      socket.send(string)
-    })
+//    val socket = new WebSocket("ws://localhost:9000/modal")
+//    // parse formula
+////    val modalForm = LogicBox.expandFormula(input,model)
+//    val modalForm = input //parseFormula
+//
+//    // send request to process
+//    socket.onmessage = { e: MessageEvent => {process(e.data.toString); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
+//
+//    // build JSON and send it through the socket
+//    socket.addEventListener("open", (e: Event) => {
+//      val string:String =
+//        s"""{ "modal": "${modalForm
+//          .replace("\\","\\\\")
+//          .replace("\n","\\n")}","""+
+//        s""" "connector" : "${connectorStr.get
+//          .replace("\\","\\\\")
+//          .replace("\n","\\n")}", """+
+//        s""" "operation" : "$operation" }"""
+//      socket.send(string)
+//    })
+    val msg = s"""{ "modal": "$input","""+
+              s""" "connector" : "${connectorStr.get}", """+
+              s""" "operation" : "$operation" }"""
+    RemoteBox.remoteCall("modal",msg,process)
   }
 
   def process(receivedData: String): Unit = {

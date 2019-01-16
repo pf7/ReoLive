@@ -21,7 +21,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   override def init(div: Block, visible: Boolean): Unit = {
     box = GraphBox.appendSvg(super.panelBox(div,visible,
       buttons = List(
-        Left("&dArr;")-> (() => saveSvg())
+        Left("&dArr;")-> (() => saveSvg(),"Download image as SVG")
       )),"circuit")
     dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {e: MouseEvent => if(!isVisible) drawGraph() else deleteDrawing()}

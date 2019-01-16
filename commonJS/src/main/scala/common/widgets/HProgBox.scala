@@ -1,21 +1,20 @@
-package widgets
+package common.widgets
 
-import common.widgets.{Box, OutputArea}
-import hprog.ast.Prog
 import hprog.DSL
+import hprog.ast.Syntax
 import hprog.frontend.Show
 
 
 //todo: this should be local to localJS
 class HProgBox(dependency: Box[String], errorArea: OutputArea)
-    extends Box[Prog]("Parsed program", List(dependency)){
+    extends Box[Syntax]("Parsed program", List(dependency)){
 
   // state
-  var prog: Prog= _
+  var prog: Syntax= _
   var block: Block = _
 
 
-  override def get: Prog = prog
+  override def get: Syntax = prog
 
   override def init(div: Block, visible: Boolean): Unit = {
     block = panelBox(div, visible).append("div")

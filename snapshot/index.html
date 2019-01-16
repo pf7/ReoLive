@@ -47,7 +47,8 @@
         <!--~~~~~~~~~~~~~~~~~
           CHANGE TABS HERE
         ~~~~~~~~~~~~~~~~~~-->
-        <li class="active"><a href="#families" data-toggle="tab" aria-expanded="true">Families</a></li>
+        <li class="active"><a href="#families" data-toggle="tab" aria-expanded="true">Reo</a></li>
+        <li><a href="#lince" data-toggle="tab" aria-expanded="false">Hybrid Programs</a></li>
         <li><a href="#about" data-toggle="tab" aria-expanded="false">About</a></li>
         <!--~~~~~~~~~~~~~~-->
 
@@ -71,6 +72,18 @@
   </div>
   </div>
 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~-->
+  <!--~~~ Hybrid Programs ~~~-->
+  <!--~~~~~~~~~~~~~~~~~~~~~~~-->
+
+  <div class="tab-pane fade" id="lince">
+      <div class="bs-component">
+
+          <!-- Hybrid Programs -->
+          <div id="HybridPrograms"></div>
+
+      </div>
+  </div>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- ~~~~~~  Members  ~~~~~~ -->
@@ -89,6 +102,9 @@
       <li> <a href="https://github.com/ReoLanguage/Preo">
       https://github.com/ReoLanguage/Preo</a> - Project that parses and analyses connectors in the Preo language.
       </li>
+      <li> <a href="https://github.com/arcalab/hybrid-programming">
+        https://github.com/arcalab/hybrid-programming</a> - Project that parses and analyses hybrid programs.
+      </li>
     </ul>
 
   </div>  
@@ -104,7 +120,7 @@
 
   <div class="panel-footer" id="wrapper-footer">
     <div id="footer">
-      Copyright 2017-2018 – Rúben Cruz and José Proença 
+      Copyright 2017-2019 – <a href="http://arca.di.uminho.pt">ARCA.di.uminho.pt</a>
     </div>
   </div>
 
@@ -129,6 +145,7 @@
   <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
   <script type="text/javascript" src="js/bootstrap.min.js"></script>
   <script type="text/javascript" src="js/d3.v4.min.js"></script>
+  <script type="text/javascript" src="js/plotly.min.js"></script>
   <script type="text/javascript" src="js/codemirror/codemirror.js"></script>
   <script type="text/javascript" src="js/codemirror/addon/edit/matchbrackets.js"></script>
   <script type="text/javascript" src="js/codemirror/mode/preo/preo.js"></script>
@@ -167,6 +184,7 @@
 
   <script>
     reolive.WebReo.main(document.getElementById('contentWrap'));
+    reolive.Lince.main(document.getElementById('HybridPrograms'));
   </script>
 
   <script type="text/javascript">

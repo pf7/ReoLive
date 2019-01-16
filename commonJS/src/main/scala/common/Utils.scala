@@ -15,7 +15,8 @@ object Utils {
       for (pair <- str.tail.split("&"))
         pair.split("=",2) match {
           case Array(name, value) =>
-            res += name ->  URLDecoder.decode(value,"UTF8")
+            val v2 = value.replaceAll("%BE","&")
+            res += name ->  URLDecoder.decode(v2,"UTF8")
           case _ =>
         }
     }
@@ -31,6 +32,7 @@ object Utils {
     else "?"+keys.map(p=>s"${p._1}=${p._2
         .replaceAll("\n","%0A")
         .replaceAll(" ","%20")
+        .replaceAll("&","%BE")
       }").mkString("&")
   }
 

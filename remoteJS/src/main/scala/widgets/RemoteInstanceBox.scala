@@ -55,13 +55,15 @@ class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: Output
     }
 
     override def update(): Unit = {
-      val socket = new WebSocket("ws://localhost:9000/message")
+      RemoteBox.remoteCall("message",dependency.get,process)
 
-      socket.onmessage = { e: MessageEvent => {process(e.data.toString); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
-
-      socket.addEventListener("open", (e: Event) => {
-        socket.send(dependency.get)
-      })
+//      val socket = new WebSocket("ws://localhost:9000/message")
+//
+//      socket.onmessage = { e: MessageEvent => {process(e.data.toString); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
+//
+//      socket.addEventListener("open", (e: Event) => {
+//        socket.send(dependency.get)
+//      })
     }
 
 
@@ -78,21 +80,6 @@ class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: Output
         case Right(message) => {
           errors.error(message)
         }
-//        case Right(js:Json) => {
-//          js.as[ConnectorMsg] match {
-//            case Left(value) => errors.error(value.getMessage())
-//            case Right(value) => {
-//              typeInfo.append("p")
-////                .text(Show(value.typ))
-////              instanceInfo.append("p")
-////                .text(Show(value.con) + ":\n  " +
-////                  value.reductyp)
-////              ccon = value.con
-//              this.id = value.id
-//              reload
-//            }
-//          }
-//        }
         case Left((typ, reducTyp, con, ide)) => {
           typeInfo.append("p")
             .text(typ)

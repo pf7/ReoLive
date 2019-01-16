@@ -87,7 +87,7 @@ object WebReo extends{
     inputBox.init(leftside,visible = true)
     errors.init(leftside)
     typeInfo.init(leftside,visible = true)
-    instanceInfo.init(leftside,visible = true)
+    instanceInfo.init(leftside,visible = false)
     buttonsDiv.init(leftside,visible = false)
     logicBox.init(leftside,visible = true)
     outputLogic.init(leftside)
@@ -108,14 +108,15 @@ object WebReo extends{
     * tests if they're valid and generates the output if they are.
     */
   private def reload(): Unit = {
-    errors.clear
-    inputBox.update
-    typeInfo.update
-    instanceInfo.update
+    errors.clear()
+    outputLogic.clear()
+    inputBox.update()
+    typeInfo.update()
+    instanceInfo.update()
 
-    svg.update
-    svgAut.update
-    mcrl2Box.update
+    svg.update()
+    svgAut.update()
+    mcrl2Box.update()
 
     ifta.update
 

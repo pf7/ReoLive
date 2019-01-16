@@ -23,16 +23,34 @@ class ButtonsBox(reload: => Unit, inputBox: InputCodeBox, logicBox: LogicBox)
     "(\\x. lossy^x |x>2)" -> "(\\x. lossy^x |x>2) ; (\\n. merger^n | n>1 & n<6)"->"",
     "merger!" -> "writer^8 ; merger! ; merger! ; reader!"->"",
     "x;y{x=..,y=..}" -> "x ; y ; z {\n  x = lossy * fifo ,\n  y = merger,\n  [hide] z = lossy }"->"[all*] @x <!fifo> true",
-    "Treo" -> "alt1 {\n alt1(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c) \n ,\n alt2 =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
-           -> "// sometimes the drain cannot fire\n<all*> @alt1 [!drain] false",
+//    "Treo" -> "alt1 {\n alt1(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c) \n ,\n alt2 =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
+//           -> "// sometimes the drain cannot fire\n<all*> @alt1 [!drain] false",
+    "alternator (preo)" -> "alt {\n alt =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
+      -> "// sometimes the drain cannot fire\n<all*> @alt [!drain] false",
+    "alternator (treo)" -> "alt {\n alt(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c)\n}"
+      -> "// sometimes the drain cannot fire\n<all*> @alt [!drain] false",
     "barrier"->"dupl*dupl ; id*drain*id"->"// drain can always fire\n<all*.drain>true",
-    "exrouter"->"""dupl ; dupl*id ;
-                     |(lossy;dupl)*(lossy;dupl)*id ;
-                     |id*merger*id*id ;
-                     |id*id*swap ;
-                     |id*drain*id ;
-                     |out1*out2""".stripMargin
-              ->"// out1 and out2 cannot go together\n[all*.(out1 & out2)] false\n// always: either out1 or out2 is active\n<all*.(out1 + out2)> true",
+    "exrouter (preo)"->"""dupl ; dupl*id ;
+                         |(lossy;dupl)*(lossy;dupl)*id ;
+                         |id*merger*id*id ;
+                         |id*id*swap ;
+                         |id*drain*id ;
+                         |out1*out2""".stripMargin
+                     ->"""// out1 and out2 cannot go together
+                         |[all*.(out1 & out2)] false
+                         |// always: either out1 or out2 is active
+                         |<all*.(out1 + out2)> true""".stripMargin,
+    "exrouter (treo)" -> """xor ; out1*out2 {
+                           | xor(a?,b!,c!) =
+                           |   lossy(a,x) lossy(a,y)
+                           |   sync(x,m) sync(y,m)
+                           |   drain (a,m)
+                           |   sync(x,b) sync(y,c)
+                           |}""".stripMargin
+                      -> """// out1 and out2 cannot go together
+                           |[all*.(out1 & out2)] false
+                           |// always: either out1 or out2 is active
+                           |<all*.(out1 + out2)> true""".stripMargin,
     //    "exrouter=.."->"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2",
     "zip"-> """zip_ 3
 {

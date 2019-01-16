@@ -10,6 +10,8 @@ GET     /about                      controllers.HomeController.about
 
 GET     /remote                     controllers.HomeController.remote
 
+GET     /lince                      controllers.HomeController.lince
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
@@ -23,3 +25,5 @@ GET     /lts/:id                    controllers.HomeController.lts(id:Long)
 GET     /lps/:id                    controllers.HomeController.lps(id:Long)
 
 GET     /modal                      controllers.ModalController.socket
+
+GET     /linceWS                    controllers.LinceController.socket

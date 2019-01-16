@@ -26,7 +26,7 @@ class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
 
   override def init(div: Block, visible: Boolean): Unit = {
     val inputDiv = super.panelBox(div,visible /*, 80*/ ,
-      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload)))
+      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload, "Load the connector (shift-enter)")))
       .append("div")
       .attr("id", "textBox_"+id)
 
@@ -43,7 +43,8 @@ class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
       .attr("class","my-textarea prettyprint lang-java")
       .attr("rows", rows.toString)
       .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
-      .attr("placeholder", input)
+//      .attr("placeholder", input)
+      .text(input)
     //    <textarea style="height: 50vh; display: none;" form="debuggerRunForm" name="debuggerCode" id="debuggerCode"></textarea>
 
     inputAreaDom = dom.document.getElementById("inputArea_"+id).asInstanceOf[html.TextArea]
