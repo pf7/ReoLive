@@ -1,7 +1,9 @@
 package services
 
 import akka.actor.{Actor, ActorRef, Props}
-import ifta.{FExp, Feat}
+import ifta.common.ParseException
+import ifta.{DSL, FExp, Feat}
+
 
 /**
   * Created by guille on 16/01/2019
@@ -20,6 +22,15 @@ class IftaActor(out:ActorRef) extends Actor {
   }
 
   private def process(msg:String):String = {
-    msg
+    println("about to call parser")
+    try {
+      var fe:FExp = DSL.parseFexp(msg)
+      fe.products(fe.feats.toSet).map(p => p.mkString("(",",",")")).mkString("(",",",")")
+    } catch {
+      case p:ParseException => println("failed parsing: "+p.toString +"\nMessage was: " +msg)
+        "Error: "+ p.toString
+      case e:Throwable => "Error: "+ e.toString
+    }
+
   }
 }

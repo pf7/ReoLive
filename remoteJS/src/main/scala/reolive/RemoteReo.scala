@@ -125,7 +125,7 @@ object RemoteReo extends{
     svg.update
     svgAut.update
     mcrl2Box.update
-    ifta.update()
+    ifta.update
   }
 
   private def export(): Unit = {

@@ -3,6 +3,7 @@ package widgets
 import common.backend.{CCToFamily, NReoIFTA}
 import common.widgets.{Box, OutputArea}
 import ifta.IFTA
+import ifta.backend.Show
 import org.scalajs.dom
 import org.scalajs.dom.html
 import org.scalajs.dom.raw.MouseEvent
@@ -30,11 +31,10 @@ class RemoteIFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
   override def init(div: Block, visible: Boolean): Unit = {
     solutionsBox = panelBox(div,visible)
       .append("div")
-      .attr("id","iftaProdcuts")
+      .attr("id","iftaProducts")
 
-    dom.document.getElementById("IFTA Products")
-      .firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = { _ : MouseEvent => if (!isVisible) update() else deleteProducts()}
+    dom.document.getElementById("IFTA Products").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+      .onclick = { e : MouseEvent => if (!isVisible) update() else deleteProducts()}
   }
 
   /**
@@ -44,12 +44,18 @@ class RemoteIFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
     */
   override def update(): Unit = {
     solutionsBox.text("")
-    var ifta = CCToFamily.toRifta(dependency.get).getIFTA(hideIntenal = true)
-    var fmInfo = (ifta.fm,ifta.feats).toString()
-//    if(isVisible) showProducts()
-    RemoteBox.remoteCall("ifta",fmInfo,showProducts)
+    try {
+      var rifta = CCToFamily.toRifta(dependency.get)
+      var fm = rifta.getFm
+      //getIFTA(hideIntenal = true)
+      var fmInfo = Show(fm)
+      //    if(isVisible) showProducts()
+      RemoteBox.remoteCall("ifta", fmInfo, showProducts)
+    } catch {
+      case e:Throwable =>
+        throw new RuntimeException("not possible to calculate IFTA products: \n" + e.getMessage)
+    }
   }
-
 
   private def showProducts(data:String):Unit = {
 //    nrifta = CCToFamily.toRifta(dependency.get)

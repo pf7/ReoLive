@@ -171,6 +171,8 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
 
   def getIFTA(hideIntenal:Boolean) = if (hideIntenal) iftaHiden else iftaSimple
 
+  def getFm = NIFTA(reoIFTAs.map(_.ifta)).fm
+
   def getLocs:Set[Int] = ifta.locs
 
   def getInit:Int = ifta.init
