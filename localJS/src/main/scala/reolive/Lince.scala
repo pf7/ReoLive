@@ -15,9 +15,9 @@ import hprog.ast.Syntax
   */
 object Lince extends{
 
-  var inputBox: Box[String] = _
-//  var typeInfo: PanelBox[Connector] = _
-  var information: Box[Syntax] = _
+  var inputBox: LinceBox = _
+//  var information: Box[Syntax] = _
+  var examples: LinceExamplesBox = _
   var graphics: Box[Unit] = _
   var errors: OutputArea = _
 
@@ -47,18 +47,22 @@ object Lince extends{
       .attr("id", "rightbar_Lince")
       .attr("class", "rightside")
 
+    errors = new OutputArea //(id="Lince")
+
     // add InputArea
-    inputBox = new InputBox(reload(),default = "v:=5; p:=10; c:=0;\nwhile (c<4) {\n  v=-9.8, p=v & p<0 /\\ v<0;\n  v:=-0.5*v; c:=c+1\n}",id = "Lince",rows=5)
+    inputBox = new LinceBox(reload(),"v:=5; p:=10; c:=0;\nwhile (c<4) {\n  v=-9.8, p=v & p<0 /\\ v<0;\n  v:=-0.5*v; c:=c+1\n}",errors)
     inputBox.init(leftColumn,true)
 
-    errors = new OutputArea //(id="Lince")
     errors.init(leftColumn)
 
-//    typeInfo = new TypeBox(inputBox, errors)
+    //    typeInfo = new TypeBox(inputBox, errors)
 //    typeInfo.init(colDiv1,true)
 
-    information = new HProgBox(inputBox, errors)
-    information.init(leftColumn,true)
+    examples = new LinceExamplesBox(reload(),inputBox)
+    examples.init(leftColumn,true)
+
+//    information = new HProgBox(inputBox, errors)
+//    information.init(leftColumn,true)
 
     graphics = new GraphicBox(inputBox,errors)
     graphics.init(rightColumn,visible = true)
@@ -75,7 +79,7 @@ object Lince extends{
   private def reload(): Unit = {
     errors.clear()
     inputBox.update()
-    information.update()
+//    information.update()
     graphics.update()
   }
 

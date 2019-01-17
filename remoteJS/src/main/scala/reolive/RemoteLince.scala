@@ -55,7 +55,7 @@ object RemoteLince {
       //    typeInfo = new TypeBox(inputBox, errors)
       //    typeInfo.init(colDiv1,true)
 
-      information = new HProgBox(inputBox, errors)
+      information = new LinceInfoBox(inputBox, errors)
       information.init(rightColumn,true)
 
       graphic= new RemoteGraphicBox(inputBox, errors)
