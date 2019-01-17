@@ -34,7 +34,7 @@ class RemoteIFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
       .attr("id","iftaProducts")
 
     dom.document.getElementById("IFTA Products").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = { e : MouseEvent => if (!isVisible) update() else deleteProducts()}
+      .onclick = { e : MouseEvent => if (!isVisible) process else deleteProducts}
   }
 
   /**
@@ -42,8 +42,23 @@ class RemoteIFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
     *  - update its output value, and
     *  - produce side-effects (e.g., redraw a diagram)
     */
-  override def update(): Unit = {
-    solutionsBox.text("")
+  override def update(): Unit = if (isVisible) process
+//  {
+//    solutionsBox.text("")
+//    try {
+//      var rifta = CCToFamily.toRifta(dependency.get)
+//      var fm = rifta.getFm
+//      //getIFTA(hideIntenal = true)
+//      var fmInfo = Show(fm)
+//      //    if(isVisible) showProducts()
+//      RemoteBox.remoteCall("ifta", fmInfo, process)
+//    } catch {
+//      case e:Throwable =>
+//        throw new RuntimeException("not possible to calculate IFTA products: \n" + e.getMessage)
+//    }
+//  }
+
+  private def process():Unit ={
     try {
       var rifta = CCToFamily.toRifta(dependency.get)
       var fm = rifta.getFm
@@ -58,7 +73,7 @@ class RemoteIFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
   }
 
   private def showProducts(data:String):Unit = {
-//    nrifta = CCToFamily.toRifta(dependency.get)
+    solutionsBox.text("")
     solutionsBox.append("p").text(data)
   }
 

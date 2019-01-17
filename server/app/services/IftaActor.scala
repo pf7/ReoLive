@@ -22,12 +22,11 @@ class IftaActor(out:ActorRef) extends Actor {
   }
 
   private def process(msg:String):String = {
-    println("about to call parser")
     try {
       var fe:FExp = DSL.parseFexp(msg)
       fe.products(fe.feats.toSet).map(p => p.mkString("(",",",")")).mkString("(",",",")")
     } catch {
-      case p:ParseException => println("failed parsing: "+p.toString +"\nMessage was: " +msg)
+      case p:ParseException => println("Failed parsing: "+p.toString +"\nMessage was: " +msg)
         "Error: "+ p.toString
       case e:Throwable => "Error: "+ e.toString
     }

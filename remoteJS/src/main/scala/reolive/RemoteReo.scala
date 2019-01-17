@@ -31,6 +31,7 @@ object RemoteReo extends{
   private var svgAut: AutomataBox = _
   private var mcrl2Box: RemoteModelBox = _
   private var ifta: RemoteIFTABox = _
+  private var iftaAut: IFTABox =_
 
   @JSExportTopLevel("reolive.RemoteReo.main")
   def main(content: html.Div): Unit = {
@@ -87,6 +88,8 @@ object RemoteReo extends{
       new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputCodeBox],modalBox)
     ifta =
       new RemoteIFTABox(typeInstanceInfo,errors)
+    iftaAut =
+      new IFTABox(typeInstanceInfo, errors)
 
     inputBox.init(leftside,true)
     errors.init(leftside)
@@ -98,6 +101,7 @@ object RemoteReo extends{
     svg.init(rightside,true)
     svgAut.init(rightside,false)
     mcrl2Box.init(rightside,false)
+    iftaAut.init(rightside,visible=false)
 
 
 
@@ -126,6 +130,7 @@ object RemoteReo extends{
     svgAut.update
     mcrl2Box.update
     ifta.update
+    iftaAut.update
   }
 
   private def export(): Unit = {
