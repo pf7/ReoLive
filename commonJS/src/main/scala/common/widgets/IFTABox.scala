@@ -45,12 +45,13 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
 
   private def draw(allNames:Boolean, hideInternal: Boolean): Unit = {
     if(isVisible){
-      deleteAutomaton()
+//      deleteAutomaton()
       drawAutomata(allNames,hideInternal)
     } else deleteAutomaton()
   }
 
   private def drawAutomata(allNames:Boolean = false, hideInternal:Boolean=true): Unit = {
+    deleteAutomaton()
     try{
       // drawing ifta
       ifta = CCToFamily.toIFTA(dependency.get,allNames,hideInternal)
@@ -72,4 +73,28 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
   }
 
 
+  def showFs(fs:Set[String]):Unit = {
+    if (isVisible) {
+      val sol = ifta.feats.map(f => if (fs contains f) f -> true else f -> false).toMap
+
+      val edgeShow: Set[(Int, Int)] = ifta.edges.map(e =>
+        if (e.fe.check(sol)) (e.act, e.fe).hashCode() -> 1
+        else (e.act, e.fe).hashCode() -> 0)
+
+      val showEdges = edgeShow.map(e => s"""["${e._1}", "${e._2}"]""").mkString("[", ",", "]")
+      val updateEdges =
+        s"""
+           |var showEdges = new Map(${showEdges});
+           |d3.select(".linksiftaAutomata")
+           |  .selectAll("polyline")
+           |  .style("stroke",function(d) {
+           |      return (showEdges.get(d.id) == 1 ) ? "black" : "#cccccc"
+           |    })
+           |  .attr("marker-end", function(d) {
+           |    return (showEdges.get(d.id) == 1) ? "url(#" + d.end + ")" : "url(#" + d.end + "light)"
+           |  });
+       """.stripMargin
+      scalajs.js.eval(updateEdges)
+    }
+  }
 }

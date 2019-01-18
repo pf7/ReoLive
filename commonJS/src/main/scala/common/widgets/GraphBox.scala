@@ -147,6 +147,22 @@ object GraphBox {
       .attr("fill", "#000")
       .style("stroke","none")
 
+    //inserting light arrow at the end for feature selection not satisfied
+    svg.append("defs")
+      .append("marker")
+      .attr("id","endarrowout"+name+"light")
+      .attr("viewBox","-0 -5 10 10")
+      .attr("refX",20.5)
+      .attr("refY",0)
+      .attr("orient","auto")
+      .attr("markerWidth",7)
+      .attr("markerHeight",7)
+      .attr("xoverflow","visible")
+      .append("svg:path")
+      .attr("d", "M 0,-5 L 10 ,0 L 0,5")
+      .attr("fill", "#cccccc")
+      .style("stroke","none")
+
     //arrowhead inverted for sync drains
     svg.append("defs")
       .append("marker")

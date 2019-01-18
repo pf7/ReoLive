@@ -11,7 +11,7 @@ import ifta.{Edge, IFTA}
 object IFTAToJS {
 
   def apply(ifta:IFTA): String = {
-    val edgesIndex = ifta.edges.zipWithIndex
+    val edgesIndex = ifta.edges.map(e => (e,(e.act,e.fe).hashCode()))//ifta.edges.zipWithIndex
     generateJS(getNodes(ifta.init, edgesIndex), getLinks(edgesIndex))
   }
 
@@ -115,6 +115,7 @@ object IFTAToJS {
                link.enter().append("polyline")
                   .style("stroke", "black")
                   .merge(link)
+                  .attr('id', function(d) {return d.id})
                   .attr('marker-end', function(d){
                     return 'url(#' + d.end + ')'
                   })
@@ -271,9 +272,9 @@ object IFTAToJS {
 
   private def processEdge(edge:Edge, id:Int): Set[String] = edge match {
     case Edge(from,cCons,acts,cReset,fe,to) =>
-      Set(s"""{"source": "$from", "target": "$from-1-$to-${id}", "type":"", "start":"start", "end": "end"}""",
-        s"""{"source": "$from-1-$to-${id}", "target": "$to-2-$from-${id}", "type":"${acts.mkString(".")}", "start":"start", "end": "end"}""",
-        s"""{"source": "$to-2-$from-${id}", "target": "$to", "type":"", "start":"start", "end": "endarrowoutiftaAutomata"}""")
+      Set(s"""{"id": "${id}" , "source": "$from", "target": "$from-1-$to-${id}", "type":"", "start":"start", "end": "end"}""",
+        s"""{"id": "${id}" , "source": "$from-1-$to-${id}", "target": "$to-2-$from-${id}", "type":"${acts.mkString(".")}", "start":"start", "end": "end"}""",
+        s"""{"id": "${id}" , "source": "$to-2-$from-${id}", "target": "$to", "type":"", "start":"start", "end": "endarrowoutiftaAutomata"}""")
   }
   //  private def processEdge(trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match {
   //    case (from, (to, fire, es)) => {

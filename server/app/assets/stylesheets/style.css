@@ -111,3 +111,8 @@ html {
     position:absolute;
     cursor: col-resize;
     z-index:999}
+
+button {
+    margin:1px;
+    border-radius:4px;
+}

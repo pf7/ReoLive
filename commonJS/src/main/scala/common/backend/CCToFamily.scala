@@ -169,9 +169,13 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
 //    case e:Throwable => throw new RuntimeException("exception at hideFlatten" + "\n" + e.getMessage)
 //  }
 
+  def getNifta:NIFTA = NIFTA(reoIFTAs.map(_.ifta))
+
   def getIFTA(hideIntenal:Boolean) = if (hideIntenal) iftaHiden else iftaSimple
 
   def getFm = NIFTA(reoIFTAs.map(_.ifta)).fm
+
+  def getFeats:Set[String] = getNifta.iFTAs.map(_.feats).flatten
 
   def getLocs:Set[Int] = ifta.locs
 
@@ -181,7 +185,8 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
     if (hideInternal) ifta = iftaHiden else ifta = iftaSimple
     if (allNames)  actNames = actNamesFull else actNames = actNamesSimple
     IFTA(ifta.locs,ifta.init,mkNewActs(ifta.act),ifta.clocks
-      ,mkNewFeats(ifta.feats),ifta.edges.map(mkNewEdge(_,hideInternal)),ifta.cInv,mkNewFE(ifta.fm)
+      ,ifta.feats //mkNewFeats(ifta.feats)
+      ,ifta.edges.map(mkNewEdge(_,hideInternal)),ifta.cInv,ifta.fm//mkNewFE(ifta.fm)
       ,mkNewActs(ifta.in),mkNewActs(ifta.out),ifta.aps,ifta.shortname)
   }
 
@@ -215,7 +220,7 @@ case class NReoIFTA(reoIFTAs:Set[ReoIFTA]) {
   private def mkNewEdge(e:Edge,hideInternal:Boolean):Edge = {
     Edge(e.from,e.cCons,
       if (hideInternal) mkNewActs(e.act.intersect(ifta.interface)) else mkNewActs(e.act)
-      ,e.cReset,mkNewFE(e.fe),e.to)
+      ,e.cReset,e.fe,e.to)//mkNewFE(e.fe),e.to)
   }
 
   private def mkNewActs(act: Set[String]): Set[String] = {

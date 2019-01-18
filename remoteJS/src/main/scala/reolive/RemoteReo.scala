@@ -86,10 +86,10 @@ object RemoteReo extends{
     modalBox = new RemoteLogicBox(inputBox, form, typeInstanceInfo, outputBox)
     val buttonsDiv =
       new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputCodeBox],modalBox)
-    ifta =
-      new RemoteIFTABox(typeInstanceInfo,errors)
     iftaAut =
       new IFTABox(typeInstanceInfo, errors)
+    ifta =
+      new RemoteIFTABox(typeInstanceInfo,iftaAut,errors)
 
     inputBox.init(leftside,true)
     errors.init(leftside)
