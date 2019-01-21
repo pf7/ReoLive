@@ -52,7 +52,6 @@ object Lince extends{
     // add InputArea
     inputBox = new LinceBox(reload(),"v:=5; p:=10; c:=0;\nwhile (c<4) {\n  v=-9.8, p=v & p<0 /\\ v<0;\n  v:=-0.5*v; c:=c+1\n}",errors)
     inputBox.init(leftColumn,true)
-
     errors.init(leftColumn)
 
     //    typeInfo = new TypeBox(inputBox, errors)

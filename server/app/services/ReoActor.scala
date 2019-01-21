@@ -29,9 +29,13 @@ class ReoActor(out: ActorRef) extends Actor {
     * @param msg incomming message with the connector
     * @return type of the connector and an instance (type and core connector) using JSON
     */
-  private def process(msg: String): String = {
+  private def process(msgCleaned: String): String = {
     var warnings: List[String] = List()
-    // println(msg)
+    val msg = msgCleaned
+      .replace("\\\\n","\\±")
+      .replace("\\n","\n")
+      .replace("\\±","\\\\n")
+      .replace("\\\\","\\")
     DSL.parseWithError(msg) match {
       case preo.lang.Parser.Success(result,_) =>
         try {
