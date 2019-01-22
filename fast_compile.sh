@@ -26,6 +26,9 @@ cp localJS/src/main/resources/js/codemirror/mode/preo/preo.js \
 mkdir -p server/public/javascripts/codemirror/mode/modal
 cp localJS/src/main/resources/js/codemirror/mode/modal/modal.js \
    server/public/javascripts/codemirror/mode/modal/modal.js
+mkdir -p server/public/javascripts/codemirror/mode/lince
+cp localJS/src/main/resources/js/codemirror/mode/lince/lince.js \
+   server/public/javascripts/codemirror/mode/lince/lince.js
 mkdir -p server/app/assets/stylesheets/codemirror
 cp localJS/src/main/resources/css/codemirror/codemirror.css \
    server/app/assets/stylesheets/codemirror/codemirror.css

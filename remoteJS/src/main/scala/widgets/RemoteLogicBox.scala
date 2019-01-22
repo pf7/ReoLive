@@ -1,6 +1,6 @@
 package widgets
 
-import common.widgets.{Box, LogicBox, OutputArea}
+import common.widgets.{Box, CodeBox, LogicBox, OutputArea}
 import json.Loader
 import org.scalajs.dom
 import org.scalajs.dom.html
@@ -11,72 +11,56 @@ import preo.lang.ParserUtils
 
 class RemoteLogicBox(connectorStr: Box[String], default:String, connector: Box[CoreConnector], outputBox: OutputArea)
   extends LogicBox(connector,default,outputBox){
-
-//  private var code: scalajs.js.Dynamic = _
-//  private val boxId = "modalInputArea"
-
-  //  var input: String = default
-  var model: Model = _
-  var operation: String = "check"
-
-//  override def get: String = input
-
-  override def init(div: Block, visible: Boolean): Unit = {
-    val inputDiv = panelBox(div,visible /*List("padding-right"->"25pt")*/ /*, 80*/
-        ,buttons = List(
-          Right("glyphicon glyphicon-refresh")-> (()=>reload("check"),"Check if the property holds (shift-enter)"),
-          Left("View")-> (()=>reload("view"),"View mCRL2 behaviour using ltsgraph"),
-          Left("MA")   -> (()=> debugNames(), "Map actions in the formula to sets of actions in the mCRL2 specification")
-        ))
-      .append("div")
-      .attr("id", "modalBox")
-
-    inputDiv.append("textarea")
-      .attr("id", boxId)
-      .attr("name", boxId)
-      .attr("class","my-textarea prettyprint lang-java")
-      //      .attr("rows", rows.toString)
-      .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
-
-    buildCodeArea(default)
-
-    val realTxt = dom.document.getElementById("modalBox")
-      .childNodes(1).childNodes(0).childNodes(0).asInstanceOf[html.TextArea]
-    realTxt.onkeydown = {e: dom.KeyboardEvent =>
-      if(e.keyCode == 13 && e.shiftKey){e.preventDefault(); reload("check")}
-      else ()
-    }
-  }
-
-//  todo: this function can be centralized. maybe....
-  override def update(): Unit = {
-    model = Model(connector.get)
-    super.update()
-  }
+//  extends Box[String]("Modal Logic", List(connector)) with CodeBox {
 
 
 
+//
+////  private var code: scalajs.js.Dynamic = _
+////  private val boxId = "modalInputArea"
+//
+//  //  var input: String = default
+//  var model: Model = _
+//  var operation: String = "check"
+//
+////  override def get: String = input
+//
+//  override def init(div: Block, visible: Boolean): Unit = {
+//    val inputDiv = panelBox(div,visible /*List("padding-right"->"25pt")*/ /*, 80*/
+//        ,buttons = List(
+//          Right("glyphicon glyphicon-refresh")-> (()=>reload("check"),"Check if the property holds (shift-enter)"),
+//          Left("View")-> (()=>reload("view"),"View mCRL2 behaviour using ltsgraph"),
+//          Left("MA")   -> (()=> debugNames(), "Map actions in the formula to sets of actions in the mCRL2 specification")
+//        ))
+//      .append("div")
+//      .attr("id", "modalBox")
+//
+//    inputDiv.append("textarea")
+//      .attr("id", boxId)
+//      .attr("name", boxId)
+//      .attr("class","my-textarea prettyprint lang-java")
+//      //      .attr("rows", rows.toString)
+//      .attr("style", "width: 100%; max-width: 100%; min-width: 100%;")
+//
+//    buildCodeArea(default)
+//
+//    val realTxt = dom.document.getElementById("modalBox")
+//      .childNodes(1).childNodes(0).childNodes(0).asInstanceOf[html.TextArea]
+//    realTxt.onkeydown = {e: dom.KeyboardEvent =>
+//      if(e.keyCode == 13 && e.shiftKey){e.preventDefault(); reload("check")}
+//      else ()
+//    }
+//  }
+//
+////  todo: this function can be centralized. maybe....
+//  override def update(): Unit = {
+//    model = Model(connector.get)
+//    super.update()
+//  }
+//
+//
+//
   private def callMcrl2(): Unit = {
-//    val socket = new WebSocket("ws://localhost:9000/modal")
-//    // parse formula
-////    val modalForm = LogicBox.expandFormula(input,model)
-//    val modalForm = input //parseFormula
-//
-//    // send request to process
-//    socket.onmessage = { e: MessageEvent => {process(e.data.toString); socket.close()}}// process(e.data.toString, typeInfo, instanceInfo, svg, svgAut, errors) }
-//
-//    // build JSON and send it through the socket
-//    socket.addEventListener("open", (e: Event) => {
-//      val string:String =
-//        s"""{ "modal": "${modalForm
-//          .replace("\\","\\\\")
-//          .replace("\n","\\n")}","""+
-//        s""" "connector" : "${connectorStr.get
-//          .replace("\\","\\\\")
-//          .replace("\n","\\n")}", """+
-//        s""" "operation" : "$operation" }"""
-//      socket.send(string)
-//    })
     val msg = s"""{ "modal": "$input","""+
               s""" "connector" : "${connectorStr.get}", """+
               s""" "operation" : "$operation" }"""
@@ -108,27 +92,47 @@ class RemoteLogicBox(connectorStr: Box[String], default:String, connector: Box[C
       }
     }
   }
+//
+//  private def debugNames(): Unit = {
+//    update()
+//    outputBox.clear()
+//    if (connector.get==null)
+//      outputBox.message("null model...")
+//    else
+//      outputBox.message(model.getMultiActionsMap
+//        .map(kv => kv._1+":"+kv._2.map("\n - "+_).mkString(""))
+//        .mkString("\n"))
+//  }
+//
+//  /**
+//    * Called by the ModalBox when pressed the button or shift-enter.
+//    * Triggers the ModalBox to query the server and process the reply.
+//    */
+//  private def reload(op:String): Unit = {
+//    outputBox.clear()
+//    operation = op
+//    update()
+//    callMcrl2()
+//  }
+//  override protected var input: String = default
+//  override protected val boxId: String = "modalInputArea"
+  private var operation: String = "check"
 
-  private def debugNames(): Unit = {
-    update()
-    outputBox.clear()
-    if (connector.get==null)
-      outputBox.message("null model...")
-    else
-      outputBox.message(model.getMultiActionsMap
-        .map(kv => kv._1+":"+kv._2.map("\n - "+_).mkString(""))
-        .mkString("\n"))
-  }
+  override protected val buttons: List[(Either[String, String], (() => Unit, String))] =
+    List(
+            Right("glyphicon glyphicon-refresh")-> (()=>reload(),"Check if the property holds (shift-enter)"),
+            Left("View")-> (()=>doOperation("view"),"View mCRL2 behaviour using ltsgraph"),
+            Left("MA")   -> (()=> debugNames(), "Map actions in the formula to sets of actions in the mCRL2 specification")
+          )
 
-  /**
-    * Called by the ModalBox when pressed the button or shift-enter.
-    * Triggers the ModalBox to query the server and process the reply.
-    */
-  private def reload(op:String): Unit = {
+  override def reload(): Unit = doOperation("check")
+
+  private def doOperation(op:String): Unit = {
     outputBox.clear()
     operation = op
     update()
     callMcrl2()
   }
 
+//  override protected val codemirror: String = _
 }

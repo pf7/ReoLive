@@ -15,7 +15,7 @@ import scala.scalajs.js.UndefOr
   * @param rows
   */
 class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
-  extends Box[String]("Input", Nil){
+  extends Box[String]("Input", Nil) with Setable[String]{
 
   var input: String = default
   private var inputAreaDom: html.TextArea = _

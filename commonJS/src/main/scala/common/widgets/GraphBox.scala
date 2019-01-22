@@ -34,7 +34,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 
 
   private def drawGraph(): Unit = try{
-    graph = Graph(dependency.get)
+    graph = Graph(dependency.get,true)
     val size = graph.nodes.size
     val factor = Math.sqrt(size * 10000 / (densityCirc * widthCircRatio * heightCircRatio))
     val width = (widthCircRatio * factor).toInt

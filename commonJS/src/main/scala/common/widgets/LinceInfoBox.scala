@@ -6,7 +6,7 @@ import hprog.frontend.Show
 
 
 //todo: this should be local to localJS
-class HProgBox(dependency: Box[String], errorArea: OutputArea)
+class LinceInfoBox(dependency: Box[String], errorArea: OutputArea)
     extends Box[Syntax]("Parsed program", List(dependency)){
 
   // state

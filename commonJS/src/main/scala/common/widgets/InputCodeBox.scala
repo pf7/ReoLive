@@ -13,7 +13,7 @@ import org.scalajs.dom.html
   * @param rows
   */
 class InputCodeBox(reload: => Unit, export: => Unit, default:String="", id:String="", rows:Int = 10)
-  extends Box[String]("Input", Nil){
+  extends Box[String]("Input", Nil) with Setable[String]{
 
   var input: String = default
   private var inputAreaDom: html.TextArea = _

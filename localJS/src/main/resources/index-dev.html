@@ -53,7 +53,7 @@
         <!--~~~~~~~~~~~~~~~~~
           CHANGE TABS HERE
         ~~~~~~~~~~~~~~~~~~-->
-        <li class="active"><a href="#families" data-toggle="tab" aria-expanded="true">Reo Families</a></li>
+        <li><a href="#families" data-toggle="tab" aria-expanded="false">Reo Families</a></li>
         <li><a href="#hyprogs" data-toggle="tab" aria-expanded="false">Hybrid Programs</a></li>
         <li><a href="#about" data-toggle="tab" aria-expanded="false">About</a></li>
         <!--~~~~~~~~~~~~~~-->
@@ -83,7 +83,7 @@
   <!--~~~ Hybrid Programs ~~~-->
   <!--~~~~~~~~~~~~~~~~~~~~~~~-->
 
-  <div class="tab-pane fade" id="hyprogs">
+  <div class="tab-pane fade active in" id="hyprogs">
       <div class="bs-component">
 
           <!-- Hybrid Programs -->
@@ -159,6 +159,7 @@
   <script src="js/codemirror/addon/edit/matchbrackets.js"></script>
   <script src="js/codemirror/mode/preo/preo.js"></script>
   <script src="js/codemirror/mode/modal/modal.js"></script>
+  <script src="js/codemirror/mode/lince/lince.js"></script>
   <script type="text/javascript" src="../../../target/scala-2.12/local_js-fastopt.js"></script>
   <!-- <script type="text/javascript" src="js/local_js-fastopt.js"></script> -->
   <!--<script type="text/javascript" src="js/remote_js-fastopt.js"></script>-->
@@ -167,7 +168,9 @@
       // ACTIVATING TABS BASED ON URL
       ////////////////////
       $(function () {
-       var activeTab = $('[href=' + location.hash + ']');
+       var lhash = location.hash;
+       if (lhash=="") { lhash = "#families";}
+       var activeTab = $('[href=' + lhash + ']');
     //    activeTab && activeTab.tab('show');
        activeTab.tab('show');
       });
@@ -237,5 +240,9 @@
           }
       });
   </script>
+  <!--<script type="text/javascript">-->
+    <!--var activeTabb = $('[href=#families]');-->
+    <!--activeTabb.tab('show');-->
+  <!--</script>-->
 </html>
 

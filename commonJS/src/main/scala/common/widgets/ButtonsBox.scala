@@ -4,10 +4,10 @@ import org.scalajs.dom.EventTarget
 
 import scala.scalajs.js.UndefOr
 
-class ButtonsBox(reload: => Unit, inputBox: InputCodeBox, logicBox: LogicBox)
+class ButtonsBox(reload: => Unit, inputBox: Setable[String], logicBox: Setable[String])
     extends Box[String]("examples", Nil){
 
-  private val buttons: Seq[((String,String),String)] = Seq(
+  protected val buttons: Seq[((String,String),String)] = Seq(
     "writer"->"writer"->"// can always write\n<all*.writer>true",
     "reader"->"reader"->"// can always read\n<all*.reader>true",
     "fifo"->"fifo"->"// can always fire\n<all*.fifo>true",
