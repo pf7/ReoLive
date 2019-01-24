@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="Live website with Reo connectors generated in JavaScript">
+    <meta name="author" content="">
+
+    <title>Online Tools for Reo Connector Families</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href='@routes.Assets.versioned("stylesheets/bootstrap.min.css")' rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href='@routes.Assets.versioned("stylesheets/bootstrap-theme.min.css")' rel="stylesheet">
+    <link href='@routes.Assets.versioned("stylesheets/codemirror/codemirror.css")' rel="stylesheet">
+    <link href='@routes.Assets.versioned("stylesheets/codemirror/theme/neat.css")' rel="stylesheet">
+    <link href='@routes.Assets.versioned("stylesheets/style.css")' rel="stylesheet">
+</head>
+
+<body>
+<div id="contentWrap"></div>
+</body>
+
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/jquery-1.10.2.min.js")'></script>
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/bootstrap.min.js")'></script>
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/d3.v4.min.js")'></script>
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/codemirror.js")'></script>
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/addon/edit/matchbrackets.js")'></script>
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/mode/preo/preo.js")'></script>
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/mode/modal/modal.js")'></script>
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/remote_js-opt.js")'></script>
+
+
+<script type="text/javascript">
+    reolive.RemoteReo.main(document.getElementById('contentWrap'));
+  </script>
+
+<script type="text/javascript" src='@routes.Assets.versioned("javascripts/resizeCols.js")'></script>
+
+</html>
+

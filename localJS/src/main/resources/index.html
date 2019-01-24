@@ -50,7 +50,6 @@
         <!-- <li><a href="#lince" data-toggle="tab" aria-expanded="false">Hybrid Programs</a></li> -->
         <!-- <li><a href="#about" data-toggle="tab" aria-expanded="false">About</a></li> -->
         <li><a href="#webReo" data-toggle="tab" onclick='load_home("webReo")'>Reo</a>
-        <!-- <li><a href="#remote" data-toggle="tab" onclick='load_WS("remote")'>Online Reo (old)</a> -->
         <li><a href="#onlineReo" data-toggle="tab" onclick='load_WS("onlineReo")'>Online Reo</a>
         <li><a href="#lince" data-toggle="tab" onclick='load_home("lince")'>Lince</a> 
         <li><a href="#about" data-toggle="tab" onclick='load_home("about")'>About</a></li>
@@ -104,7 +103,7 @@
       ////////////////////
       $(function () {
        var lhash = location.hash;
-       if (lhash=="") { lhash = "#webReo";}
+       if (lhash=="") { lhash = "#reoTools";}
        var activeTab = $('[href=' + lhash + ']');
     //    activeTab && activeTab.tab('show');
        activeTab.tab('show');
@@ -120,9 +119,18 @@
      window.location.hash = file
     }
     function load_WS(service) {
+      // $.ajax('http://localhost:9000/'+service)
+      //   .done(function(response) {
+      //       document.getElementById('content').innerHTML='<h4> Contacting host http://localhost:9001/'+service+'</h4> <h4>...</h4>'
+      //     }).fail(function(err){
+      //       document.getElementById('content').innerHTML='<h4> failed '+err.message+'</h4>'
+      //     })
+
+    // document.getElementById('content').innerHTML='<h4> Contacting host http://localhost:9001/'+service+'</h4>'
     var url = 'http://localhost:9000/'+service
     document.getElementById("content").innerHTML='<object type="text/html" data="'+url+'" class="full"><h4 style="padding:15px;">"'+url+'" not found. Check if the server is running.</object>';
     window.location.hash = service
+        // document.getElementById('content').innerHTML='<h4> Contacting host http://localhost:9001/'+service+'</h4> <h4>'+err.message+'</h4>'
     }
   </script>
 
