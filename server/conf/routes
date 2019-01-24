@@ -10,6 +10,8 @@ GET     /about                      controllers.HomeController.about
 
 GET     /remote                     controllers.HomeController.remote
 
+GET     /onlineReo                  controllers.HomeController.onlineReo
+
 GET     /lince                      controllers.HomeController.lince
 
 

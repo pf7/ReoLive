@@ -50,15 +50,15 @@ object RemoteReo extends{
 
     val leftside = rowDiv.append("div")
 //      .attr("class", "col-sm-4")
-      .attr("id", "leftbar_wr")
+      .attr("id", "leftbar")
       .attr("class", "leftside")
     leftside.append("div")
-      .attr("id","dragbar_wr")
+      .attr("id","dragbar")
       .attr("class", "middlebar")
 
     val rightside = rowDiv.append("div")
       //      .attr("class", "col-sm-8")
-      .attr("id", "rightbar_wr")
+      .attr("id", "rightbar")
       .attr("class", "rightside")
 
     // configure defaults

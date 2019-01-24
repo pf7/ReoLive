@@ -31,20 +31,20 @@ object Lince extends{
 
     val rowDiv = contentDiv.append("div")
 //      .attr("class", "row")
-        .attr("id", "mytable_Lince")
+        .attr("id", "mytable")
 
     val leftColumn = rowDiv.append("div")
     //      .attr("class", "col-sm-4")
-        .attr("id", "leftbar_Lince")
+        .attr("id", "leftbar")
         .attr("class", "leftside")
 
     leftColumn.append("div")
-        .attr("id","dragbar_Lince")
+        .attr("id","dragbar")
         .attr("class", "middlebar")
 
     val rightColumn = rowDiv.append("div")
       //      .attr("class", "col-sm-8")
-      .attr("id", "rightbar_Lince")
+      .attr("id", "rightbar")
       .attr("class", "rightside")
 
     errors = new OutputArea //(id="Lince")
