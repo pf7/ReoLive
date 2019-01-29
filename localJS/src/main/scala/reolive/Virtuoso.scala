@@ -1,12 +1,10 @@
 package reolive
 
-import common.widgets.virtuoso.{VirtuosoBox, VirtuosoExamplesBox}
+import common.widgets.virtuoso.{VirtuosoBox, VirtuosoExamplesBox, VirtuosoInstantiate, VirtuosoParser}
 import common.widgets.{GraphBox, OutputArea}
 import org.scalajs.dom.html
 import org.singlespaced.d3js.d3
-import common.widgets.virtuoso.VirtuosoParser
 import preo.frontend.Show
-import widgets.{InstanceBox, TypeBox}
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 
@@ -15,8 +13,7 @@ object Virtuoso extends{
   var inputBox: VirtuosoBox = _
   var graphics: GraphBox = _
 
-  var typeInfo: TypeBox = _
-  var instanceInfo: InstanceBox = _
+  var instanciate: VirtuosoInstantiate = _
 
   var examples: VirtuosoExamplesBox = _
   var errors: OutputArea = _
@@ -63,13 +60,15 @@ object Virtuoso extends{
     //    information = new HProgBox(inputBox, errors)
     //    information.init(leftColumn,true)
 
-    typeInfo     = new TypeBox(inputBox, errors)     // do not place
-    instanceInfo = new InstanceBox(typeInfo, errors) // do not place
+    instanciate = new VirtuosoInstantiate(inputBox,errors)
+
+//    typeInfo     = new TypeBox(inputBox, errors)     // do not place
+//    instanceInfo = new InstanceBox(typeInfo, errors) // do not place
 //    typeInfo.init(rightColumn,visible = true)
 //    instanceInfo.init(rightColumn,visible = true)
 
 
-    graphics = new GraphBox(instanceInfo,errors)
+    graphics = new GraphBox(instanciate,errors)
     graphics.init(rightColumn,visible = true)
 
     reload()
@@ -89,9 +88,10 @@ object Virtuoso extends{
     val c = common.widgets.virtuoso.VirtuosoParser.parse(inputBox.get).getOrElse(preo.DSL.id)
     errors.message(Show(c)+": "+preo.DSL.unsafeTypeCheck(c))
 
+    instanciate.update()
     //    information.update()
-    typeInfo.update()
-    instanceInfo.update()
+//    typeInfo.update()
+//    instanceInfo.update()
     graphics.update()
   }
 

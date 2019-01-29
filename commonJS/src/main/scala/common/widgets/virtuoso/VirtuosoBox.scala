@@ -1,6 +1,10 @@
 package common.widgets.virtuoso
 
+import common.widgets.virtuoso.VirtuosoParser.Result
 import common.widgets.{Box, CodeBox, OutputArea}
+import preo.DSL
+import preo.ast.{BVal, Connector, CoreConnector}
+import preo.frontend.{Eval, Show, Simplify}
 
 class VirtuosoBox(globalReload: =>Unit, default: String, outputBox: OutputArea)
   extends Box[String]("Hub Composer", Nil) with CodeBox {
@@ -21,4 +25,4 @@ class VirtuosoBox(globalReload: =>Unit, default: String, outputBox: OutputArea)
       globalReload
     }
 
-  }
+}
