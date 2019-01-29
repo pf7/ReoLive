@@ -19,12 +19,13 @@ class InstanceBox(dependency: Box[Connector], errorBox: OutputArea)
   }
 
   override def update(): Unit = try {
-    box.text("")
+    if(box!=null) box.text("")
     Eval.unsafeInstantiate(dependency.get) match {
       case Some(reduc) =>
         // GOT A TYPE
-        box.append("p")
-          .text(Show(reduc) + ":\n  " +
+        if (box!=null)
+          box.append("p")
+            .text(Show(reduc) + ":\n  " +
             Show(DSL.unsafeTypeOf(reduc)._1))
         //println(Graph.toString(Graph(Eval.unsafeReduce(reduc))))
         ccon = Eval.unsafeReduce(reduc)

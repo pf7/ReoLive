@@ -20,7 +20,7 @@ import scalajs.js.annotation.JSExportTopLevel
 object RemoteReo extends{
 
 
-  private var inputBox: InputCodeBox = _
+  private var inputBox: PreoBox = _
   private var typeInstanceInfo: RemoteInstanceBox = _
   private var errors: OutputArea = _
 
@@ -69,10 +69,10 @@ object RemoteReo extends{
 
 
     // Create boxes (order matters)
-    inputBox =
-      new InputCodeBox(first_reload(), export, conn, id="wr",rows=4)
     errors =
       new OutputArea
+    inputBox =
+      new PreoBox(first_reload(), export, conn, errors)
     typeInstanceInfo =
       new RemoteInstanceBox(second_reload(),inputBox, errors)
     svg =
@@ -85,7 +85,8 @@ object RemoteReo extends{
     // must be after inputbox and mcrl2box
     modalBox = new RemoteLogicBox(inputBox, form, typeInstanceInfo, outputBox)
     val buttonsDiv =
-      new ButtonsBox(first_reload(), inputBox.asInstanceOf[InputCodeBox],modalBox)
+      new ButtonsBox(first_reload(), inputBox, modalBox)
+
     iftaAut =
       new IFTABox(typeInstanceInfo, errors)
     ifta =

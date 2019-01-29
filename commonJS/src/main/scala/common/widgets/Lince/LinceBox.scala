@@ -1,4 +1,6 @@
-package common.widgets
+package common.widgets.Lince
+
+import common.widgets.{Box, CodeBox, OutputArea}
 
 class LinceBox (globalReload: =>Unit, default: String, outputBox: OutputArea)
   extends Box[String]("Hybrid Program", Nil) with CodeBox {

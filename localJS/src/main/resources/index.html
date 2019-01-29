@@ -3,13 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'"> -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'https://github.io'"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="Online Tools by the ARCA research group using JavaScript">
-    <meta name="author" content="">
+    <meta name="author" content=""> 
 
     <title>Online Tools by the ARCA research group</title>
 
+    <!-- icons -->
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="mask-icon" href="favicon.svg" color="#34569c">
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap theme -->
@@ -51,7 +56,8 @@
         <!-- <li><a href="#about" data-toggle="tab" aria-expanded="false">About</a></li> -->
         <li><a href="#webReo" data-toggle="tab" onclick='load_home("webReo")'>Reo</a>
         <li><a href="#onlineReo" data-toggle="tab" onclick='load_WS("onlineReo")'>Online Reo</a>
-        <li><a href="#lince" data-toggle="tab" onclick='load_home("lince")'>Lince</a> 
+        <li><a href="#lince" data-toggle="tab" onclick='load_home("lince")'>Lince</a>
+        <li><a href="#virtuoso" data-toggle="tab" onclick='load_home("virtuoso")'>VirtuosoNext</a>
         <li><a href="#about" data-toggle="tab" onclick='load_home("about")'>About</a></li>
         <!--~~~~~~~~~~~~~~-->
 
@@ -103,7 +109,7 @@
       ////////////////////
       $(function () {
        var lhash = location.hash;
-       if (lhash=="") { lhash = "#reoTools";}
+       if (lhash=="") { lhash = "#webReo";}
        var activeTab = $('[href=' + lhash + ']');
     //    activeTab && activeTab.tab('show');
        activeTab.tab('show');

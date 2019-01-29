@@ -89,6 +89,12 @@
     margin-bottom: 0;
     padding: 5px;
 }
+.alert {
+    margin-bottom: 0;
+}
+.alertContainer {
+    padding: 5px;
+}
 
 .box > text {
     font-family: monospace;

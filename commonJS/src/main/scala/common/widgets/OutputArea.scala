@@ -8,7 +8,7 @@ class OutputArea {
 
   var outputs: Block = _
 
-  def init(div: Block): Unit = outputs = div.append("div")
+  def init(div: Block): Unit = outputs = div.append("div").attr("class","alertContainer")
 
   def message(msg:String): Unit = {
     val out = outputs.append("div").attr("class", "alert alert-info")
