@@ -37,7 +37,7 @@ class ReoActor(out: ActorRef) extends Actor {
       .replace("\\±","\\\\n")
       .replace("\\\\","\\")
     DSL.parseWithError(msg) match {
-      case preo.lang.Parser.Success(result,_) =>
+      case Right(result) =>
         try {
           val typ = DSL.checkVerbose(result)
 
@@ -68,10 +68,11 @@ class ReoActor(out: ActorRef) extends Actor {
           case e: java.io.IOException => // by generateLPS/LTS/storeInFile
             JsonCreater.createError("IO exception: " + e.getMessage).toString
           }
-      case f@preo.lang.Parser.Failure(_,_) =>
-        JsonCreater.createError("Parser failure: " + f.toString()).toString
-      //        instanceInfo.append("p").text("-")
-      case preo.lang.Parser.Error(msg,_) =>
+//      case f@preo.lang.Parser.Failure(_,_) =>
+//        JsonCreater.createError("Parser failure: " + f.toString()).toString
+//              instanceInfo.append("p").text("-")
+//      case preo.lang.Parser.Error(msg,_) =>
+      case Left(msg) =>
         JsonCreater.createError("Parser error: " + msg).toString
       //        instanceInfo.append("p").text("-")
     }
