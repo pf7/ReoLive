@@ -21,11 +21,11 @@ trait VirtuosoParser extends preo.lang.Parser {
     case "blackboard"=> Prim(s,1,1)
     case "semaphore"=> Prim(s,1,1)
     case "resource" => Prim(s,1,0)
-    case "dupl"     => Prim("dupl",1,2,Some("all"))
-    case "xor"      => Prim("dupl",1,2,Some("one"))
-    case "node"     => SubConnector(s,Repository.nodeGen(Prim("dupl",1,2,Some("one"))), Nil)
-    case "dupls"    => SubConnector(s,Repository.duplsGen(Prim("dupl",1,2,Some("all"))), Nil)
-    case "xors"     => SubConnector(s,Repository.duplsGen(Prim("dupl",1,2,Some("one"))), Nil)
+    case "dupl"     => Prim("dupl",1,2)
+    case "xor"      => Prim("xor",1,2)
+    case "node"     => SubConnector(s,Repository.nodeGen(Prim("dupl",1,2)), Nil)
+    case "dupls"    => SubConnector(s,Repository.duplsGen(Prim("dupl",1,2)), Nil)
+    case "xors"     => SubConnector(s,Repository.duplsGen(Prim("xor",1,2)), Nil)
     ///////
     case "fifo"     => fifo
     case "fifofull" => fifofull
