@@ -29,3 +29,5 @@ GET     /lps/:id                    controllers.HomeController.lps(id:Long)
 GET     /modal                      controllers.ModalController.socket
 
 GET     /linceWS                    controllers.LinceController.socket
+
+GET     /ifta                       controllers.IFTAController.socket
