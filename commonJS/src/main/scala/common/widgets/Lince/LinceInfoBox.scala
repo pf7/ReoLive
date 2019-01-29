@@ -1,5 +1,6 @@
-package common.widgets
+package common.widgets.Lince
 
+import common.widgets.{Box, OutputArea}
 import hprog.DSL
 import hprog.ast.Syntax
 import hprog.frontend.Show

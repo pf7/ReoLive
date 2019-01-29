@@ -1,4 +1,6 @@
-package common.widgets
+package common.widgets.Lince
+
+import common.widgets.{ButtonsBox, Setable}
 
 class LinceExamplesBox(reload: => Unit, inputBox: Setable[String])
   extends ButtonsBox(reload, inputBox, inputBox){

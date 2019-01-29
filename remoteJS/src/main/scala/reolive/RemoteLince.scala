@@ -1,5 +1,6 @@
 package reolive
 
+import common.widgets.Lince.LinceInfoBox
 import common.widgets._
 import hprog.ast.Syntax
 import org.scalajs.dom.html

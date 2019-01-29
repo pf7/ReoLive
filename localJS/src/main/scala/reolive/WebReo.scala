@@ -15,7 +15,7 @@ import scala.scalajs.js.annotation.JSExportTopLevel
   */
 object WebReo extends{
 
-  var inputBox: InputCodeBox = _
+  var inputBox: PreoBox = _
   var typeInfo: TypeBox = _
   var instanceInfo: InstanceBox = _
   var logicBox: LogicBox = _
@@ -62,24 +62,16 @@ object WebReo extends{
 
 
     // add InputArea
-    inputBox = new InputCodeBox(reload(), export(), conn, id="wr", rows=4)
-
-    errors      = new OutputArea //(id="wr")
-    outputLogic = new OutputArea //(id="wrLog")
-
-    typeInfo = new TypeBox(inputBox, errors)
-
+    errors       = new OutputArea //(id="wr")
+    inputBox     = new PreoBox(reload(), export(), conn, errors)
+    outputLogic  = new OutputArea //(id="wrLog")
+    typeInfo     = new TypeBox(inputBox, errors)
     instanceInfo = new InstanceBox(typeInfo, errors)
-
-    logicBox = new LogicBox(instanceInfo, form, outputLogic)
-
+    logicBox     = new LogicBox(instanceInfo, form, outputLogic)
     val buttonsDiv = new ButtonsBox(reload(), inputBox,logicBox)
-
-    svg = new GraphBox(instanceInfo, errors)
-
-    svgAut = new AutomataBox(instanceInfo, errors)
-
-    mcrl2Box = new Mcrl2Box(instanceInfo,errors)
+    svg          = new GraphBox(instanceInfo, errors)
+    svgAut       = new AutomataBox(instanceInfo, errors)
+    mcrl2Box     = new Mcrl2Box(instanceInfo,errors)
 
 
     // place items

@@ -8,8 +8,12 @@
     <meta name="description" content="Online Tools by the ARCA research group using JavaScript">
     <meta name="author" content="">
 
+
     <title>Online Tools by the ARCA research group</title>
 
+    <!-- icons -->
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="mask-icon" href="favicon.svg" color="#34569c">
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap theme -->
@@ -120,7 +124,7 @@
      window.location.hash = file
     }
     function load_WS(service) {
-    var url = 'http://localhost:9000/'+service
+    var url = 'https://localhost:9000/'+service
     document.getElementById("content").innerHTML='<object type="text/html" data="'+url+'" class="full"><h4 style="padding:15px;">"'+url+'" not found. Check if the server is running.</object>';
     window.location.hash = service
     }
