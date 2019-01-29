@@ -48,5 +48,7 @@ trait VirtuosoParser extends preo.lang.Parser {
     case "sequencer"=> SubConnector(s,Repository.sequencer, Nil)
     case "barrier"  => SubConnector(s,Repository.barrier, Nil)
     case "barriers" => SubConnector(s,Repository.barriers, Nil)
+
+    case _ => Prim(s,1,1)
   }
 }
