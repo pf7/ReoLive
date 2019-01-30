@@ -41,11 +41,6 @@ class VirtuosoInstantiate(code: Box[String], errorBox: OutputArea)
       case Left(msg) =>
         Left("Parser error: " + msg)
     }
-//    catch {
-//      case e:Throwable =>
-//        Box.checkExceptions(outputBox).apply(e)
-//        Left("")
-//    }
 
 
   def instantiate(c:Connector): Result[CoreConnector] = {
