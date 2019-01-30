@@ -98,7 +98,7 @@ object GraphsToJS {
                    .on("drag", dragged)
                    .on("end", dragended))
                  .style("stroke", "black")
-                 .attr("fill", "#ffd896").attr("fill-opacity", "0.1");
+                 .attr("fill", "#ffd896");
             rg
                 .append("text")
                 .attr("transform","translate(5,4)");
