@@ -1,7 +1,7 @@
 package common.widgets
 
 class PreoBox (globalReload: =>Unit, export: => Unit,default: String, outputBox: OutputArea)
-  extends Box[String]("Hybrid Program", Nil) with CodeBox {
+  extends Box[String]("Reo program", Nil) with CodeBox {
 
   override protected var input: String = default
   override protected val boxId: String = "PreoInputArea"

@@ -73,10 +73,11 @@ object JsonCreater {
         "name" -> JsString(name),
         "i" -> convert(i),
         "j" -> convert(j),
-        "extra" -> (extra match {
-          case Some(ob) => JsString(ob.toString)
-          case None => JsString("")
-        })
+        "extra" -> JsString(extra.mkString(","))
+//          (extra match {
+//          case Some(ob) => JsString(ob.toString)
+//          case None => JsString("")
+//        })
       ))
     }
 
