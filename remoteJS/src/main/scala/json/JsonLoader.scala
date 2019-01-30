@@ -67,7 +67,7 @@ object Loader{
       case "symmetry" => CSymmetry(convertInterface(raw("i").asInstanceOf[String]), convertInterface(raw("j").asInstanceOf[String]))
       case "trace" => CTrace(convertInterface(raw("i").asInstanceOf[String]), convertCon(raw("c").asInstanceOf[Map[String, Any]]))
       case "prim" => CPrim(raw("name").asInstanceOf[String], convertInterface(raw("i").asInstanceOf[String]),
-          convertInterface(raw("j").asInstanceOf[String]), convertSome(raw("extra").asInstanceOf[String]))
+          convertInterface(raw("j").asInstanceOf[String]), convertSet(raw("extra").asInstanceOf[String]))
       case "sub" => CSubConnector(raw("name").asInstanceOf[String], convertCon(raw("c").asInstanceOf[Map[String, Any]]), convertAnns(raw("ann").asInstanceOf[Map[String,Any]]))
       case _ => null
     }
@@ -76,6 +76,7 @@ object Loader{
 
   private def convertInterface(i: String): CoreInterface = CoreInterface(i.toInt)
   private def convertSome(s:String): Option[String] = if (s.isEmpty) None else Some(s)
+  private def convertSet(s:String): Set[Any] = if (s.isEmpty) Set() else Set(s)
   private def convertAnns(map: Map[String, Any]): List[Annotation] = map("type") match {
     case "Nil" => Nil
     case _ => convertAnn(map("head").asInstanceOf[Map[String,Any]]) :: convertAnns(map("tail").asInstanceOf[Map[String,Any]])

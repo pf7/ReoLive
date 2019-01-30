@@ -37,8 +37,8 @@ trait VirtuosoParser extends preo.lang.Parser {
     case "swap"     => swap
     case "noSrc"    => Prim("noSrc",1,0)
     case "noSnk"    => Prim("noSnk",0,1)
-    case "writer"   => Prim("writer",0,1,Some("component"))
-    case "reader"   => Prim("reader",1,0,Some("component"))
+    case "writer"   => Prim("writer",0,1,Set("component"))
+    case "reader"   => Prim("reader",1,0,Set("component"))
     case "mergers"  => SubConnector(s,Repository.mergers, Nil)
     case "zip"      => SubConnector(s,Repository.zip, Nil)
     case "unzip"    => SubConnector(s,Repository.unzip, Nil)

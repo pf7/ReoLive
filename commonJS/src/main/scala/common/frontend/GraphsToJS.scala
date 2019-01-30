@@ -8,6 +8,7 @@ object GraphsToJS {
   def apply(graph: Graph): String = generateJS(getNodes(graph), getLinks(graph))
 
   private def generateJS(nodes: String, edges: String): String = {
+    println(s"""var graph = {"nodescircuit": $nodes, "linkscircuit": $edges};""")
     s"""
         var svg = d3.select("#circuit");
         var vbox = svg.attr('viewBox').split(" ")
@@ -298,8 +299,8 @@ object GraphsToJS {
   }
 
   private def processNodes(nodes: List[ReoNode]): String = nodes match{
-    case ReoNode(id, name, nodeType, style) :: Nil => {
-      val nodeGroup = typeToGroup(nodeType, style);
+    case ReoNode(id, name, nodeType, extra) :: Nil => {
+      val nodeGroup = typeToGroup(nodeType, extra);
       s"""{"id": "$id", "group": $nodeGroup, "name": "${name.getOrElse("")}" }"""
     }
     case ReoNode(id, name, nodeType, style) :: y :: rest => {
@@ -318,16 +319,13 @@ object GraphsToJS {
     *  - 4: sink component
     *  - 5: box (container)
     * @param nodeType if it is source, sink, or mixed type
-    * @param style optional field that may contain "component"
+    * @param extra optional field that may contain "component"
     * @return
     */
-  private def typeToGroup(nodeType: NodeType, style: Option[String]):String = (nodeType, style) match{
-    case (Source, Some(s))     => if(s.contains("component")) "0" else "1"
-    case (Source, None)        => "1"
-    case (Sink,   None)        => "3"
-    case (Sink,   Some(s))     => if(s.contains("component")) "4" else "3"
-    case (Mixed,  Some(s))     => if(s.contains("box")) "5" else "2"
-    case (Mixed,  _)           => "2"
+  private def typeToGroup(nodeType: NodeType, extra: Set[Any]):String = nodeType match{
+    case Source => if (extra.contains("component")) "0" else "1"
+    case Sink   => if (extra.contains("component")) "4" else "3"
+    case Mixed  => if (extra.contains("box"))       "5" else "2"
   }
 
   private def processEdges(channels: List[ReoChannel]): String = channels match{
