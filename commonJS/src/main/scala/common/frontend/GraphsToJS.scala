@@ -82,14 +82,14 @@ object GraphsToJS {
                 }));
 
             var rect = rects.enter();
-            var rg = rect;
-//                 .append("g")
-//                 .attr("class","component");
-//            rg.attr("id", function (d) {return d.id;});
+            var rg = rect
+                 .append("g")
+                 .attr("class","component");
+            rg.attr("id", function (d) {return d.id;});
             rg   .append("rect")
 //                .merge(rects)
-                 .attr("id", function (d) {return d.id;})
-                 .attr("class","component") // test
+//                 .attr("id", function (d) {return d.id;})
+//                 .attr("class","component") // test
                  .attr('width', rectangle_width)
                  .attr('height', rectangle_height)
                  .attr("y","-10px")
@@ -98,7 +98,7 @@ object GraphsToJS {
                    .on("drag", dragged)
                    .on("end", dragended))
                  .style("stroke", "black")
-                 .attr("fill", "#ffd896");
+                 .attr("fill", "#ffd896").attr("fill-opacity", "0.1");
             rg
                 .append("text")
                 .attr("transform","translate(5,4)");
@@ -215,6 +215,7 @@ object GraphsToJS {
         }
 
         function ticked() {
+            var half_hight_rect = rectangle_height/2;
             // MOVE NODES
             var node = d3.select(".nodescircuit").selectAll("circle")
                 .attr('cx', function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
@@ -222,27 +223,28 @@ object GraphsToJS {
 
             // MOVE BOXES
             var box = d3.select(".nodescircuit").selectAll(".box")
-                //.attr('x', function(d) {return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
-                //.attr('y', function(d) {return d.y = Math.max(radius, Math.min(height - radius, d.y)); })
-//                .attr('cx', function(d) {d.x = Math.max(11, Math.min(width  - rectangle_width , d.x)); return d.x - rectangle_width/2;})
-//                .attr('cy', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;})
-                .attr("transform",function(d) {
-                    return "translate("+(d.x-((d.name.length*8.3) + 10)/2)+","+(d.y)+")"; } );
+                .attr('cx', function(d) {
+                    var half_width_rect = ((d.name.length*8.3) +10)/2;
+                    return d.x = Math.max(half_width_rect , Math.min(width  - half_width_rect, d.x));})
+                .attr('cy', function(d) {
+                    return d.y = Math.max(half_hight_rect, Math.min(height - half_hight_rect, d.y));});
+                // move box rectangle
+                box.selectAll("rect").attr("transform",function(d) {
+                    var half_width_rect = ((d.name.length*8.3) +10)/2;
+                    return "translate("+(d.x-half_width_rect)+","+(d.y)+")"; } );
+                // move box text
+                box.selectAll("text").attr("transform",function(d) {
+                    var half_width_rect = ((d.name.length*8.3) +10)/2;
+                    return "translate("+(5+d.x-half_width_rect)+","+(d.y+4)+")"; } );
 
             // MOVE COMPONENTS
             var rect = d3.select(".nodescircuit").selectAll(".component")
-//               .attr('cx', function(d) {
-//                  if(d.group == 0){
-//                    d.x = Math.max(rectangle_width, Math.min(width-1, d.x))
-//                    return d.x - rectangle_width;
-//                  }
-//                  else{
-//                    d.x = Math.max(5, Math.min(width - rectangle_width, d.x))
-//                    return d.x -rectangle_width /10;
-//                  }
-//               })
-//               .attr('cy', function(d) {d.y = Math.max(11, Math.min(height - rectangle_height, d.y)); return d.y - rectangle_height/2;})
-               .attr("transform",function(d) { return "translate("+d.x+","+d.y+")"; } );
+                .attr('cx', function(d) { return d.x = Math.max(0, Math.min(width  - rectangle_width , d.x)); } )
+                .attr('cy', function(d) { return d.y = Math.max(10, Math.min(height - half_hight_rect, d.y)); });
+                // move component rectangle
+                rect.selectAll("rect")
+                  .attr("transform",function(d) {
+                    return "translate("+Math.max(0,Math.min(width-rectangle_width,d.x))+","+Math.max(half_hight_rect,Math.min(height - half_hight_rect, d.y))+")"; } );
 
             // MODIFY LINES AND TEXT
             var link = d3.select(".linkscircuit").selectAll("polyline")
