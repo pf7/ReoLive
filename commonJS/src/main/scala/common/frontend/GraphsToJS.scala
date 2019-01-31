@@ -17,8 +17,9 @@ object GraphsToJS {
         var radius = 7.75;
         var rectangle_width = 40;
         var rectangle_height = 20;
-        var diamond_min_size = 10;
-        var box_min_size = 5;
+//        var diamond_min_size = 10;
+//        var box_min_size = 5;
+        var hubSize = 18;
 
         var graph = {"nodescircuit": $nodes, "linkscircuit": $edges};
 
@@ -138,30 +139,38 @@ object GraphsToJS {
 
             boxes.exit().remove();
 
-            // add Diamonds (virtuoso)
-            var diamonds = d3.select(".nodescircuit").selectAll(".diamond")
+            // add Virtuoso Hubs
+            var hubs = d3.select(".nodescircuit").selectAll(".hub")
               .data(nodes.filter(function(d) {
-                return (d.group == 6 || d.group == 7 || d.group == 8);
+                return (d.group >=6 && d.group <= 12 );
               }));
-            var sem = diamonds.enter();
+            var hub = hubs.enter();
             // var semSize = (Math.max(diamond_min_size,("D".length*8.3 +5)));
-            var rg = sem.append("g").attr("class","diamond");
+            var rg = hub.append("g").attr("class","hub");
                 rg.attr("id", function(d) {return d.id;});
-                rg.append("rect")
-                  .attr("width" , function(d){ return (Math.max(diamond_min_size,(d.name.length*8.3 +5)));})
-                  .attr("height", function(d){ return (Math.max(diamond_min_size,(d.name.length*8.3 +5)));})
-                  .attr("y"     , function(d){ return -((Math.max(diamond_min_size,(d.name.length*8.3 +5)))/2);})
-                  .attr("transform", "rotate(45)")
+                rg.append("image")
+                  .attr("width",hubSize)
+                  .attr("height",hubSize)
+                  .attr("xlink:href",getSvgUrl)
                   .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
-                    .on("end", dragended))
-                  .style("stroke","#345169")
-                  .attr("fill", "#dadaf7")
-                rg.append("text")
-                  .attr("transform","translate(2.5,2)")
-                  .text(function(d) {return d.name});
-            diamonds.exit().remove();
+                    .on("end", dragended));
+//                rg.append("rect")
+//                  .attr("width" , function(d){ return (Math.max(diamond_min_size,(d.name.length*8.3 +5)));})
+//                  .attr("height", function(d){ return (Math.max(diamond_min_size,(d.name.length*8.3 +5)));})
+//                  .attr("y"     , function(d){ return -((Math.max(diamond_min_size,(d.name.length*8.3 +5)))/2);})
+//                  .attr("transform", "rotate(45)")
+//                  .call(d3.drag()
+//                    .on("start", dragstarted)
+//                    .on("drag", dragged)
+//                    .on("end", dragended))
+//                  .style("stroke","#345169")
+//                  .attr("fill", "#dadaf7")
+//                rg.append("text")
+//                  .attr("transform","translate(2.5,2)")
+//                  .text(function(d) {return d.name});
+            hubs.exit().remove();
 
              //add links
              var link = d3.select(".linkscircuit").selectAll("polyline")
@@ -240,6 +249,20 @@ object GraphsToJS {
                 });
         }
 
+        function getSvgUrl(d) {
+          var url = ""
+          switch (d.group) {
+            case 6:  url = "svg/DataEvent.svg"; break;
+            case 7:  url = "svg/Event.svg"; break;
+            case 8:  url = "svg/BlackBoard.svg"; break;
+            case 9:  url = "svg/Fifo.svg"; break;
+            case 10: url = "svg/Port.svg"; break;
+            case 11: url = "svg/Resource.svg"; break;
+            case 12: url = "svg/Semaphore.svg"; break;
+           }
+          return url;
+        }
+
         function ticked() {
             var half_hight_rect = rectangle_height/2;
             // MOVE NODES
@@ -263,24 +286,27 @@ object GraphsToJS {
                     var half_width_rect = ((d.name.length*8.3) +10)/2;
                     return "translate("+(5+d.x-half_width_rect)+","+(d.y+4)+")"; } );
 
-            // MOVE DIAMONDS
+            // MOVE HUBS
             //var semSize = Math.max(diamond_min_size,(("D".length*8.3 + 5)));
-            var sem = d3.select(".nodescircuit").selectAll(".diamond")
-                .attr('cx', function(d) {
-                    var semSize = Math.max(diamond_min_size,((d.name.length*8.3 + 5)))
-                    return d.x = Math.max(semSize/2, Math.min(width  - semSize/2, d.x));})
-                .attr('cy', function(d) {
-                    var semSize = Math.max(diamond_min_size,((d.name.length*8.3 + 5)))
-                    return d.y = Math.max(semSize/2, Math.min(height - semSize/2, d.y));});
+            var hubs = d3.select(".nodescircuit").selectAll(".hub")
+                  .attr('cx', function(d) { return d.x = Math.max(hubSize/2, Math.min(width  - hubSize/2 , d.x)); } )
+                  .attr('cy', function(d) { return d.y = Math.max(hubSize/2, Math.min(height - hubSize/2, d.y)); });
+//                .attr('cx', function(d) {
+//                    var semSize = Math.max(diamond_min_size,((d.name.length*8.3 + 5)))
+//                    return d.x = Math.max(semSize/2, Math.min(width  - semSize/2, d.x));})
+//                .attr('cy', function(d) {
+//                    var semSize = Math.max(diamond_min_size,((d.name.length*8.3 + 5)))
+//                    return d.y = Math.max(semSize/2, Math.min(height - semSize/2, d.y));});
                 // move diamond box
-                sem.selectAll("rect").attr("transform",function(d) {
-                    var semSize = Math.max(diamond_min_size,((d.name.length*8.3 + 5)))
-                    return "translate("+(d.x-(semSize/2))+","+(d.y)+")  rotate(45) "; } );
+                hubs.selectAll("image").attr("transform",function(d) {
+                      return "translate("+ (d.x - (hubSize/2)) +","+(d.y-(hubSize/2))+")"; } );
+//                    var semSize = Math.max(diamond_min_size,((d.name.length*8.3 + 5)))
+//                    return "translate("+(d.x-(semSize/2))+","+(d.y)+")  rotate(45) "; } );
                 // move diamond text
-                sem.selectAll("text").attr("transform",function(d) {
-                    var xshift = (d.group == 6) ? -6.5 : -6 ;
-                    var yshift = (d.group == 6) ? 10 : 8 ;
-                    return "translate("+(d.x+xshift)+","+(d.y+yshift)+") "; } );
+//                sem.selectAll("text").attr("transform",function(d) {
+//                    var xshift = (d.group == 6) ? -6.5 : -6 ;
+//                    var yshift = (d.group == 6) ? 10 : 8 ;
+//                    return "translate("+(d.x+xshift)+","+(d.y+yshift)+") "; } );
 //                sem.selectAll("text").attr("dx",function(d) {
 //                    return  d.x - (semSize -2.3);} )
 //                                    .attr("dy",function(d) {
