@@ -7,3 +7,6 @@
 [submodule "ifta"]
 	path = lib/ifta
 	url = https://github.com/haslab/ifta.git
+[submodule "lib/virtuoso"]
+	path = lib/virtuoso
+	url = https://github.com/arcalab/hubAutomata.git

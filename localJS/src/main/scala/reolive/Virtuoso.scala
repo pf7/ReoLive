@@ -18,6 +18,8 @@ object Virtuoso extends{
   var examples: VirtuosoExamplesBox = _
   var errors: OutputArea = _
 
+  var aut: VirtuosoAutomataBox = _
+
   @JSExportTopLevel("reolive.Virtuoso.main")
   def main(content: html.Div): Unit = {
 
@@ -71,6 +73,9 @@ object Virtuoso extends{
     graphics = new VirtuosoGraphBox(instanciate,errors)
     graphics.init(rightColumn,visible = true)
 
+    aut = new VirtuosoAutomataBox(instanciate,errors)
+    aut.init(rightColumn,false)
+
     reload()
 
   }
@@ -93,6 +98,7 @@ object Virtuoso extends{
 //    typeInfo.update()
 //    instanceInfo.update()
     graphics.update()
+    aut.update()
   }
 
   private def export():Unit = {}

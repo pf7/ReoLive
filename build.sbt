@@ -48,7 +48,8 @@ lazy val server = (project in file("server"))
     unmanagedSourceDirectories in Compile ++= Seq(
       baseDirectory.value / "../lib/preo/src/main/scala",
       baseDirectory.value / "../lib/hprog/src/main/scala",
-      baseDirectory.value / "../lib/ifta/src/main/scala"
+      baseDirectory.value / "../lib/ifta/src/main/scala",
+      baseDirectory.value / "../lib/virtuoso/src/main/scala"
     )
   )
 
@@ -71,7 +72,8 @@ lazy val javascript_settings = Seq(
   unmanagedSourceDirectories in Compile ++= Seq(
     baseDirectory.value / "../lib/preo/src/main/scala",
     baseDirectory.value / "../lib/hprog/src/main/scala",
-    baseDirectory.value / "../lib/ifta/src/main/scala"
+    baseDirectory.value / "../lib/ifta/src/main/scala",
+    baseDirectory.value / "../lib/virtuoso/src/main/scala"
   )
 )
 
