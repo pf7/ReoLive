@@ -17,8 +17,6 @@ object GraphsToJS {
         var radius = 7.75;
         var rectangle_width = 40;
         var rectangle_height = 20;
-//        var diamond_min_size = 10;
-//        var box_min_size = 5;
         var hubSize = 18;
 
         var graph = {"nodescircuit": $nodes, "linkscircuit": $edges};
@@ -145,7 +143,6 @@ object GraphsToJS {
                 return (d.group >=6 && d.group <= 12 );
               }));
             var hub = hubs.enter();
-            // var semSize = (Math.max(diamond_min_size,("D".length*8.3 +5)));
             var rg = hub.append("g").attr("class","hub");
                 rg.attr("id", function(d) {return d.id;});
                 rg.append("image")
@@ -156,20 +153,6 @@ object GraphsToJS {
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended));
-//                rg.append("rect")
-//                  .attr("width" , function(d){ return (Math.max(diamond_min_size,(d.name.length*8.3 +5)));})
-//                  .attr("height", function(d){ return (Math.max(diamond_min_size,(d.name.length*8.3 +5)));})
-//                  .attr("y"     , function(d){ return -((Math.max(diamond_min_size,(d.name.length*8.3 +5)))/2);})
-//                  .attr("transform", "rotate(45)")
-//                  .call(d3.drag()
-//                    .on("start", dragstarted)
-//                    .on("drag", dragged)
-//                    .on("end", dragended))
-//                  .style("stroke","#345169")
-//                  .attr("fill", "#dadaf7")
-//                rg.append("text")
-//                  .attr("transform","translate(2.5,2)")
-//                  .text(function(d) {return d.name});
             hubs.exit().remove();
 
              //add links
@@ -287,31 +270,12 @@ object GraphsToJS {
                     return "translate("+(5+d.x-half_width_rect)+","+(d.y+4)+")"; } );
 
             // MOVE HUBS
-            //var semSize = Math.max(diamond_min_size,(("D".length*8.3 + 5)));
             var hubs = d3.select(".nodescircuit").selectAll(".hub")
                   .attr('cx', function(d) { return d.x = Math.max(hubSize/2, Math.min(width  - hubSize/2 , d.x)); } )
                   .attr('cy', function(d) { return d.y = Math.max(hubSize/2, Math.min(height - hubSize/2, d.y)); });
-//                .attr('cx', function(d) {
-//                    var semSize = Math.max(diamond_min_size,((d.name.length*8.3 + 5)))
-//                    return d.x = Math.max(semSize/2, Math.min(width  - semSize/2, d.x));})
-//                .attr('cy', function(d) {
-//                    var semSize = Math.max(diamond_min_size,((d.name.length*8.3 + 5)))
-//                    return d.y = Math.max(semSize/2, Math.min(height - semSize/2, d.y));});
-                // move diamond box
+                // move hub figure
                 hubs.selectAll("image").attr("transform",function(d) {
                       return "translate("+ (d.x - (hubSize/2)) +","+(d.y-(hubSize/2))+")"; } );
-//                    var semSize = Math.max(diamond_min_size,((d.name.length*8.3 + 5)))
-//                    return "translate("+(d.x-(semSize/2))+","+(d.y)+")  rotate(45) "; } );
-                // move diamond text
-//                sem.selectAll("text").attr("transform",function(d) {
-//                    var xshift = (d.group == 6) ? -6.5 : -6 ;
-//                    var yshift = (d.group == 6) ? 10 : 8 ;
-//                    return "translate("+(d.x+xshift)+","+(d.y+yshift)+") "; } );
-//                sem.selectAll("text").attr("dx",function(d) {
-//                    return  d.x - (semSize -2.3);} )
-//                                    .attr("dy",function(d) {
-//                    return  d.y + (semSize/2) -2.5;} );
-
 
             // MOVE COMPONENTS
             var rect = d3.select(".nodescircuit").selectAll(".component")
@@ -396,6 +360,13 @@ object GraphsToJS {
     *  - 3: sink node
     *  - 4: sink component
     *  - 5: box (container)
+    *  - 6: DataEvent
+    *  - 7: Event
+    *  - 8: BlackBoard
+    *  - 9: Fifo
+    *  - 10: Port
+    *  - 11: Resource
+    *  - 12: Semaphore
     * @param nodeType if it is source, sink, or mixed type
     * @param extra optional field that may contain "component"
     * @return
