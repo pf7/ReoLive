@@ -1,6 +1,6 @@
 package reolive
 
-import common.widgets.virtuoso.{VirtuosoBox, VirtuosoExamplesBox, VirtuosoInstantiate, VirtuosoParser}
+import common.widgets.virtuoso._
 import common.widgets.{GraphBox, OutputArea}
 import org.scalajs.dom.html
 import org.singlespaced.d3js.d3
@@ -68,7 +68,7 @@ object Virtuoso extends{
 //    instanceInfo.init(rightColumn,visible = true)
 
 
-    graphics = new GraphBox(instanciate,errors)
+    graphics = new VirtuosoGraphBox(instanciate,errors)
     graphics.init(rightColumn,visible = true)
 
     reload()

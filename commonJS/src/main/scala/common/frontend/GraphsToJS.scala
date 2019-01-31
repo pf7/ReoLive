@@ -7,6 +7,8 @@ import preo.backend._
 object GraphsToJS {
   def apply(graph: Graph): String = generateJS(getNodes(graph), getLinks(graph))
 
+  def toVirtuosoJs(graph:Graph):String = generateJS(getNodes(graph,virtuoso=true), getLinks(graph))
+
   private def generateJS(nodes: String, edges: String): String = {
     println(s"""var graph = {"nodescircuit": $nodes, "linkscircuit": $edges};""")
     s"""
@@ -26,10 +28,10 @@ object GraphsToJS {
           .force('center', d3.forceCenter(width / 2, height / 2))
           .force('y', d3.forceY().y(function(d) { return 0;}))
           .force('x', d3.forceX().x(function(d) {
-            if (d.group == 3 || d.group == 4){
+            if (d.group == "rd" || d.group == "snk"){
               return width/2;
             }
-            if (d.group == 0 || d.group == 1){
+            if (d.group == "wr" || d.group == "src"){
               return -width/2;
             }
             return 0;
@@ -45,7 +47,10 @@ object GraphsToJS {
         function init(nodes, links){
             //add nodes (nodes "circle" with group in {1,2,3})
             var node = d3.select(".nodescircuit").selectAll("circle")
-                .data(nodes.filter(function(d){return d.group >0 && d.group < 4}));
+                .data(nodes.filter(function(d){
+                  //return d.group >"0" && d.group < "4"
+                  return (d.group == "src" || d.group == "mix" || d.group == "snk");
+                  }));
             node.enter()
                 .append("circle")
                 .merge(node)
@@ -58,7 +63,7 @@ object GraphsToJS {
                 .style("stroke-opacity" , "1")
                 .style("stroke-width", "2px")
                 .style("stroke", function(d){
-                   if(d.group == 1 || d.group == 3){
+                   if(d.group == "src" || d.group == "snk"){
                      return "black";
                    }
                    else{
@@ -67,7 +72,7 @@ object GraphsToJS {
                    }
                 )
                 .style("fill", function(d){
-                  if(d.group == 1 || d.group == 3){
+                  if(d.group == "src" || d.group == "snk"){
                     return "white";
                   }
                   else{
@@ -79,7 +84,7 @@ object GraphsToJS {
             // add components (nodes "rect" with group in {0,4})
             var rects = d3.select(".nodescircuit").selectAll(".component")
                 .data(nodes.filter(function(d){
-                  return d.group == 0 || d.group == 4
+                  return d.group == "wr" || d.group == "rd"
                 }));
 
             var rect = rects.enter();
@@ -110,7 +115,7 @@ object GraphsToJS {
             // add boxes (nodes "rect" with group 5)
             var boxes = d3.select(".nodescircuit").selectAll(".box")
                 .data(nodes.filter(function(d){
-                  return d.group == 5
+                  return d.group == "box"
                 }));
 
             var box = boxes.enter();
@@ -140,7 +145,8 @@ object GraphsToJS {
             // add Virtuoso Hubs
             var hubs = d3.select(".nodescircuit").selectAll(".hub")
               .data(nodes.filter(function(d) {
-                return (d.group >=6 && d.group <= 12 );
+//                 return (d.group >=6 && d.group <= 12 );
+                return (d.group == "mrg" || d.group == "dupl" || d.group == "xor");
               }));
             var hub = hubs.enter();
             var rg = hub.append("g").attr("class","hub");
@@ -148,7 +154,7 @@ object GraphsToJS {
                 rg.append("image")
                   .attr("width",hubSize)
                   .attr("height",hubSize)
-                  .attr("xlink:href",getSvgUrl)
+                  .attr("xlink:href", function(d) {return "svg/"+d.group+".svg";})
                   .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
@@ -232,20 +238,6 @@ object GraphsToJS {
                 });
         }
 
-        function getSvgUrl(d) {
-          var url = ""
-          switch (d.group) {
-            case 6:  url = "svg/DataEvent.svg"; break;
-            case 7:  url = "svg/Event.svg"; break;
-            case 8:  url = "svg/BlackBoard.svg"; break;
-            case 9:  url = "svg/Fifo.svg"; break;
-            case 10: url = "svg/Port.svg"; break;
-            case 11: url = "svg/Resource.svg"; break;
-            case 12: url = "svg/Semaphore.svg"; break;
-           }
-          return url;
-        }
-
         function ticked() {
             var half_hight_rect = rectangle_height/2;
             // MOVE NODES
@@ -324,7 +316,7 @@ object GraphsToJS {
         }
         function dragended(d) {
           if (!d3.event.active) simulation.alphaTarget(0);
-//          if (d.group == 3 || d.group == 1 || d.group == 5){
+//          if (d.group == "snk" || d.group == "src" || d.group == "box"){
             d.fx = null;
             d.fy = null;
 //          }
@@ -332,25 +324,22 @@ object GraphsToJS {
       """
   }
 
-  private def getNodes(graph: Graph): String = graph match{
-    case Graph(_, nodes) => "[" + processNodes(nodes) + "]"
+
+  private def getNodes(graph: Graph,virtuoso:Boolean = false): String =
+    graph.nodes.map(processNode(_,virtuoso)).mkString("[",",","]")
+
+
+  private def getLinks(graph: Graph): String =
+    graph.edges.map(processEdge(_)).mkString("[",",","]")
+
+
+  private def processNode(node:ReoNode,virtuoso:Boolean = false):String = node match {
+    case ReoNode(id, name, nodeType, extra) => {
+      val nodeGroup = typeToGroup(nodeType, extra,virtuoso);
+      s"""{"id": "$id", "group": "$nodeGroup", "name": "${name.getOrElse("")}" }"""
+    }
   }
 
-  private def getLinks(graph: Graph): String = graph match{
-    case Graph(edges, _) => "[" + processEdges(edges) + "]"
-  }
-
-  private def processNodes(nodes: List[ReoNode]): String = nodes match{
-    case ReoNode(id, name, nodeType, extra) :: Nil => {
-      val nodeGroup = typeToGroup(nodeType, extra);
-      s"""{"id": "$id", "group": $nodeGroup, "name": "${name.getOrElse("")}" }"""
-    }
-    case ReoNode(id, name, nodeType, style) :: y :: rest => {
-      val nodeGroup = typeToGroup(nodeType, style);
-      s"""{"id": "$id", "group": $nodeGroup, "name": "${name.getOrElse("")}" },""" + processNodes(y::rest)
-    }
-    case Nil => ""
-  }
 
   /**
     * Select the right group:
@@ -371,24 +360,18 @@ object GraphsToJS {
     * @param extra optional field that may contain "component"
     * @return
     */
-  private def typeToGroup(nodeType: NodeType, extra: Set[Any]):String = nodeType match{
-    case Source => if (extra.contains("component")) "0" else "1"
-    case Sink   => if (extra.contains("component")) "4" else "3"
-    case Mixed  => if (extra.contains("box"))       "5" else "2"
+  private def typeToGroup(nodeType: NodeType, extra: Set[Any],virtuoso:Boolean=false):String = nodeType match{
+    case Source => if (extra.contains("component")) "wr"  else "src"
+    case Sink   => if (extra.contains("component")) "rd"  else "snk"
+    case Mixed  => if (extra.contains("box"))       "box" else if (virtuoso && extra.nonEmpty) extra.head.asInstanceOf[String] else "mix"
   }
 
-  private def processEdges(channels: List[ReoChannel]): String = channels match{
-    case ReoChannel(src,trg, srcType, trgType, name, style) :: Nil => {
+  private def processEdge(channel: ReoChannel): String = channel match{
+    case ReoChannel(src,trg, srcType, trgType, name, style) => {
       var start = arrowToString(srcType);
       var end = arrowToString(trgType);
       s"""{"source": "$src", "target": "$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit"}"""
     }
-    case ReoChannel(src,trg, srcType, trgType, name, style) :: y :: rest  => {
-      var start = arrowToString(srcType);
-      var end = arrowToString(trgType);
-      s"""{"source": "$src", "target": "$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit"},""" + processEdges(y::rest)
-    }
-    case Nil => ""
   }
 
   private def arrowToString(endType: EndType): String = endType match{

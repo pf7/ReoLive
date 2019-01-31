@@ -13,9 +13,9 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   var box: Block = _
   override def get: Graph = graph
 
-  private val widthCircRatio = 7
-  private val heightCircRatio = 3
-  private val densityCirc = 0.5 // nodes per 100x100 px
+  protected val widthCircRatio = 7
+  protected val heightCircRatio = 3
+  protected val densityCirc = 0.5 // nodes per 100x100 px
 
 
   override def init(div: Block, visible: Boolean): Unit = {
@@ -33,7 +33,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   }
 
 
-  private def drawGraph(): Unit = try{
+  protected def drawGraph(): Unit = try{
     graph = Graph(dependency.get,true)
     val size = graph.nodes.size
     val factor = Math.sqrt(size * 10000 / (densityCirc * widthCircRatio * heightCircRatio))
@@ -42,15 +42,20 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     box.attr("viewBox", s"00 00 $width $height")
     println(dependency.get)
     println(graph)
+//    toJs(graph)
     scalajs.js.eval(GraphsToJS(graph))
   }
   catch Box.checkExceptions(errorBox)
 
-  private def deleteDrawing(): Unit = {
+
+
+//  protected def toJs(g:Graph):Unit = scalajs.js.eval(GraphsToJS(g))
+
+  protected def deleteDrawing(): Unit = {
     box.selectAll("g").html("")
   }
 
-  private def saveSvg(): Unit = {
+  protected def saveSvg(): Unit = {
     scalajs.js.eval(
       """svgEl = document.getElementById("circuit");
         |name = "circuit.svg";
