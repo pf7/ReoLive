@@ -15,6 +15,8 @@ object Virtuoso extends{
 
   var instanciate: VirtuosoInstantiate = _
 
+  var infoBox: VirtuosoInfoBox = _
+
   var examples: VirtuosoExamplesBox = _
   var errors: OutputArea = _
 
@@ -76,6 +78,9 @@ object Virtuoso extends{
     aut = new VirtuosoAutomataBox(instanciate,errors)
     aut.init(rightColumn,false)
 
+    infoBox = new VirtuosoInfoBox(instanciate,errors)
+    infoBox.init(leftColumn,false)
+
     reload()
 
   }
@@ -99,6 +104,7 @@ object Virtuoso extends{
 //    instanceInfo.update()
     graphics.update()
     aut.update()
+    infoBox.update()
   }
 
   private def export():Unit = {}

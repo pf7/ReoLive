@@ -39,8 +39,7 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   private def drawAutomata(): Unit =
     try{
 //      automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get)//
-      println(ReoGraph.toGraphOneToOne(dependency.get,hideClosed = false))
-      automaton = Automata[HubAutomata](dependency.get)
+      automaton = Automata[HubAutomata](dependency.get).serialize.simplify
       val sizeAut = automaton.getStates.size
       //              println("########")
       //              println(aut)
