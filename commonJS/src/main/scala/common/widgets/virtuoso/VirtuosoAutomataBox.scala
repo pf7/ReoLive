@@ -6,7 +6,8 @@ import hub.HubAutomata
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
-import preo.backend.{Automata, PortAutomata}
+import preo.backend.{Automata, PortAutomata, ReoGraph}
+import preo.frontend.Show
 
 /**
   * Created by guille on 31/01/2019
@@ -37,6 +38,8 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 
   private def drawAutomata(): Unit =
     try{
+//      automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get)//
+      println(ReoGraph.toGraphOneToOne(dependency.get,hideClosed = false))
       automaton = Automata[HubAutomata](dependency.get)
       val sizeAut = automaton.getStates.size
       //              println("########")

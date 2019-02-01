@@ -142,7 +142,7 @@ object AutomataToJS {
                   .style("pointer-events", "none")
                   .attr('class', 'edgelabel')
                   .attr('id', function (d, i) {return 'edgelabel' + i})
-                  .attr('font-size', 14)
+                  .attr('font-size', 10)
                   .attr('fill', 'black');
               edgelabels.exit().remove();
 
