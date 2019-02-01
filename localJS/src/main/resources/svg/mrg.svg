@@ -35,7 +35,7 @@
    offset="1" />
 	</svg:linearGradient>
 	<svg:rect
-   width="11"
+   width="9"
    height="23"
    x="8.5"
    y="0.5"
@@ -50,7 +50,7 @@
    xml:space="preserve"><svg:tspan
      x="8.9484091"
      y="16.760355"
-     id="tspan10757">M</svg:tspan></svg:text>
+     id="tspan10757">P</svg:tspan></svg:text>
 
 
 </svg:svg>
