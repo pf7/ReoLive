@@ -9,7 +9,8 @@ object AutomataToJS {
   def apply[A<:Automata](aut: A): String = generateJS(getNodes(aut), getLinks(aut))
 
   private def generateJS(nodes: String, edges: String): String = {
-
+    println(nodes)
+    println(edges)
     s"""
         buildAut();
         function buildAut() {
