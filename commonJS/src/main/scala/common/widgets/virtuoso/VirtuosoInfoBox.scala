@@ -68,7 +68,7 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
         else "0 variables: 0 bits")
       varsByType.foreach(v =>  mem += v._2.size * v._2.head._2)
       list.append("li")
-        .text(s"Total: $mem bit${if(mem!=1)"s"} \n")
+        .text(s"Total: $mem bit${if( mem != 1) "s" else ""} \n")
 
       // Transitions
       var loc = 0
