@@ -6,9 +6,51 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String])
   extends ButtonsBox(reload, inputBox, inputBox){
 
   override protected val buttons: Seq[((String,String),String)] = Seq(
-    "Alternating Port"->"" ->
-      """// Alternating port
-        |...""".stripMargin,
+    "Port"->"" ->
+      """// Port Hub
+        |// Forwards data from its source to its sink, acting
+        |// as a synchronisation mechanism between two tasks.
+        |// There is no buffer capacity, i.e. data is transfer
+        |// directly between the two tasks.
+        | port """.stripMargin,
+    "Port - 2 sources"->"" ->
+      """// Merging Port Hub
+        |// Similar to the simple Port, but uses only
+        |// one of its source points.
+        | merger """.stripMargin,
+    "Port - 2 sinks"->"" ->
+      """// XOR Port Hub
+        |// Similar to the simple Port, but uses only
+        |// one of its sink points.
+        | xor """.stripMargin,
+    "Duplicator"->"" ->
+      """// Duplicator
+        | dupl """.stripMargin,
+    "Semaphore"->"" ->
+      """// Semaphore
+        |// Has two interaction points: to signal the semaphore and
+        |// increment its internal counter c, and to test if the
+        |// semaphore is set, i.e., c ≥ 0, in which case succeeds
+        |// and decrements its counter, otherwise it can wait.
+        | semaphore """.stripMargin,
+    "Event"->"" ->
+      """// Event
+        | event """.stripMargin,
+    "DataEvent"->"" ->
+      """// DataEvent
+        | dataEvent """.stripMargin,
+    "Fifo"->"" ->
+      """// Fifo
+        | fifo """.stripMargin,
+    "Blackboard"->"" ->
+      """// Blackboard
+        | blackboard """.stripMargin,
+    "Resource"->"" ->
+      """// Resource
+        | resource """.stripMargin,
+//    "Alternating Port"->"" ->
+//      """// Alternating port
+//        |...""".stripMargin,
     "Test"->""->
       """// experiments
         |mainHub

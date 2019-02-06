@@ -147,7 +147,7 @@ object GraphsToJS {
               .data(nodes.filter(function(d) {
 //                 return (d.group >=6 && d.group <= 12 );
                 return (d.group == "mrg" || d.group == "dupl" || d.group == "xor" || d.group == "semaphore" ||
-                        d.group == "fifo" || d.group =="resource" || d.group == "data" || d.group == "blackboard"
+                        d.group == "fifo" || d.group =="resource" || d.group == "event" || d.group == "blackboard"
                         || d.group == "dataEvent" || d.group == "drain" || d.group == "port");
               }));
             var hub = hubs.enter();

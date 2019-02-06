@@ -17,7 +17,7 @@ trait VirtuosoParser extends preo.lang.Parser {
 
   override def inferPrim(s: String): Connector = s match {
     case "port"     => Prim(s,1,1)
-    case "data"     => Prim(s,1,1)
+    case "event"     => Prim(s,1,1)
     case "dataEvent"=> Prim(s,1,1)
     case "blackboard"=> Prim(s,1,1)
     case "semaphore"=> Prim(s,1,1)
