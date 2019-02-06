@@ -146,8 +146,9 @@ object GraphsToJS {
             var hubs = d3.select(".nodescircuit").selectAll(".hub")
               .data(nodes.filter(function(d) {
 //                 return (d.group >=6 && d.group <= 12 );
-                return (d.group == "mrg" || d.group == "dupl" || d.group == "xor" || d.group == "sema" ||
-                        d.group == "fifo" || d.group =="resource" || d.group == "data" || d.group == "bb");
+                return (d.group == "mrg" || d.group == "dupl" || d.group == "xor" || d.group == "semaphore" ||
+                        d.group == "fifo" || d.group =="resource" || d.group == "data" || d.group == "blackboard"
+                        || d.group == "dataEvent" || d.group == "drain" || d.group == "port");
               }));
             var hub = hubs.enter();
             var rg = hub.append("g").attr("class","hub");
@@ -364,7 +365,11 @@ object GraphsToJS {
   private def typeToGroup(nodeType: NodeType, extra: Set[Any],virtuoso:Boolean=false):String = nodeType match{
     case Source => if (extra.contains("component")) "wr"  else "src"
     case Sink   => if (extra.contains("component")) "rd"  else "snk"
-    case Mixed  => if (extra.contains("box"))       "box" else if (virtuoso ) if (extra.nonEmpty) extra.head.asInstanceOf[String]  else "xor" else "mix"
+    case Mixed  => if (extra.contains("box"))       "box" else
+      if (virtuoso ) {
+        if (extra.nonEmpty) extra.head.asInstanceOf[String]
+        else "xor"
+      } else "mix"
       // todo: probably "xor" should be "port", now just to show a P instead of a mixed node
   }
 
