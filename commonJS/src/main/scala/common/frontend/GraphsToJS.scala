@@ -146,7 +146,8 @@ object GraphsToJS {
             var hubs = d3.select(".nodescircuit").selectAll(".hub")
               .data(nodes.filter(function(d) {
 //                 return (d.group >=6 && d.group <= 12 );
-                return (d.group == "mrg" || d.group == "dupl" || d.group == "xor");
+                return (d.group == "mrg" || d.group == "dupl" || d.group == "xor" || d.group == "sema" ||
+                        d.group == "fifo" || d.group =="resource" || d.group == "data" || d.group == "bb");
               }));
             var hub = hubs.enter();
             var rg = hub.append("g").attr("class","hub");

@@ -17,7 +17,7 @@ class VirtuosoGraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 //  override  def toJs(g:Graph):Unit = scalajs.js.eval(GraphsToJS(g))
 
   override protected def drawGraph(): Unit = try{
-    graph = Graph.connToNodeGraph(dependency.get,true)
+    graph =  Graph.connToVirtuosoGraph(dependency.get,true)//Graph.connToNodeGraph(dependency.get,true)
     val size = graph.nodes.size
     val factor = Math.sqrt(size * 10000 / (densityCirc * widthCircRatio * heightCircRatio))
     val width = (widthCircRatio * factor).toInt

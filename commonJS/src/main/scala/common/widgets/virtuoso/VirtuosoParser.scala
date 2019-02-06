@@ -20,7 +20,7 @@ trait VirtuosoParser extends preo.lang.Parser {
     case "dataEvent"=> Prim(s,1,1)
     case "blackboard"=> Prim(s,1,1)
     case "semaphore"=> Prim(s,1,1)
-    case "resource" => Prim(s,1,0)
+    case "resource" => Prim(s,1,1)
     case "dupl"     => Prim("dupl",1,2)
     case "xor"      => Prim("xor",1,2)
     case "node"     => SubConnector(s,Repository.nodeGen(Prim("dupl",1,2)), Nil)
