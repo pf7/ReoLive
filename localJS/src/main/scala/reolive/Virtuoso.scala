@@ -1,9 +1,11 @@
 package reolive
 
 import common.widgets.virtuoso._
-import common.widgets.{GraphBox, OutputArea}
+import common.widgets.{Box, GraphBox, OutputArea}
 import org.scalajs.dom.html
 import org.singlespaced.d3js.d3
+import preo.DSL
+import preo.ast.{BVal, Connector}
 import preo.frontend.Show
 
 import scala.scalajs.js.annotation.JSExportTopLevel
@@ -85,6 +87,17 @@ object Virtuoso extends{
 
   }
 
+  def typeCheck(cstr:String): Unit = try {
+    val c = common.widgets.virtuoso.VirtuosoParser.parse(cstr).getOrElse(preo.DSL.id)
+
+    val typ = DSL.unsafeCheckVerbose(c)
+    val (_, rest) = DSL.unsafeTypeOf(c)
+    errors.message("Type: "+Show(typ))
+    if (rest != BVal(true))
+      errors.warning(s"Warning: did not check if ${Show(rest)}.")
+  }
+  catch Box.checkExceptions(errors)
+
 
   /**
     * Function that parses the expressions written in the input box and
@@ -95,8 +108,7 @@ object Virtuoso extends{
     inputBox.update()
 
     // temporary code
-    val c = common.widgets.virtuoso.VirtuosoParser.parse(inputBox.get).getOrElse(preo.DSL.id)
-    errors.message(Show(c)+": "+preo.DSL.unsafeTypeCheck(c))
+    typeCheck(inputBox.get)
 
     instanciate.update()
     //    information.update()

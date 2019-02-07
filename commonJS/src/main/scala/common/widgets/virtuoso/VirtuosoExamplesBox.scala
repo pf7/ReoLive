@@ -48,28 +48,45 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String])
     "Resource"->"" ->
       """// Resource
         | resource """.stripMargin,
+    "Custom"->""->
+      """// Round robin between 2 tasks, sending to an actuator
+        |t1 * t2;
+        |coord;
+        |act
+        |{
+        |  coord(s1?,p1?,s2?,p2?,get!) =
+        |    drain(s1,p2) drain(s2,p1)
+        |    drain(p1,f1) drain(p2,f2)
+        |    sync(p1,get) sync(p2,get)
+        |    event(f1,f2) eventFull(f2,f1),
+        |  [hide] t1 = writer*writer,
+        |  [hide] t2 = writer*writer,
+        |  [hide] act = reader,
+        |}
+        |
+      """.stripMargin
 //    "Alternating Port"->"" ->
 //      """// Alternating port
 //        |...""".stripMargin,
-    "Test"->""->
-      """// experiments
-        |mainHub
-        |{
-        |  [hide,T:intt, full:false, N:4] de1 = fifo,   // dataEvent
-        |  [hide,T:intt, full:true] de2 = fifofull, // dataEvent
-        |  dupl3 = dupls 3,
-        |
-        |   mainHub(s1?,p1?,s2?,p2?,g!) =
-        |     drain(s1,x2)
-        |     drain(x1,s2)
-        |     dupl3(p1,x1,x3,x4)
-        |     dupl3(p2,x2,x11,x12)
-        |     drain(x3,x5) dupl(x9,x5,x6)
-        |     de1(x6,x7) dupl(x7,x10,x8)
-        |     de2(x8,x9) drain(x10,x11)
-        |     merger(x4,x12,g) // port?
-        |}
-        |""".stripMargin
+//    "Test"->""->
+//      """// experiments
+//        |mainHub
+//        |{
+//        |  [hide,T:intt, full:false, N:4] de1 = fifo,   // dataEvent
+//        |  [hide,T:intt, full:true] de2 = fifofull, // dataEvent
+//        |  dupl3 = dupls 3,
+//        |
+//        |   mainHub(s1?,p1?,s2?,p2?,g!) =
+//        |     drain(s1,x2)
+//        |     drain(x1,s2)
+//        |     dupl3(p1,x1,x3,x4)
+//        |     dupl3(p2,x2,x11,x12)
+//        |     drain(x3,x5) dupl(x9,x5,x6)
+//        |     de1(x6,x7) dupl(x7,x10,x8)
+//        |     de2(x8,x9) drain(x10,x11)
+//        |     merger(x4,x12,g) // port?
+//        |}
+//        |""".stripMargin
   )
 
 }
