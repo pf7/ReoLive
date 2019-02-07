@@ -61,7 +61,7 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String])
         |    event(f1,f2) eventFull(f2,f1),
         |  [hide] t1 = writer*writer,
         |  [hide] t2 = writer*writer,
-        |  [hide] act = reader,
+        |  [hide] act = reader
         |}
         |
       """.stripMargin
