@@ -8,7 +8,11 @@ object AutomataToJS {
 
   def apply[A<:Automata](aut: A): String = generateJS(getNodes(aut), getLinks(aut))
 
-  private def generateJS(nodes: String, edges: String): String = {
+  def virtuosoToJs[A<:Automata](aut:A):String = generateJS(getNodes(aut),getLinks(aut),true)
+
+  /*todo: refactor in different methods or classes to avoid booolean virtuoso, or pass automata for
+   * better customization for each type of automata, reo, ifta, hub*/
+  private def generateJS(nodes: String, edges: String,virtuoso:Boolean = false): String = {
     println(nodes)
     println(edges)
     s"""
@@ -140,7 +144,7 @@ object AutomataToJS {
                   .data(linksAut);
               edgelabels.enter()
                   .append('text')
-                  .style("pointer-events", "none")
+//                  .style("pointer-events", "none")
                   .attr('class', 'edgelabel')
                   .attr('id', function (d, i) {return 'edgelabel' + i})
                   .attr('font-size', 10)
@@ -150,6 +154,7 @@ object AutomataToJS {
               d3.select(".labelsautomata")
                   .selectAll("textPath").remove();
 
+            if (${!virtuoso}) {
               var textpath = d3.select(".labelsautomata")
                   .selectAll(".edgelabel")
                   .append('textPath')
@@ -160,6 +165,55 @@ object AutomataToJS {
                   .text(function (d) {
                     return d.type;
                   });
+            } else {
+              var textpath = d3.select(".labelsautomata")
+                    .selectAll(".edgelabel")
+                    .append('textPath')
+                    .call(d3.drag()
+                    .on("start", dragstartedAut)
+                    .on("drag", draggedAut)
+                    .on("end", dragendedAut))
+                    .attr('xlink:href', function (d, i) {return '#edgepath' + i})
+                    .style("text-anchor", "middle")
+                    // .style("pointer-events", "none")
+                    .attr("startOffset", "50%");
+                  textpath.append("tspan")
+                    .attr("class", "guards")
+                    .style("fill","#008900")
+                    .on("mouseover", function(d) {
+                      d3.select(this).style("font-size","14px");})
+                    .on("mouseout", function(d) {
+                      d3.select(this).style("font-size", "10px");})
+                    .text(function (d) {
+                      var g = d.type.split("~")[0] ;
+                      return (g != "" ) ?  "〈" + g + "〉" : "";
+                    });
+                  textpath.append("tspan")
+                    .attr("class", "acts")
+                    .style("fill","#3B01E9")
+                    .on("mouseover", function(d) {
+                      d3.select(this).style("font-size","14px");})
+                    .on("mouseout", function(d) {
+                      d3.select(this).style("font-size", "10px");})
+                    .text(function (d) {
+                      var g = d.type.split("~")[0] ;
+                      var a = d.type.split("~")[1] ;
+                      var acts = (a !== undefined) ? a : ""
+                      return (g != "" && acts!= "")? ", " + acts : acts;
+                    }) ;
+                  textpath.append("tspan")
+                    .attr("class", "updates")
+                    .style("fill","#0F024F")
+                    .on("mouseover", function(d) {
+                      d3.select(this).style("font-size", "14px");})
+                    .on("mouseout", function(d) {
+                      d3.select(this).style("font-size", "10px");})
+                    .text(function (d) {
+                      var u = d.type.split("~")[2] ;
+//                      return (typeof u != 'undefined') ? (", " + u) : " ";
+                      return (u != "" && u!== undefined) ? ", " + u : "";
+                    });
+            }
           }
 
           function tickedAut() {
