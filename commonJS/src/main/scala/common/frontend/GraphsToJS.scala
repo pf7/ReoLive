@@ -367,9 +367,9 @@ object GraphsToJS {
     case Sink   => if (extra.contains("component")) "rd"  else "snk"
     case Mixed  => if (extra.contains("box"))       "box" else
       if (virtuoso ) {
-        if (extra.nonEmpty) extra.head.asInstanceOf[String]
-        else "xor"
-      } else "mix"
+        (extra - "mrg").headOption.getOrElse("xor").toString
+      }
+      else "mix"
       // todo: probably "xor" should be "port", now just to show a P instead of a mixed node
   }
 

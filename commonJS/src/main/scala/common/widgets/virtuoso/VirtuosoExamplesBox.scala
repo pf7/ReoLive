@@ -48,6 +48,8 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String])
     "Resource"->"" ->
       """// Resource
         | resource """.stripMargin,
+    "Alternator" -> "" ->
+      "dupl*dupl;\nfifo*drain*id;\nmerger",
     "Custom"->""->
       """// Round robin between 2 tasks, sending to an actuator
         |t1 * t2;
