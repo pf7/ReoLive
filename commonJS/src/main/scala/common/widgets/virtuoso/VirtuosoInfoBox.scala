@@ -47,55 +47,94 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   private def showInfo(): Unit = try {
     if(box!=null) {
       box.text("")
-      aut = Automata[HubAutomata](dependency.get).serialize.simplify
+      aut = Automata.fromOneToOneSimple[HubAutomata](dependency.get).serialize.simplify
       //    aut = dependency.get.asInstanceOf[HubAutomata]
 
       // Memory
+      //////////
       val (states, vars) = aut.memory
       var mem = 0
       var varsByType = vars.groupBy(_._1)
+      mem += (Math.log(states) / Math.log(2)).toInt
+      varsByType.foreach(v =>  mem += v._2.size * v._2.head._2)
       box.append("p")
         .append("strong")
-        .text("Memory")
+        .text(s"Memory: $mem bit${if( mem != 1) "s" else ""} \n")
       val list = box.append("ul")
+      list.attr("style","margin-bottom: 20pt;")
       list.append("li")
-        .text(s"${states} state(s): ${Math.log(states) / Math.log(2)} bit(s) \n")
-      mem += (Math.log(states) / Math.log(2)).toInt
+        .text(s"$states state(s): ${Math.log(states) / Math.log(2)} bit(s) \n")
       list.append("li")
         .text(if (vars.nonEmpty) {
           varsByType.map(v => s"${v._2.size} variable(s) of type ${v._1}: ${v._2.size} * ${v._2.head._2} bit(s)").mkString("\n")
         }
         else "0 variables: 0 bits")
-      varsByType.foreach(v =>  mem += v._2.size * v._2.head._2)
-      list.append("li")
-        .text(s"Total: $mem bit${if( mem != 1) "s" else ""} \n")
+//      list.append("li")
+//        .text(s"Total: $mem bit${if( mem != 1) "s" else ""} \n")
 
       // Transitions
       var loc = 0
-      box.append("p")
-        .append("strong")
-        .text("Size")
-      val list2 = box.append("ul")
-      list2.append("li")
-        .text(s"${aut.trans.size} transition(s), ${states} state(s), ${vars.size} variable(s) (1 loc each)")
       loc += aut.trans.size + states + vars.size
       var g = 0
       for (t <- aut.trans) if (t._2._3 != Ltrue) g += 1
-      list2.append("li")
-        .text(s"$g non-empty guards (1 loc each)")
       loc += g
       var ups = 0
       for (t <- aut.trans) ups += t._2._4.size
+      loc += ups
+      box.append("p")
+        .append("strong")
+        .text(s"Size: $loc loc${if(loc!=1)"s"} ")
+      val list2 = box.append("ul")
+      list2.attr("style","margin-bottom: 20pt;")
+      list2.append("li")
+        .text(s"${aut.trans.size} transition(s), ${states} state(s), ${vars.size} variable(s) (1 loc each)")
+      list2.append("li")
+        .text(s"$g non-empty guards (1 loc each)")
       list2.append("li")
         .text(s"$ups assignment instructions (1 loc each)")
-      loc += ups
-      list2.append("li")
-        .text(s"Total: $loc loc${if(loc!=1)"s"} \n")
+//      list2.append("li")
+//        .text(s"Total: $loc loc${if(loc!=1)"s"} \n")
+
+
+//      println(aut.show)
+//      println(aut.wherePortsAre.mkString("---\n - ","\n - ","\n---"))
+
+      // Ports in all states
+      val ports = aut.wherePortsAre.filter(_._2._3==states)
+      if (ports.nonEmpty) {
+        box.append("p")
+          .append("strong")
+          .text("Always Available")
+        val list3 = box.append("ul")
+        list3.attr("style","margin-bottom: 20pt;")
+
+        val (ps1, ps2) = ports.span(x => x._2._2)
+        for (p <- ps1) {
+          //          val grd = (p._2._3 - Ltrue).mkString(" or ")
+          list3.append("li").text(p._1._2.prim.name + " - " + findOrderNr(p._1._1, p._1._2.ins, p._1._2.outs) +
+            (if (p._2._1 == Ltrue) "" else " (has guards)"))
+        }
+        for (p <- ps2) {
+          //          val grd = (p._2._3 - Ltrue).mkString(" or ")
+          list3.append("li").text(p._1._2.prim.name + " - " + findOrderNr(p._1._1, p._1._2.ins, p._1._2.outs) + " (must syncrhonise) " +
+            (if (p._2._1 == Ltrue) "" else " (has guards)"))
+        }
+      }
+
 
     }
   }
   catch Box.checkExceptions(errorBox)
 
+  private def findOrderNr(n: Int, ins: List[Int], outs: List[Int]): String = {
+    ins.indexOf(n) match {
+      case -1 => outs.indexOf(n) match {
+        case -1 => "[no end found]"
+        case j => if (outs.size>1) s"out#${j+1}" else "out"
+      }
+      case i => if (ins.size>1) s"in#${i+1}" else "in"
+    }
+  }
   private def deleteInfo():Unit =
     box.text("")
 }

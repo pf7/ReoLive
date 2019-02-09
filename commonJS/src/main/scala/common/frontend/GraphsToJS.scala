@@ -148,7 +148,9 @@ object GraphsToJS {
 //                 return (d.group >=6 && d.group <= 12 );
                 return (d.group == "mrg" || d.group == "dupl" || d.group == "xor" || d.group == "semaphore" ||
                         d.group == "fifo" || d.group =="resource" || d.group == "event" || d.group == "blackboard"
-                        || d.group == "dataEvent" || d.group == "drain" || d.group == "port");
+                        || d.group == "dataEvent" || d.group == "drain" || d.group == "port"
+                        || d.group == "eventFull" || d.group == "dataEventFull" || d.group == "fifoFull"
+                        || d.group == "blackboardFull");
               }));
             var hub = hubs.enter();
             var rg = hub.append("g").attr("class","hub");
