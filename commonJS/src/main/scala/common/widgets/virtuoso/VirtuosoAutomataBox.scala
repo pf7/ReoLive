@@ -40,6 +40,8 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     try{
 //      automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get)//
       automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get).serialize.simplify
+      //println(s"%%%\n${automaton.show}\n%%%")
+      //println(s"${automaton.getTrans.mkString(" > ")}")
       val sizeAut = automaton.getStates.size
       //              println("########")
       //              println(aut)
