@@ -27,7 +27,10 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   override def get: Automata = automaton
 
   override def init(div: Block, visible: Boolean): Unit = {
-    svg= GraphBox.appendSvg(panelBox(div, visible),"automata")
+    svg= GraphBox.appendSvg(panelBox(div, visible,buttons=List(
+      Left("port names")      -> (()=> if (isVisible) drawAutomata(true) else (),"See port names"),
+      Left("hub names")      -> (()=> if (isVisible) drawAutomata(false) else (),"See hub names")
+    )),"automata")
     dom.document.getElementById("Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {e: MouseEvent => if(!isVisible) drawAutomata() else deleteAutomaton()}
 
@@ -36,7 +39,7 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   override def update(): Unit = if(isVisible) drawAutomata()
 
 
-  private def drawAutomata(): Unit =
+  private def drawAutomata(portNames:Boolean=false): Unit =
     try{
 //      automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get)//
       automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get).serialize.simplify
@@ -49,7 +52,7 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
       val height = (heightAutRatio * factorAut).toInt
       svg.attr("viewBox", s"00 00 $width $height")
 
-      scalajs.js.eval(AutomataToJS.virtuosoToJs(automaton))
+      scalajs.js.eval(AutomataToJS.virtuosoToJs(automaton,portNames))
     }
     catch Box.checkExceptions(errorBox)
 

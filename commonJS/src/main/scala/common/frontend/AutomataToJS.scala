@@ -8,7 +8,7 @@ object AutomataToJS {
 
   def apply[A<:Automata](aut: A): String = generateJS(getNodes(aut), getLinks(aut))
 
-  def virtuosoToJs[A<:Automata](aut:A):String = generateJS(getNodes(aut),getLinks(aut),true)
+  def virtuosoToJs[A<:Automata](aut:A,portNames:Boolean):String = generateJS(getNodes(aut),getLinks(aut,portNames),true)
 
   /*todo: refactor in different methods or classes to avoid booolean virtuoso, or pass automata for
    * better customization for each type of automata, reo, ifta, hub*/
@@ -279,10 +279,10 @@ object AutomataToJS {
   }
 
   private def getNodes[A<:Automata](aut: A): String =
-    aut.getTrans.flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
+    aut.getTrans().flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
 
-  private def getLinks[A<:Automata](aut: A): String =
-    aut.getTrans.flatMap(processEdge).mkString("[",",","]")
+  private def getLinks[A<:Automata](aut: A,portNames:Boolean=false): String =
+    aut.getTrans(portNames).flatMap(processEdge).mkString("[",",","]")
 
 
   private def processNode(initAut:Int,trans:(Int,Any,String,Int)): Set[String] = trans match{
