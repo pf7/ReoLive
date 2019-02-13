@@ -63,7 +63,7 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
       val list = box.append("ul")
       list.attr("style","margin-bottom: 20pt;")
       list.append("li")
-        .text(s"$states state(s): ${Math.log(states) / Math.log(2)} bit(s) \n")
+        .text(s"$states state(s): ${Math.ceil(Math.log(states) / Math.log(2)).toInt} bit(s) \n")
       list.append("li")
         .text(if (vars.nonEmpty) {
           varsByType.map(v => s"${v._2.size} variable(s) of type ${v._1}: ${v._2.size} * ${v._2.head._2} bit(s)").mkString("\n")
@@ -120,8 +120,6 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
             (if (p._2._1 == Ltrue) "" else " (has guards)"))
         }
       }
-
-
     }
   }
   catch Box.checkExceptions(errorBox)

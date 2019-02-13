@@ -4,27 +4,27 @@
 sbt fastOptJS
 
 # link JS at localJS resources (html)
-ln -sfr localJS/target/scala-2.12/local_js-fastopt.js \
+cp localJS/target/scala-2.12/local_js-fastopt.js \
         localJS/src/main/resources/
-ln -sfr localJS/target/scala-2.12/local_js-fastopt.js.map \
+cp localJS/target/scala-2.12/local_js-fastopt.js.map \
         localJS/src/main/resources/ 
 
 # clean (if copies exist)
-rm server/app/assets/javascripts/local_js-opt.js \
-   server/app/assets/javascripts/local_js-opt.js.map \
-   server/app/assets/javascripts/remote_js-opt.js \
-   server/app/assets/javascripts/remote_js-opt.js.map
+#rm server/app/assets/javascripts/local_js-opt.js \
+#   server/app/assets/javascripts/local_js-opt.js.map \
+#   server/app/assets/javascripts/remote_js-opt.js \
+#   server/app/assets/javascripts/remote_js-opt.js.map
 
 # Link JS from localJS to the server
-ln -sfr localJS/target/scala-2.12/local_js-fastopt.js \
+cp localJS/target/scala-2.12/local_js-fastopt.js \
         server/app/assets/javascripts/local_js-opt.js
-ln -sfr localJS/target/scala-2.12/local_js-fastopt.js.map \
+cp localJS/target/scala-2.12/local_js-fastopt.js.map \
         server/app/assets/javascripts/
 
 # Link JS from remoteJS to the server
-ln -sfr remoteJS/target/scala-2.12/remote_js-fastopt.js \
+cp remoteJS/target/scala-2.12/remote_js-fastopt.js \
         server/app/assets/javascripts/remote_js-opt.js
-ln -sfr remoteJS/target/scala-2.12/remote_js-fastopt.js.map \
+cp remoteJS/target/scala-2.12/remote_js-fastopt.js.map \
         server/app/assets/javascripts/
 
 # Copy stylesheet from localJS to server

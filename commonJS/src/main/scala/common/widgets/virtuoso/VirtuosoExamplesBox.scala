@@ -51,22 +51,63 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String])
     "Alternator" -> "" ->
       "dupl*dupl;\nfifo*drain*id;\nmerger",
     "Custom"->""->
-      """// Round robin between 2 tasks, sending to an actuator
-        |t1 * t2;
+        """
+          |// Round robin between 2 tasks, sending to an actuator
+          |t1 * t2;
+          |coord;
+          |act
+          |{
+          |  dupl1 = dupls 3,
+          |  dupl2 = dupls 3,
+          |
+          |  coord(s1?,p1?,s2?,p2?,get!) =
+          |    dupl1(p1,d11,d12,d13)
+          |    dupl2(p2,d21,d22,d23)
+          |    drain(s1,d21) drain(s2,d11)
+          |    drain(d12,d42) drain(d22,d32)
+          |    dupl(e1,d41,d42) dupl(e2,d32,d31)
+          |    event(d31,e1) eventFull(d41,e2)
+          |    merger(d13,d23,get),
+          |  [hide] t1 = writer*writer,
+          |  [hide] t2 = writer*writer,
+          |  [hide] act = reader
+          |}
+        """.stripMargin,
+    "Custom Open"->""->
+      """
+        |// Round robin between 2 tasks, sending to an actuator
+        |s1 * p1 * s2 * p2;
         |coord;
-        |act
+        |get
         |{
-        |  coord(s1?,p1?,s2?,p2?,get!) =
-        |    drain(s1,p2) drain(s2,p1)
-        |    drain(p1,f1) drain(p2,f2)
-        |    sync(p1,get) sync(p2,get)
-        |    event(f1,f2) eventFull(f2,f1),
-        |  [hide] t1 = writer*writer,
-        |  [hide] t2 = writer*writer,
-        |  [hide] act = reader
-        |}
+        |  dupl1 = dupls 3,
+        |  dupl2 = dupls 3,
         |
+        |  coord(s1?,p1?,s2?,p2?,get!) =
+        |    dupl1(p1,d11,d12,d13)
+        |    dupl2(p2,d21,d22,d23)
+        |    drain(s1,d21) drain(s2,d11)
+        |    drain(d12,d42) drain(d22,d32)
+        |    dupl(e1,d41,d42) dupl(e2,d32,d31)
+        |    event(d31,e1) eventFull(d41,e2)
+        |    merger(d13,d23,get)
+        |}
       """.stripMargin
+//      """// Round robin between 2 tasks, sending to an actuator
+//        |t1 * t2;
+//        |coord;
+//        |act
+//        |{
+//        |  coord(s1?,p1?,s2?,p2?,get!) =
+//        |    drain(s1,p2) drain(s2,p1)
+//        |    drain(p1,f1) drain(p2,f2)
+//        |    sync(p1,get) sync(p2,get)
+//        |    event(f1,f2) eventFull(f2,f1),
+//        |  [hide] t1 = writer*writer,
+//        |  [hide] t2 = writer*writer,
+//        |  [hide] act = reader
+//        |}
+//      """.stripMargin
 //    "Alternating Port"->"" ->
 //      """// Alternating port
 //        |...""".stripMargin,
