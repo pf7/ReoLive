@@ -1,7 +1,7 @@
 package reolive
 
 import common.widgets.virtuoso._
-import common.widgets.{Box, GraphBox, OutputArea}
+import common.widgets.{Box, GraphBox, OutputArea, Setable}
 import org.scalajs.dom.html
 import org.singlespaced.d3js.d3
 import preo.DSL
@@ -53,14 +53,14 @@ object Virtuoso extends{
     errors = new OutputArea
 
     // add InputArea
-    inputBox = new VirtuosoBox(reload(),"fifo",errors)
+    inputBox = new VirtuosoBox(reload(),"port",errors)
     inputBox.init(leftColumn,true)
     errors.init(leftColumn)
 
     //    typeInfo = new TypeBox(inputBox, errors)
     //    typeInfo.init(colDiv1,true)
 
-    examples = new VirtuosoExamplesBox(reload(),inputBox)
+    examples = new VirtuosoExamplesBox(reload(),inputBox,errors)
     examples.init(leftColumn,true)
 
     //    information = new HProgBox(inputBox, errors)

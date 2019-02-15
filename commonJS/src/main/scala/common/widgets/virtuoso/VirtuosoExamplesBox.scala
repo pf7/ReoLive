@@ -2,11 +2,11 @@ package common.widgets.virtuoso
 
 import common.widgets.{ButtonsBox, Setable}
 
-class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String])
+class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Setable[String])
   extends ButtonsBox(reload, inputBox, inputBox){
 
   override protected val buttons: Seq[((String,String),String)] = Seq(
-    "Port"->"" ->
+    "Port"->"Forwards data from sources to sinks" ->
       """// Port Hub
         |// Forwards data from its source to its sink, acting
         |// as a synchronisation mechanism between two tasks.

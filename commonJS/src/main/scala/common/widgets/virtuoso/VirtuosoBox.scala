@@ -17,7 +17,7 @@ class VirtuosoBox(globalReload: =>Unit, default: String, outputBox: OutputArea)
   //      Left("MA") -> (() => debugNames, "Map actions in the formula to sets of actions in the mCRL2 specification")
       )
 
-    override protected val codemirror: String = "preo"
+    override protected val codemirror: String = "virtuoso"
 
     override def reload(): Unit = {
       update()

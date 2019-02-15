@@ -3,7 +3,7 @@ package common.widgets
 import org.scalajs.dom
 import org.singlespaced.d3js.Selection
 
-class OutputArea {
+class OutputArea extends Setable[String] {
   type Block = Selection[dom.EventTarget]
 
   var outputs: Block = _
@@ -23,6 +23,8 @@ class OutputArea {
     val out = outputs.append("div").attr("class", "alert alert-warning")
     for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").text(s)
   }
+
+  override def setValue(msg: String): Unit = warning(msg)
 
   def clear(): Unit = outputs.text("")
 }
