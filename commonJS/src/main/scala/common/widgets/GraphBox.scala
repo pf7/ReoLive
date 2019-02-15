@@ -40,8 +40,8 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     val width = (widthCircRatio * factor).toInt
     val height = (heightCircRatio * factor).toInt
     box.attr("viewBox", s"00 00 $width $height")
-    println(dependency.get)
-    println(graph)
+    //println("Drawing graph - source: "+dependency.get)
+    //println("Drawing graph - produced: "+ graph)
 //    toJs(graph)
     scalajs.js.eval(GraphsToJS(graph))
   }

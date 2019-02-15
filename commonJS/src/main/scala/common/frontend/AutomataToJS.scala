@@ -13,8 +13,8 @@ object AutomataToJS {
   /*todo: refactor in different methods or classes to avoid booolean virtuoso, or pass automata for
    * better customization for each type of automata, reo, ifta, hub*/
   private def generateJS(nodes: String, edges: String,virtuoso:Boolean = false): String = {
-    println(nodes)
-    println(edges)
+    // println(nodes)
+    // println(edges)
     s"""
         buildAut();
         function buildAut() {

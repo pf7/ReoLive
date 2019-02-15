@@ -1,12 +1,11 @@
 package common.widgets.virtuoso
 
 import common.widgets.{Box, OutputArea}
-
-import hub.{HubAutomata, Var}
+import hub.backend.Simplify
+import hub.{HubAutomata, Ltrue}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
-import hub.{HubAutomata, Ltrue, Var}
-import preo.ast.CoreConnector
+import preo.ast.{CPrim, CoreConnector}
 import preo.backend.Automata
 
 /**
@@ -76,14 +75,16 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
       var loc = 0
       loc += aut.trans.size + states + vars.size
       var g = 0
-      for (t <- aut.trans) if (t._2._3 != Ltrue) g += 1
+      for (t <- aut.trans) {
+        if (Simplify(t._2._3) != Ltrue) g += 1
+      }
       loc += g
       var ups = 0
       for (t <- aut.trans) ups += t._2._4.size
       loc += ups
       box.append("p")
         .append("strong")
-        .text(s"Size: $loc loc${if(loc!=1)"s"} ")
+        .text(s"Code size estimation: $loc loc")
       val list2 = box.append("ul")
       list2.attr("style","margin-bottom: 20pt;")
       list2.append("li")
@@ -111,12 +112,12 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
         val (ps1, ps2) = ports.span(x => x._2._2)
         for (p <- ps1) {
           //          val grd = (p._2._3 - Ltrue).mkString(" or ")
-          list3.append("li").text(p._1._2.prim.name + " - " + findOrderNr(p._1._1, p._1._2.ins, p._1._2.outs) +
+          list3.append("li").text(getName(p._1._2.prim) + " - " + findOrderNr(p._1._1, p._1._2.ins, p._1._2.outs) +
             (if (p._2._1 == Ltrue) "" else " (has guards)"))
         }
         for (p <- ps2) {
           //          val grd = (p._2._3 - Ltrue).mkString(" or ")
-          list3.append("li").text(p._1._2.prim.name + " - " + findOrderNr(p._1._1, p._1._2.ins, p._1._2.outs) + " (must syncrhonise) " +
+          list3.append("li").text(getName(p._1._2.prim) + " - " + findOrderNr(p._1._1, p._1._2.ins, p._1._2.outs) + " (must syncrhonise) " +
             (if (p._2._1 == Ltrue) "" else " (has guards)"))
         }
       }
@@ -132,6 +133,13 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
       }
       case i => if (ins.size>1) s"in#${i+1}" else "in"
     }
+  }
+  private def getName(prim: CPrim): String = {
+    if (prim.name == "node") {
+      if (prim.extra contains "dupl") "dupl"
+      else "port"
+    }
+    else prim.name
   }
   private def deleteInfo():Unit =
     box.text("")

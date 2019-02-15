@@ -10,7 +10,7 @@ object GraphsToJS {
   def toVirtuosoJs(graph:Graph):String = generateJS(getNodes(graph,virtuoso=true), getLinks(graph))
 
   private def generateJS(nodes: String, edges: String): String = {
-    println(s"""var graph = {"nodescircuit": $nodes, "linkscircuit": $edges};""")
+    // println(s"""var graph = {"nodescircuit": $nodes, "linkscircuit": $edges};""")
     s"""
         var svg = d3.select("#circuit");
         var vbox = svg.attr('viewBox').split(" ")
