@@ -50,6 +50,13 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String])
         | resource """.stripMargin,
     "Alternator" -> "" ->
       "dupl*dupl;\nfifo*drain*id;\nmerger",
+    "Sequencer"->""->
+      """// outputs a value alternating between 3 outputs
+        |seq3 {
+        | seq3 (x!,y!,z!) =
+        |   event(a,b) event(c,d) eventFull(e,f)
+        |   dupl(b,c,x) dupl(d,e,y) dupl(f,a,z)
+        |}""".stripMargin,
     "Custom"->""->
         """
           |// Round robin between 2 tasks, sending to an actuator

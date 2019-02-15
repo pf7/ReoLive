@@ -54,7 +54,7 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
       val (states, vars) = aut.memory
       var mem = 0
       var varsByType = vars.groupBy(_._1)
-      mem += (Math.log(states) / Math.log(2)).toInt
+      mem += Math.ceil(Math.log(states) / Math.log(2)).toInt
       varsByType.foreach(v =>  mem += v._2.size * v._2.head._2)
       box.append("p")
         .append("strong")
