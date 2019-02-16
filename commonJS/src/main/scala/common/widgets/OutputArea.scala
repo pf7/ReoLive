@@ -20,11 +20,12 @@ class OutputArea extends Setable[String] {
     for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").text(s)
   }
   def warning(msg:String): Unit ={
-    val out = outputs.append("div").attr("class", "alert alert-warning")
-    for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").text(s)
   }
 
-  override def setValue(msg: String): Unit = warning(msg)
+  override def setValue(msg: String): Unit = if (msg.nonEmpty) {
+    val out = outputs.append("div").attr("class", "alert alert-warning")
+    for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").html(s)
+  }
 
   def clear(): Unit = outputs.text("")
 }

@@ -21,6 +21,7 @@ object Virtuoso extends{
 
   var examples: VirtuosoExamplesBox = _
   var errors: OutputArea = _
+  var descr: OutputArea = _
 
   var aut: VirtuosoAutomataBox = _
 
@@ -51,36 +52,29 @@ object Virtuoso extends{
       .attr("class", "rightside")
 
     errors = new OutputArea
+//    object Description extends Setable[String] {
+//      override def setValue(value: String): Unit = {println("hmmm... "+value); errors.warning(value)}
+//      override def get: Unit = {}
+//      override def init(div: Description.Block, visible: Boolean): Unit = ???
+//      override def update(): Unit = ???
+//    }
+    descr = new OutputArea {
+      override def setValue(msg: String): Unit = {clear(); super.setValue(msg)}
+    }
 
-    // add InputArea
     inputBox = new VirtuosoBox(reload(),"port",errors)
+    instanciate = new VirtuosoInstantiate(inputBox,errors)
+    graphics = new VirtuosoGraphBox(instanciate,errors)
+    aut = new VirtuosoAutomataBox(instanciate,errors)
+    infoBox = new VirtuosoInfoBox(instanciate,errors)
+    examples = new VirtuosoExamplesBox(softReload(),inputBox,descr)
+
     inputBox.init(leftColumn,true)
     errors.init(leftColumn)
-
-    //    typeInfo = new TypeBox(inputBox, errors)
-    //    typeInfo.init(colDiv1,true)
-
-    examples = new VirtuosoExamplesBox(reload(),inputBox,errors)
+    descr.init(leftColumn)
     examples.init(leftColumn,true)
-
-    //    information = new HProgBox(inputBox, errors)
-    //    information.init(leftColumn,true)
-
-    instanciate = new VirtuosoInstantiate(inputBox,errors)
-
-//    typeInfo     = new TypeBox(inputBox, errors)     // do not place
-//    instanceInfo = new InstanceBox(typeInfo, errors) // do not place
-//    typeInfo.init(rightColumn,visible = true)
-//    instanceInfo.init(rightColumn,visible = true)
-
-
-    graphics = new VirtuosoGraphBox(instanciate,errors)
     graphics.init(rightColumn,visible = true)
-
-    aut = new VirtuosoAutomataBox(instanciate,errors)
     aut.init(rightColumn,false)
-
-    infoBox = new VirtuosoInfoBox(instanciate,errors)
     infoBox.init(leftColumn,false)
 
     reload()
@@ -105,15 +99,25 @@ object Virtuoso extends{
     */
   private def reload(): Unit = {
     errors.clear()
+    descr.clear()
     inputBox.update()
 
     // temporary code
-    typeCheck(inputBox.get)
+//    typeCheck(inputBox.get)
 
     instanciate.update()
     //    information.update()
 //    typeInfo.update()
 //    instanceInfo.update()
+    graphics.update()
+    aut.update()
+    infoBox.update()
+  }
+  private def softReload(): Unit = {
+    errors.clear()
+    inputBox.update()
+    typeCheck(inputBox.get)
+    instanciate.update()
     graphics.update()
     aut.update()
     infoBox.update()

@@ -3,64 +3,89 @@ package common.widgets.virtuoso
 import common.widgets.{ButtonsBox, Setable}
 
 class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Setable[String])
-  extends ButtonsBox(reload, inputBox, inputBox){
+  extends ButtonsBox(reload, msgBox, inputBox){
 
   override protected val buttons: Seq[((String,String),String)] = Seq(
-    "Port"->"Forwards data from sources to sinks" ->
-      """// Port Hub
-        |// Forwards data from its source to its sink, acting
-        |// as a synchronisation mechanism between two tasks.
-        |// There is no buffer capacity, i.e. data is transfer
-        |// directly between the two tasks.
-        | port """.stripMargin,
-    "Port - 2 sources"->"" ->
-      """// Merging Port Hub
-        |// Similar to the simple Port, but uses only
-        |// one of its source points.
-        | merger """.stripMargin,
-    "Port - 2 sinks"->"" ->
-      """// XOR Port Hub
-        |// Similar to the simple Port, but uses only
-        |// one of its sink points.
-        | xor """.stripMargin,
-    "Duplicator"->"" ->
-      """// Duplicator
-        | dupl """.stripMargin,
-    "Semaphore"->"" ->
-      """// Semaphore
-        |// Has two interaction points: to signal the semaphore and
-        |// increment its internal counter c, and to test if the
-        |// semaphore is set, i.e., c ≥ 0, in which case succeeds
-        |// and decrements its counter, otherwise it can wait.
-        | semaphore """.stripMargin,
-    "Event"->"" ->
-      """// Event
-        | event """.stripMargin,
-    "DataEvent"->"" ->
-      """// DataEvent
-        | dataEvent """.stripMargin,
-    "Fifo"->"" ->
-      """// Fifo
-        | fifo """.stripMargin,
-    "Blackboard"->"" ->
-      """// Blackboard
-        | blackboard """.stripMargin,
-    "Resource"->"" ->
-      """// Resource
-        | resource """.stripMargin,
-    "Alternator" -> "" ->
-      "dupl*dupl;\nfifo*drain*id;\nmerger",
-    "Sequencer"->""->
-      """// outputs a value alternating between 3 outputs
-        |seq3 {
-        | seq3 (x!,y!,z!) =
-        |   event(a,b) event(c,d) eventFull(e,f)
-        |   dupl(b,c,x) dupl(d,e,y) dupl(f,a,z)
-        |}""".stripMargin,
-    "Custom"->""->
-        """
-          |// Round robin between 2 tasks, sending to an actuator
-          |t1 * t2;
+    "Port"->("<p><strong>Port Hub</strong></p>Forwards data from its source to its sink, acting" +
+      " as a synchronisation mechanism between two tasks." +
+      " There is no buffer capacity, i.e.data is transfer" +
+      " directly between the two tasks.")->
+      """port """.stripMargin,
+    "Port - 2 sources"
+      ->"""<p><strong>Merging Port Hub</strong></p>
+          | <p>Similar to the simple Port, but uses only one of its source points.</p>""".stripMargin
+      -> "merger",
+    "Port - 2 sinks"
+      -> ("<p><strong>XOR Port Hub</strong></p>"+
+          "Similar to the simple Port, but uses only "+
+          "one of its sink points.")
+      -> "xor",
+    "Duplicator"
+      ->("<p><<strong>Duplicator</p></strong>" +
+         "Similar to the simplr Port, duplicates incoming data to all of its sink poins." +
+         " It can only receive data once all its sources are ready to receive data.")
+      -> "dupl",
+    "Semaphore"
+      ->("<p><strong>Semaphore</strong></p>"+
+      "Has two interaction points: to signal the semaphore and "+
+      "increment its internal counter c, and to test if the "+
+      "semaphore is set, i.e., c ≥ 0, in which case succeeds "+
+      "and decrements its counter, otherwise it can wait. ")
+      -> " semaphore ",
+    "Event"
+      -> ("<p><strong>Event</strong></p>" +
+      "It has two waiting lists for two kind of requests: raise – signals the " +
+      "occurrence of an event, and test – checks if an event happened, in which case " +
+      "succeeds and deactivates the signal, otherwise it can wait.")
+      -> "event ",
+    "DataEvent"
+      -> ("<p><strong>Data Event</strong></p>" +
+      "Similar to the Event hub with the additional capacity to buffer " +
+      "a data element sent with the raise signal. If the signal has been raised, the test " +
+      "signal receives the buffered data and deactivates the signal, otherwise it can wait. " +
+      "Data can be overridden, i.e.raise always succeeds. An additional waiting " +
+      "lists for clear requests is used to clear the buffer, mainly to facilitate interfacing " +
+      "with device drivers.taEvent" +
+      "")
+      -> "dataEvent ",
+    "Resource"
+      -> ("<p><strong>Resource</strong></p>" +
+      "Has two waiting lists for two kind of requests: lock – signals the " +
+      "Resource acquisition of a logical resource, which succeeds if the resource is free, otherwise " +
+      "it can wait, and unlock – signals the release of an acquired resource, which " +
+      "succeeds if the resource had been acquire by the same task that released it, " +
+      "failing otherwise.")
+      -> "resource",
+    "Fifo"
+      ->("<p><strong>Fifo</strong></p>" +
+      "Has two waiting lists for two kind of requests: enqueue – signals the " +
+      "entering of some data into the queue, which succeeds if the queue is not full, " +
+      "and dequeue – signals data leaving the queue, which succeeds if the queue is not " +
+      "empty. The presented Fifo can store at most 1 element - a general Fifo can store up to a fixed number N of elements.")
+      -> "fifo ",
+    "Blackboard"
+      ->("<p><strong>Blackboard</strong></p>" +
+      "Acts like a protected shared data area. A update waiting list " +
+      "is used to set its content (whereby a sequence number is incremented), a read " +
+      "waiting list is used to read the data, and a count waiting list is used to obtain " +
+      "the sequence number, allowing tasks to attest the freshness of the data. A special " +
+      "data element, CLR, can be sent with the update signal to clear the buffer.")
+      -> "blackboard ",
+    "Alternator" ->
+      ("<p><strong>Alternator</strong></p>" +
+        "For every pair of values received by two waiting lists, it forwards them to the output. " +
+        "It sends the values always in the same order, and stores at most 1 value.") ->
+        "dupl*dupl;\nfifo*drain*id;\nmerger",
+    "Sequencer"
+      ->"Outputs a value alternating between 3 outputs"
+      ->"""seq3 {
+          | seq3 (x!,y!,z!) =
+          |   event(a,b) event(c,d) eventFull(e,f)
+          |   dupl(b,c,x) dupl(d,e,y) dupl(f,a,z)
+          |}""".stripMargin,
+  "Custom"
+    ->"Round robin between 2 tasks, sending to an actuator. Tasks are modelled as components always ready to interact."
+    -> """t1 * t2;
           |coord;
           |act
           |{
@@ -80,10 +105,9 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
           |  [hide] act = reader
           |}
         """.stripMargin,
-    "Custom Open"->""->
-      """
-        |// Round robin between 2 tasks, sending to an actuator
-        |s1 * p1 * s2 * p2;
+  "Custom Open"
+    ->"Round robin between 2 tasks, sending to an actuator. Tasks are not modelled - only the coordinator."
+    -> """s1 * p1 * s2 * p2;
         |coord;
         |get
         |{
