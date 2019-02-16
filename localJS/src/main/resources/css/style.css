@@ -139,3 +139,17 @@
 button {
     margin: 1px;
 }
+
+
+/* FOR SMALLER SCREENS */
+@media (max-width: 750px) {
+  .rightside{
+      float: none;
+      width: 100%;
+      padding-left: 0;
+  }
+  .leftside{
+      width:100%;
+      float: none;
+  }
+}
