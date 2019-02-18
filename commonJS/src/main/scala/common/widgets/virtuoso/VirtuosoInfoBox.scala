@@ -101,6 +101,8 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 //      println(aut.wherePortsAre.mkString("---\n - ","\n - ","\n---"))
 
       // Ports in all states
+      //println("## aut: "+aut.show)
+      //println("## where ports are: "+aut.wherePortsAre.mkString("\n + "))
       val ports = aut.wherePortsAre.filter(_._2._3==states)
       if (ports.nonEmpty) {
         box.append("p")
