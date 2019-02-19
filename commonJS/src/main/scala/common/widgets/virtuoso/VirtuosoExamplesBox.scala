@@ -83,7 +83,26 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
           |   event(a,b) event(c,d) eventFull(e,f)
           |   dupl(b,c,x) dupl(d,e,y) dupl(f,a,z)
           |}""".stripMargin,
-  "Custom"
+  "RoundRobin tasks"
+    ->"Round robin between 2 tasks, sending to an actuator. Tasks are not modelled - only the coordinator."
+    -> """s1 * p1 * s2 * p2;
+        |coord;
+        |get
+        |{
+        |  dupl1 = dupls 3,
+        |  dupl2 = dupls 3,
+        |
+        |  coord(s1?,p1?,s2?,p2?,get!) =
+        |    dupl1(p1,d11,d12,d13)
+        |    dupl2(p2,d21,d22,d23)
+        |    drain(s1,d21) drain(s2,d11)
+        |    drain(d12,d42) drain(d22,d32)
+        |    dupl(e1,d41,d42) dupl(e2,d32,d31)
+        |    event(d31,e1) eventFull(d41,e2)
+        |    merger(d13,d23,get)
+        |}
+      """.stripMargin,
+  "RoundRobin tasks - with components"
     ->"Round robin between 2 tasks, sending to an actuator. Tasks are modelled as components always ready to interact."
     -> """t1 * t2;
           |coord;
@@ -104,26 +123,7 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
           |  [hide] t2 = writer*writer,
           |  [hide] act = reader
           |}
-        """.stripMargin,
-  "Custom Open"
-    ->"Round robin between 2 tasks, sending to an actuator. Tasks are not modelled - only the coordinator."
-    -> """s1 * p1 * s2 * p2;
-        |coord;
-        |get
-        |{
-        |  dupl1 = dupls 3,
-        |  dupl2 = dupls 3,
-        |
-        |  coord(s1?,p1?,s2?,p2?,get!) =
-        |    dupl1(p1,d11,d12,d13)
-        |    dupl2(p2,d21,d22,d23)
-        |    drain(s1,d21) drain(s2,d11)
-        |    drain(d12,d42) drain(d22,d32)
-        |    dupl(e1,d41,d42) dupl(e2,d32,d31)
-        |    event(d31,e1) eventFull(d41,e2)
-        |    merger(d13,d23,get)
-        |}
-      """.stripMargin
+        """.stripMargin
 //      """// Round robin between 2 tasks, sending to an actuator
 //        |t1 * t2;
 //        |coord;
