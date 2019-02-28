@@ -34,7 +34,8 @@ class VirtuosoInstantiate(code: Box[String], errorBox: OutputArea)
     VirtuosoParser.parse(s) match {
       case Right(result) =>
         val _ = DSL.unsafeCheckVerbose(result)
-        val (_, rest) = DSL.unsafeTypeOf(result)
+        val (typ, rest) = DSL.unsafeTypeOf(result)
+        errorBox.message("Type: "+Show(typ))
         if (rest != BVal(true))
           errorBox.warning(s"Warning: did not check if ${Show(rest)}.")
         Right(result)

@@ -15,7 +15,7 @@ object Virtuoso extends{
   var inputBox: VirtuosoBox = _
   var graphics: GraphBox = _
 
-  var instanciate: VirtuosoInstantiate = _
+  var instantiate: VirtuosoInstantiate = _
 
   var infoBox: VirtuosoInfoBox = _
 
@@ -63,10 +63,10 @@ object Virtuoso extends{
     }
 
     inputBox = new VirtuosoBox(reload(),"port",errors)
-    instanciate = new VirtuosoInstantiate(inputBox,errors)
-    graphics = new VirtuosoGraphBox(instanciate,errors)
-    aut = new VirtuosoAutomataBox(instanciate,errors)
-    infoBox = new VirtuosoInfoBox(instanciate,errors)
+    instantiate = new VirtuosoInstantiate(inputBox,errors)
+    graphics = new VirtuosoGraphBox(instantiate,errors)
+    aut = new VirtuosoAutomataBox(instantiate,errors)
+    infoBox = new VirtuosoInfoBox(instantiate,errors)
     examples = new VirtuosoExamplesBox(softReload(),inputBox,descr)
 
     inputBox.init(leftColumn,true)
@@ -81,16 +81,16 @@ object Virtuoso extends{
 
   }
 
-  def typeCheck(cstr:String): Unit = try {
-    val c = common.widgets.virtuoso.VirtuosoParser.parse(cstr).getOrElse(preo.DSL.id)
-
-    val typ = DSL.unsafeCheckVerbose(c)
-    val (_, rest) = DSL.unsafeTypeOf(c)
-    errors.message("Type: "+Show(typ))
-    if (rest != BVal(true))
-      errors.warning(s"Warning: did not check if ${Show(rest)}.")
-  }
-  catch Box.checkExceptions(errors)
+//  def typeCheck(cstr:String): Unit = try {
+//    val c = common.widgets.virtuoso.VirtuosoParser.parse(cstr).getOrElse(preo.DSL.id)
+//
+//    val typ = DSL.unsafeCheckVerbose(c)
+//    val (_, rest) = DSL.unsafeTypeOf(c)
+//    errors.message("Type: "+Show(typ))
+//    if (rest != BVal(true))
+//      errors.warning(s"Warning: did not check if ${Show(rest)}.")
+//  }
+//  catch Box.checkExceptions(errors)
 
 
   /**
@@ -102,10 +102,10 @@ object Virtuoso extends{
     descr.clear()
     inputBox.update()
 
-    // temporary code
+    // temporary code - now in instantiate
 //    typeCheck(inputBox.get)
 
-    instanciate.update()
+    instantiate.update()
     //    information.update()
 //    typeInfo.update()
 //    instanceInfo.update()
@@ -116,8 +116,8 @@ object Virtuoso extends{
   private def softReload(): Unit = {
     errors.clear()
     inputBox.update()
-    typeCheck(inputBox.get)
-    instanciate.update()
+//    typeCheck(inputBox.get)
+    instantiate.update()
     graphics.update()
     aut.update()
     infoBox.update()

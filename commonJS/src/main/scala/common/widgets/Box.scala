@@ -151,7 +151,7 @@ object Box {
     }
     //            instanceInfo.append("p").text("-")
     case e: java.lang.AssertionError => errorBox.error(e.getMessage)
-    case e => errorBox.error("unknown error:"+e+" - "+e.getClass)
+    case e => errorBox.error("unknown error:"+e+" - "+e.getClass) //+"/n - "+e.getStackTrace.mkString("\n - "))
   }
 
 }
