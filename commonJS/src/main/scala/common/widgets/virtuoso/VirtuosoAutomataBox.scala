@@ -39,7 +39,7 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   override def update(): Unit = if(isVisible) drawAutomata()
 
 
-  private def drawAutomata(portNames:Boolean=false): Unit =
+  private def drawAutomata(portNames:Boolean=true): Unit =
     try{
 //      automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get)//
       automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get).serialize.simplify
