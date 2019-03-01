@@ -21,7 +21,7 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
           "one of its sink points.")
       :: "xor"::Nil,
     "Duplicator"
-      ::("<p><<strong>Duplicator</p></strong>" +
+      ::("<p><strong>Duplicator</p></strong>" +
          "Similar to the simplr Port, duplicates incoming data to all of its sink poins." +
          " It can only receive data once all its sources are ready to receive data.")
       :: "dupl"::Nil,
