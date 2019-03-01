@@ -3,43 +3,43 @@ package common.widgets.virtuoso
 import common.widgets.{ButtonsBox, Setable}
 
 class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Setable[String])
-  extends ButtonsBox(reload, msgBox, inputBox){
+  extends ButtonsBox(reload, List(msgBox, inputBox)){
 
-  override protected val buttons: Seq[((String,String),String)] = Seq(
-    "Port"->("<p><strong>Port Hub</strong></p>Forwards data from its source to its sink, acting" +
+  override protected val buttons: Seq[List[String]] = Seq(
+    "Port"::("<p><strong>Port Hub</strong></p>Forwards data from its source to its sink, acting" +
       " as a synchronisation mechanism between two tasks." +
       " There is no buffer capacity, i.e.data is transfer" +
-      " directly between the two tasks.")->
-      """port """.stripMargin,
+      " directly between the two tasks.")::
+      """port """.stripMargin::Nil,
     "Port - 2 sources"
-      ->"""<p><strong>Merging Port Hub</strong></p>
+      ::"""<p><strong>Merging Port Hub</strong></p>
           | <p>Similar to the simple Port, but uses only one of its source points.</p>""".stripMargin
-      -> "merger",
+      :: "merger"::Nil,
     "Port - 2 sinks"
-      -> ("<p><strong>XOR Port Hub</strong></p>"+
+      :: ("<p><strong>XOR Port Hub</strong></p>"+
           "Similar to the simple Port, but uses only "+
           "one of its sink points.")
-      -> "xor",
+      :: "xor"::Nil,
     "Duplicator"
-      ->("<p><<strong>Duplicator</p></strong>" +
+      ::("<p><<strong>Duplicator</p></strong>" +
          "Similar to the simplr Port, duplicates incoming data to all of its sink poins." +
          " It can only receive data once all its sources are ready to receive data.")
-      -> "dupl",
+      :: "dupl"::Nil,
     "Semaphore"
-      ->("<p><strong>Semaphore</strong></p>"+
+      ::("<p><strong>Semaphore</strong></p>"+
       "Has two interaction points: to signal the semaphore and "+
       "increment its internal counter c, and to test if the "+
       "semaphore is set, i.e., c ≥ 0, in which case succeeds "+
       "and decrements its counter, otherwise it can wait. ")
-      -> " semaphore ",
+      :: " semaphore "::Nil,
     "Event"
-      -> ("<p><strong>Event</strong></p>" +
+      :: ("<p><strong>Event</strong></p>" +
       "It has two waiting lists for two kind of requests: raise – signals the " +
       "occurrence of an event, and test – checks if an event happened, in which case " +
       "succeeds and deactivates the signal, otherwise it can wait.")
-      -> "event ",
+      :: "event "::Nil,
     "DataEvent"
-      -> ("<p><strong>Data Event</strong></p>" +
+      :: ("<p><strong>Data Event</strong></p>" +
       "Similar to the Event hub with the additional capacity to buffer " +
       "a data element sent with the raise signal. If the signal has been raised, the test " +
       "signal receives the buffered data and deactivates the signal, otherwise it can wait. " +
@@ -47,45 +47,45 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
       "lists for clear requests is used to clear the buffer, mainly to facilitate interfacing " +
       "with device drivers.taEvent" +
       "")
-      -> "dataEvent ",
+      :: "dataEvent "::Nil,
     "Resource"
-      -> ("<p><strong>Resource</strong></p>" +
+      :: ("<p><strong>Resource</strong></p>" +
       "Has two waiting lists for two kind of requests: lock – signals the " +
       "Resource acquisition of a logical resource, which succeeds if the resource is free, otherwise " +
       "it can wait, and unlock – signals the release of an acquired resource, which " +
       "succeeds if the resource had been acquire by the same task that released it, " +
       "failing otherwise.")
-      -> "resource",
+      :: "resource"::Nil,
     "Fifo"
-      ->("<p><strong>Fifo</strong></p>" +
+      ::("<p><strong>Fifo</strong></p>" +
       "Has two waiting lists for two kind of requests: enqueue – signals the " +
       "entering of some data into the queue, which succeeds if the queue is not full, " +
       "and dequeue – signals data leaving the queue, which succeeds if the queue is not " +
       "empty. The presented Fifo can store at most 1 element - a general Fifo can store up to a fixed number N of elements.")
-      -> "fifo ",
+      :: "fifo "::Nil,
     "Blackboard"
-      ->("<p><strong>Blackboard</strong></p>" +
+      ::("<p><strong>Blackboard</strong></p>" +
       "Acts like a protected shared data area. A update waiting list " +
       "is used to set its content (whereby a sequence number is incremented), a read " +
       "waiting list is used to read the data, and a count waiting list is used to obtain " +
       "the sequence number, allowing tasks to attest the freshness of the data. A special " +
       "data element, CLR, can be sent with the update signal to clear the buffer.")
-      -> "blackboard ",
-    "Alternator" ->
+      :: "blackboard "::Nil,
+    "Alternator" ::
       ("<p><strong>Alternator</strong></p>" +
         "For every pair of values received by two waiting lists, it forwards them to the output. " +
-        "It sends the values always in the same order, and stores at most 1 value.") ->
-        "dupl*dupl;\nfifo*drain*id;\nmerger",
+        "It sends the values always in the same order, and stores at most 1 value.") ::
+        "dupl*dupl;\nfifo*drain*id;\nmerger"::Nil,
     "Sequencer"
-      ->"Outputs a value alternating between 3 outputs"
-      ->"""seq3 {
+      ::"Outputs a value alternating between 3 outputs"
+      ::"""seq3 {
           | seq3 (x!,y!,z!) =
           |   event(a,b) event(c,d) eventFull(e,f)
           |   dupl(b,c,x) dupl(d,e,y) dupl(f,a,z)
-          |}""".stripMargin,
+          |}""".stripMargin::Nil,
   "RoundRobin tasks"
-    ->"Round robin between 2 tasks, sending to an actuator. Tasks are not modelled - only the coordinator."
-    -> """s1 * p1 * s2 * p2;
+    ::"Round robin between 2 tasks, sending to an actuator. Tasks are not modelled - only the coordinator."
+    :: """s1 * p1 * s2 * p2;
         |coord;
         |get
         |{
@@ -101,10 +101,10 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
         |    event(d31,e1) eventFull(d41,e2)
         |    merger(d13,d23,get)
         |}
-      """.stripMargin,
+      """.stripMargin::Nil,
   "RoundRobin tasks - with components"
-    ->"Round robin between 2 tasks, sending to an actuator. Tasks are modelled as components always ready to interact."
-    -> """t1 * t2;
+    ::"Round robin between 2 tasks, sending to an actuator. Tasks are modelled as components always ready to interact."
+    :: """t1 * t2;
           |coord;
           |act
           |{
@@ -123,7 +123,7 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
           |  [hide] t2 = writer*writer,
           |  [hide] act = reader
           |}
-        """.stripMargin
+        """.stripMargin::Nil
 //      """// Round robin between 2 tasks, sending to an actuator
 //        |t1 * t2;
 //        |coord;
@@ -139,10 +139,10 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
 //        |  [hide] act = reader
 //        |}
 //      """.stripMargin
-//    "Alternating Port"->"" ->
+//    "Alternating Port"::"" ::
 //      """// Alternating port
-//        |...""".stripMargin,
-//    "Test"->""->
+//        |...""".stripMargin::Nil,
+//    "Test"::""::
 //      """// experiments
 //        |mainHub
 //        |{
@@ -160,7 +160,7 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
 //        |     de2(x8,x9) drain(x10,x11)
 //        |     merger(x4,x12,g) // port?
 //        |}
-//        |""".stripMargin
+//        |""".stripMargin::Nil
   )
 
 }

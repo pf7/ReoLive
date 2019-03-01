@@ -4,69 +4,97 @@ import org.scalajs.dom.EventTarget
 
 import scala.scalajs.js.UndefOr
 
-class ButtonsBox(reload: => Unit, inputBox: Setable[String], logicBox: Setable[String])
+class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Setable[String], logicBox: Setable[String])
     extends Box[String]("examples", Nil){
 
-  protected val buttons: Seq[((String,String),String)] = Seq(
-    "writer"->"writer"->"// can always write\n<all*.writer>true",
-    "reader"->"reader"->"// can always read\n<all*.reader>true",
-    "fifo"->"fifo"->"// can always fire\n<all*.fifo>true",
-    "merger"->"merger"->"// can always fire\n<all*.merger>true",
-    "dupl"->"dupl"->"// can always fire\n<all*.dupl>true",
-    "drain"->"drain"->"// can always fire\n<all*.drain>true",
-    "fifo*writer ; drain"->"fifo*writer ; drain"->"// writer fails first write\n[writer]false",
-    "\\x . fifo^x*writer ; drain^2" -> "\\x . fifo^x*writer ; drain^2"->"",
-    "(\\x.fifo^x) ; (\\n.drain^n)" -> "(\\x.fifo^x) ; (\\n.drain^n)"->"",
-    //    "\\b:B . (b? fifo + dupl) & merger" -> "\\b:B . (b? fifo + dupl) & merger",
-    "b? fifo + lossy^2" -> "\\b:B . (b? fifo + lossy*lossy) ; merger"->"",
-    "(\\x .drain^(x-1)) 3" -> "(\\x .drain^(x-1)) 3"->"",
-    "(\\x. lossy^x |x>2)" -> "(\\x. lossy^x |x>2) ; (\\n. merger^n | n>1 & n<6)"->"",
-    "merger!" -> "writer^8 ; merger! ; merger! ; reader!"->"",
-    "x;y{x=..,y=..}" -> "x ; y ; z {\n  x = lossy * fifo ,\n  y = merger,\n  [hide] z = lossy }"->"[all*] @x <!fifo> true",
-//    "Treo" -> "alt1 {\n alt1(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c) \n ,\n alt2 =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
-//           -> "// sometimes the drain cannot fire\n<all*> @alt1 [!drain] false",
-    "alternator (preo)" -> "alt {\n alt =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
-      -> "// sometimes the drain cannot fire\n<all*> @alt [!drain] false",
-    "alternator (treo)" -> "alt {\n alt(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c)\n}"
-      -> "// sometimes the drain cannot fire\n<all*> @alt [!drain] false",
-    "barrier"->"dupl*dupl ; id*drain*id"->"// drain can always fire\n<all*.drain>true",
-    "exrouter (preo)"->"""dupl ; dupl*id ;
+  private def descr(s1:String,s2:String):String =
+    s"<p><strong>$s1</strong></p> $s2"
+
+  /**
+    * Each buttom is a list of strings: the first is the button name,
+    * and each of the remaining are passed to the `toSet` objects by the same order.
+    */
+  protected val buttons: Seq[List[String]] = Seq(
+    "writer"::"writer"::"// can always write\n<all*.writer>true"::
+      descr("Writer","Primitive that is always ready to produce values")::Nil,
+    "reader"::"reader"::"// can always read\n<all*.reader>true"::
+      descr("Reader","Primitive that is always ready to receive values")::Nil,
+    "sync"::"sync"::""::
+      descr("Synchronous channel","A synchronous channel (or sync channel) has " +
+        "a source end and a sink end. It accepts a datum into its source end if and only " +
+        "if it can dispense it from its sink end.")::Nil,
+    "lossy"::"lossy"::""::
+      descr("Lossy synchronous channel","A lossy synchronous channel (or lossy " +
+        "sync channel) is essentially a synchronous channel that always accepts data into its " +
+        "source end. If it cannot dispense the datum out of its sink end, the datum is lost.")::Nil,
+    "fifo"::"fifo"::"// can always fire\n<all*.fifo>true"::
+      descr("Empty FIFO1 channel","The empty FIFO1 channel (also called the empty one " +
+        "slot buffer) can store a single datum.")::Nil,
+    "merger"::"merger"::"// can always fire\n<all*.merger>true"::
+      descr("Sink node: merger","A sink node acts like a merger. A get that is performed " +
+        "at a sink node receives a datum from one of its offering coincident channels. If multiple " +
+        "channels can offer data, one channel is selected non-deterministically.")::Nil,
+    "dupl"::"dupl"::"// can always fire\n<all*.dupl>true"::
+      descr("Source node: duplicator","A source node acts like a duplicator. Any datum " +
+        "that is put at a source node is replicated through all of its coincident channels if and " +
+        "only if all of the channels can accept the datum.")::Nil,
+    "drain"::"drain"::"// can always fire\n<all*.drain>true"::
+      descr("Synchronous drain","The synchronous drain (or syncdrain) has two source ends. " +
+        "A put at either end blocks until a put is performed on the other end. Then, both data are " +
+        "lost in the channel")::Nil,
+    "fifo*writer ; drain"::"fifo*writer ; drain"::"// writer fails first write\n[writer]false"::Nil,
+    "\\x . fifo^x*writer ; drain^2" :: "\\x . fifo^x*writer ; drain^2"::""::Nil,
+    "(\\x.fifo^x) ; (\\n.drain^n)" :: "(\\x.fifo^x) ; (\\n.drain^n)"::""::Nil,
+    //    "\\b:B . (b? fifo + dupl) & merger" :: "\\b:B . (b? fifo + dupl) & merger"::Nil,
+    "b? fifo + lossy^2" :: "\\b:B . (b? fifo + lossy*lossy) ; merger"::""::Nil,
+    "(\\x .drain^(x-1)) 3" :: "(\\x .drain^(x-1)) 3"::""::Nil,
+    "(\\x. lossy^x |x>2)" :: "(\\x. lossy^x |x>2) ; (\\n. merger^n | n>1 & n<6)"::""::Nil,
+    "merger!" :: "writer^8 ; merger! ; merger! ; reader!"::""::Nil,
+    "x;y{x=..,y=..}" :: "x ; y ; z {\n  x = lossy * fifo ,\n  y = merger,\n  [hide] z = lossy }"::"[all*] @x <!fifo> true"::Nil,
+//    "Treo" :: "alt1 {\n alt1(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c) \n ,\n alt2 =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
+//           :: "// sometimes the drain cannot fire\n<all*> @alt1 [!drain] false"::Nil,
+    "alternator (preo)" :: "alt {\n alt =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
+      :: "// sometimes the drain cannot fire\n<all*> @alt [!drain] false"::Nil,
+    "alternator (treo)" :: "alt {\n alt(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c)\n}"
+      :: "// sometimes the drain cannot fire\n<all*> @alt [!drain] false"::Nil,
+    "barrier"::"dupl*dupl ; id*drain*id"::"// drain can always fire\n<all*.drain>true"::Nil,
+    "exrouter (preo)"::"""dupl ; dupl*id ;
                          |(lossy;dupl)*(lossy;dupl)*id ;
                          |id*merger*id*id ;
                          |id*id*swap ;
                          |id*drain*id ;
                          |out1*out2""".stripMargin
-                     ->"""// out1 and out2 cannot go together
+                     ::"""// out1 and out2 cannot go together
                          |[all*.(out1 & out2)] false
                          |// always: either out1 or out2 is active
-                         |<all*.(out1 + out2)> true""".stripMargin,
-    "exrouter (treo)" -> """xor ; out1*out2 {
+                         |<all*.(out1 + out2)> true""".stripMargin::Nil,
+    "exrouter (treo)" :: """xor ; out1*out2 {
                            | xor(a?,b!,c!) =
                            |   lossy(a,x) lossy(a,y)
                            |   sync(x,m) sync(y,m)
                            |   drain (a,m)
                            |   sync(x,b) sync(y,c)
                            |}""".stripMargin
-                      -> """// out1 and out2 cannot go together
+                      :: """// out1 and out2 cannot go together
                            |[all*.(out1 & out2)] false
                            |// always: either out1 or out2 is active
-                           |<all*.(out1 + out2)> true""".stripMargin,
-    //    "exrouter=.."->"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2",
-    "zip"-> """zip_ 3
+                           |<all*.(out1 + out2)> true""".stripMargin::Nil,
+    //    "exrouter=.."::"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2"::Nil,
+    "zip":: """zip_ 3
 {
 zip_ =
   \n.loop((2*n)*(n-1))
     ((id^(n-x)*sym(1,1)^x*id^(n-x))^x<--n;
      sym((2*n)*(n-1),2*n))
-}"""->"",
-    "unzip" -> """unzip_ 3
+}"""::""::Nil,
+    "unzip" :: """unzip_ 3
 {
 unzip_ =
  \n.loop((2*n)*(n-1))
    (((id^(x+1)*sym(1,1)^((n-x)-1)*id^(x+1))^x<--n);
     sym((2*n)*(n-1),2*n))
-}"""->"",
-    "sequencer"-> """writer^3 ; sequencer_ 3 ; reader^3
+}"""::""::Nil,
+    "sequencer":: """writer^3 ; sequencer_ 3 ; reader^3
                        |
                        |{
                        |zip_ =
@@ -87,8 +115,8 @@ unzip_ =
                        |sequencer_ =
                        |  \n.(dupl^n; unzip_ n) * fifoloop_ n ;
                        |    id^n * (zip_ n; drain^n)
-                       |}""".stripMargin->"",
-    "exrouters" -> """writer ; exrouters_ 3 ; reader!
+                       |}""".stripMargin::""::Nil,
+    "exrouters" :: """writer ; exrouters_ 3 ; reader!
                             |{
                             |  unzip_ =
                             |    \n.loop((2*n)*(n - 1))
@@ -108,8 +136,8 @@ unzip_ =
                             |      ((id^n)*(mergers_(n))*id) ;
                             |      ((id^n)*drain))
                             |}
-                            |""".stripMargin->"",
-    "switcher"->
+                            |""".stripMargin::""::Nil,
+    "switcher"::
       """in*chg; switcher; out1*out2
         |{
         |  [hide] xor = exrouter,
@@ -150,8 +178,8 @@ unzip_ =
         |    xor*dupl;
         |    id*swap*id;
         |    gateOpen * gateClosed
-        |}""".stripMargin->"// sometimes gateOpen cannot fire\n<all*>@switcher[gateOpen]false",
-    "Prelude"->
+        |}""".stripMargin::"// sometimes gateOpen cannot fire\n<all*>@switcher[gateOpen]false"::Nil,
+    "Prelude"::
       """id_
         |{
         |  writer_    = writer,
@@ -179,7 +207,7 @@ unzip_ =
         |  barrier_   = barrier,
         |  barriers_  = barriers
         |}
-      """.stripMargin->"// can always fire\n<all*.sync>true"
+      """.stripMargin::"// can always fire\n<all*.sync>true"::Nil
   )
 
 
@@ -201,14 +229,18 @@ unzip_ =
 
   override def update: Unit = ()
 
-  private def genButton(ss:((String,String),String),buttonsDiv:Block): Unit = {
-    val button = buttonsDiv.append("button")
-      .text(ss._1._1)
+  private def genButton(ss:List[String],buttonsDiv:Block): Unit = {
+    ss match {
+      case hd::tl =>
+        val button = buttonsDiv.append("button")
+          .text(hd)
 
-    button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
-      inputBox.setValue(ss._1._2)
-      logicBox.setValue(ss._2)
-      reload
-    }} : button.DatumFunction[Unit])
+        button.on("click",{(e: EventTarget, a: Int, b:UndefOr[Int])=> {
+          toSet.zip(tl).foreach(pair => pair._1.setValue(pair._2))
+          toSet.drop(tl.size).foreach(_.setValue(""))
+          reload
+        }} : button.DatumFunction[Unit])
+      case Nil =>
+    }
   }
 }

@@ -23,6 +23,7 @@ object RemoteReo extends{
   private var inputBox: PreoBox = _
   private var typeInstanceInfo: RemoteInstanceBox = _
   private var errors: OutputArea = _
+  private var descr: OutputArea = _
 
   private var modalBox: RemoteLogicBox = _
   private var outputBox: OutputArea = _
@@ -71,6 +72,9 @@ object RemoteReo extends{
     // Create boxes (order matters)
     errors =
       new OutputArea
+    descr = new OutputArea {
+      override def setValue(msg: String): Unit = {clear(); if(msg.nonEmpty) super.setValue(msg)}
+    }
     inputBox =
       new PreoBox(first_reload(), export, conn, errors)
     typeInstanceInfo =
@@ -85,7 +89,7 @@ object RemoteReo extends{
     // must be after inputbox and mcrl2box
     modalBox = new RemoteLogicBox(inputBox, form, typeInstanceInfo, outputBox)
     val buttonsDiv =
-      new ButtonsBox(first_reload(), inputBox, modalBox)
+      new ButtonsBox(soft_reload(), List(inputBox, modalBox, descr))
 
     iftaAut =
       new IFTABox(typeInstanceInfo, errors)
@@ -99,6 +103,7 @@ object RemoteReo extends{
     modalBox.init(leftside,true)
     outputBox.init(leftside)
     ifta.init(leftside,visible = false)
+    descr.init(leftside)
     svg.init(rightside,true)
     svgAut.init(rightside,false)
     mcrl2Box.init(rightside,false)
@@ -115,6 +120,13 @@ object RemoteReo extends{
     * tests if they're valid and generates the output if they are.
     */
   private def first_reload(): Unit= {
+    descr.clear()
+    errors.clear
+    inputBox.update
+    typeInstanceInfo.update
+  }
+
+  private def soft_reload(): Unit= {
     errors.clear
     inputBox.update
     typeInstanceInfo.update
