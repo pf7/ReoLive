@@ -14,7 +14,6 @@ class VirtuosoBox(globalReload: =>Unit, default: String, outputBox: OutputArea)
     override protected val buttons: List[(Either[String, String], (() => Unit, String))] =
       List(
         Right("glyphicon glyphicon-refresh") -> (() => reload, "Load the Hub (shift-enter)")
-  //      Left("MA") -> (() => debugNames, "Map actions in the formula to sets of actions in the mCRL2 specification")
       )
 
     override protected val codemirror: String = "virtuoso"

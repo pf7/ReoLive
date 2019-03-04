@@ -2,11 +2,12 @@ package common.widgets
 
 import java.io.{PrintWriter, StringWriter}
 
+import hub.common.ParseException
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
 import org.singlespaced.d3js.{Selection, d3}
 import preo.common.{GenerationException, TimeoutException, TypeCheckException}
-import ifta.common.{FExpOverflowException,TimeoutException}
+import ifta.common.{FExpOverflowException, TimeoutException}
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 
@@ -143,6 +144,8 @@ object Box {
       errorBox.error("Timeout: " + e.getMessage)
     case e:FExpOverflowException =>
       errorBox.error("Overflow:" + e.getMessage)
+    case e:ParseException =>
+      errorBox.error("ParseException:" + e.getMessage)
     case e: JavaScriptException => {
 //      val sw = new StringWriter
 //      e.printStackTrace(new PrintWriter(sw))

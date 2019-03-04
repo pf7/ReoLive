@@ -1,6 +1,7 @@
 package common.widgets.virtuoso
 
 import common.widgets.{Box, OutputArea}
+import hub.analyse.ContextSwitch
 import hub.backend.Simplify
 import hub.{HubAutomata, Ltrue}
 import org.scalajs.dom
@@ -123,6 +124,11 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
             (if (p._2._1 == Ltrue) "" else " (has guards)"))
         }
       }
+
+      // Context Switches
+
+      var cs = ContextSwitch(aut,List("out","in"))
+      println(s"Context Switches: \n - found trace: ${cs._1} \n - trace: ${cs._2} \n - #context switches: ${cs._3 +1}")
     }
   }
   catch Box.checkExceptions(errorBox)
