@@ -12,22 +12,6 @@ object VirtuosoParser {
 
   def parse(c:String): Result[Connector] = virtParser.parse(c)
 
-  val PRIMITIVE = Set(
-      "semaphore"
-    , "resource"
-    , "port"
-    , "dataEvent"
-    , "event"
-    , "fifo"
-    , "blackboard"
-    , "node"
-    , "dupl"
-    , "dupls"
-    , "xor"
-    , "xors"
-    , "mrg"
-    , "drain"
-  )
 }
 
 

@@ -105,25 +105,12 @@ object Virtuoso extends{
     * tests if they're valid and generates the output if they are.
     */
   private def reload(): Unit = {
-    errors.clear()
     descr.clear()
-    inputBox.update()
-
-    // temporary code - now in instantiate
-//    typeCheck(inputBox.get)
-
-    instantiate.update()
-    //    information.update()
-//    typeInfo.update()
-//    instanceInfo.update()
-    graphics.update()
-    aut.update()
-    infoBox.update()
+    softReload()
   }
   private def softReload(): Unit = {
     errors.clear()
     inputBox.update()
-//    typeCheck(inputBox.get)
     instantiate.update()
     graphics.update()
     aut.update()

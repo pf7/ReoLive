@@ -16,6 +16,7 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 object WebReo extends{
 
   var inputBox: PreoBox = _
+  var descr: OutputArea = _
   var typeInfo: TypeBox = _
   var instanceInfo: InstanceBox = _
   var logicBox: LogicBox = _
@@ -62,13 +63,16 @@ object WebReo extends{
 
 
     // add InputArea
+    descr = new OutputArea {
+      override def setValue(msg: String): Unit = {clear(); if(msg.nonEmpty) super.setValue(msg)}
+    }
     errors       = new OutputArea //(id="wr")
     inputBox     = new PreoBox(reload(), export(), conn, errors)
     outputLogic  = new OutputArea //(id="wrLog")
     typeInfo     = new TypeBox(inputBox, errors)
     instanceInfo = new InstanceBox(typeInfo, errors)
     logicBox     = new LogicBox(instanceInfo, form, outputLogic)
-    val buttonsDiv = new ButtonsBox(reload(), inputBox,logicBox)
+    val buttonsDiv = new ButtonsBox(softReload(), List(inputBox,logicBox,descr))
     svg          = new GraphBox(instanceInfo, errors)
     svgAut       = new AutomataBox(instanceInfo, errors)
     mcrl2Box     = new Mcrl2Box(instanceInfo,errors)
@@ -83,6 +87,7 @@ object WebReo extends{
     buttonsDiv.init(leftside,visible = false)
     logicBox.init(leftside,visible = true)
     outputLogic.init(leftside)
+    descr.init(leftside)
 
     svg.init(rightside,visible = true)
     svgAut.init(rightside,visible = false)
@@ -100,6 +105,11 @@ object WebReo extends{
     * tests if they're valid and generates the output if they are.
     */
   private def reload(): Unit = {
+    descr.clear()
+    softReload()
+  }
+
+  private def softReload(): Unit = {
     errors.clear()
     outputLogic.clear()
     inputBox.update()
