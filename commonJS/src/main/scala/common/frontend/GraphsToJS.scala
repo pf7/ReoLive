@@ -5,9 +5,15 @@ import preo.backend._
 
 //todo: add rectangle colision colision
 object GraphsToJS {
-  def apply(graph: Graph): String = generateJS(getNodes(graph), getLinks(graph))
+  def apply(graph: Graph): String = {
+    val mark = "gr"//graph.hashCode()
+    generateJS(getNodes(graph,mark), getLinks(graph,mark))
+  }
 
-  def toVirtuosoJs(graph:Graph):String = generateJS(getNodes(graph,virtuoso=true), getLinks(graph))
+  def toVirtuosoJs(graph:Graph):String = {
+    val mark = "gr" //graph.hashCode()
+    generateJS(getNodes(graph,mark,virtuoso=true), getLinks(graph,mark))
+  }
 
   private def generateJS(nodes: String, edges: String): String = {
     // println(s"""var graph = {"nodescircuit": $nodes, "linkscircuit": $edges};""")
@@ -329,18 +335,18 @@ object GraphsToJS {
   }
 
 
-  private def getNodes(graph: Graph,virtuoso:Boolean = false): String =
-    graph.nodes.map(processNode(_,virtuoso)).mkString("[",",","]")
+  private def getNodes(graph: Graph,mark:String,virtuoso:Boolean = false): String =
+    graph.nodes.map(processNode(_, mark, virtuoso)).mkString("[", ",", "]")
 
 
-  private def getLinks(graph: Graph): String =
-    graph.edges.map(processEdge(_)).mkString("[",",","]")
+  private def getLinks(graph: Graph,mark:String): String =
+    graph.edges.map(processEdge(_,mark)).mkString("[",",","]")
 
 
-  private def processNode(node:ReoNode,virtuoso:Boolean = false):String = node match {
+  private def processNode(node:ReoNode,mark:String,virtuoso:Boolean = false):String = node match {
     case ReoNode(id, name, nodeType, extra) => {
       val nodeGroup = typeToGroup(nodeType, extra,virtuoso);
-      s"""{"id": "$id", "group": "$nodeGroup", "name": "${name.getOrElse("")}" }"""
+      s"""{"id": "${mark}_$id", "group": "$nodeGroup", "name": "${name.getOrElse("")}" }"""
     }
   }
 
@@ -375,11 +381,11 @@ object GraphsToJS {
       // todo: probably "xor" should be "port", now just to show a P instead of a mixed node
   }
 
-  private def processEdge(channel: ReoChannel): String = channel match{
+  private def processEdge(channel: ReoChannel,mark:String): String = channel match{
     case ReoChannel(src,trg, srcType, trgType, name, style) => {
       var start = arrowToString(srcType);
       var end = arrowToString(trgType);
-      s"""{"source": "$src", "target": "$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit"}"""
+      s"""{"source": "${mark}_$src", "target": "${mark}_$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit"}"""
     }
   }
 

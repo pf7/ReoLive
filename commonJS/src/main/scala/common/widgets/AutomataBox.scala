@@ -32,7 +32,7 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 
   private def drawAutomata(): Unit =
   try{
-    automaton = Automata[PortAutomata](dependency.get)
+    automaton = Automata.fromOneToOneSimple[PortAutomata](dependency.get)
     val sizeAut = automaton.getStates.size
     //              println("########")
     //              println(aut)
