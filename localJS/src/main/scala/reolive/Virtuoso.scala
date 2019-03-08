@@ -25,7 +25,8 @@ object Virtuoso extends{
 
   var aut: VirtuosoAutomataBox = _
 
-  var csBox:VirtuosoCSBox = _
+  var csBox:VirtuosoCSInputBox = _
+  var csInfoBox:VirtuosoCSInfoBox = _
   var outputCs:OutputArea = _
 
   @JSExportTopLevel("reolive.Virtuoso.main")
@@ -71,8 +72,9 @@ object Virtuoso extends{
     aut = new VirtuosoAutomataBox(instantiate,errors)
     infoBox = new VirtuosoInfoBox(instantiate,errors)
     examples = new VirtuosoExamplesBox(softReload(),inputBox,descr)
+    csBox = new VirtuosoCSInputBox(reloadCsInfo())
     outputCs = new OutputArea
-    csBox = new VirtuosoCSBox(instantiate,"",outputCs)
+    csInfoBox = new VirtuosoCSInfoBox(csBox,instantiate,outputCs)
 
     inputBox.init(leftColumn,true)
     errors.init(leftColumn)
@@ -80,9 +82,11 @@ object Virtuoso extends{
     examples.init(leftColumn,true)
     graphics.init(rightColumn,visible = true)
     aut.init(rightColumn,false)
-    infoBox.init(leftColumn,false)
     csBox.init(leftColumn,true)
     outputCs.init(leftColumn)
+    csInfoBox.init(leftColumn,visible = true)
+    infoBox.init(leftColumn,false)
+
 
     reload()
 
@@ -110,11 +114,17 @@ object Virtuoso extends{
   }
   private def softReload(): Unit = {
     errors.clear()
+    csBox.clear()
+    csInfoBox.clear()
     inputBox.update()
     instantiate.update()
     graphics.update()
     aut.update()
     infoBox.update()
+  }
+
+  private def reloadCsInfo() = {
+    csInfoBox.update()
   }
 
   private def export():Unit = {}

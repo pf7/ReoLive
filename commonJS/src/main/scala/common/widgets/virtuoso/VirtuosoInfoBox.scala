@@ -3,11 +3,11 @@ package common.widgets.virtuoso
 import common.widgets.{Box, OutputArea}
 import hub.analyse.ContextSwitch
 import hub.backend.Simplify
-import hub.{HubAutomata, Ltrue}
+import hub.{Guard, HubAutomata, Ltrue, Update}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.{CPrim, CoreConnector}
-import preo.backend.Automata
+import preo.backend.{Automata, ReoGraph}
 
 /**
   * Created by guillecledou on 01/02/2019
@@ -28,22 +28,8 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
       .onclick = {e: MouseEvent => if(!isVisible) showInfo() else deleteInfo()}
   }
 
-//<<<<<<< HEAD
   override def update(): Unit = if(isVisible) showInfo()
 
-
-//  private def showInfo():Unit = try {
-//    if(box!=null) box.text("")
-//    aut = Automata[HubAutomata](dependency.get).serialize.simplify
-//    //    aut = dependency.get.asInstanceOf[HubAutomata]
-//    val (states,vars) = aut.memory
-//    var varsByType = vars.groupBy(_._1)
-//    if (box!=null) {
-//      box.append("p")
-//        .text("Memory:")
-//      box.append("p")
-//        .text(s"- ${states} states: ${Math.log(states) / Math.log(2)} bits \n")
-//=======
   private def showInfo(): Unit = try {
     if(box!=null) {
       box.text("")
@@ -125,10 +111,6 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
         }
       }
 
-      // Context Switches
-
-      var cs = ContextSwitch(aut,List("out","in"))
-      println(s"Context Switches: \n - found trace: ${cs._1} \n - trace: ${cs._2} \n - #context switches: ${cs._3 +1}")
     }
   }
   catch Box.checkExceptions(errorBox)
