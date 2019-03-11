@@ -139,3 +139,20 @@
 button {
     margin: 1px;
 }
+
+
+/* FOR SMALLER SCREENS */
+@media (max-width: 750px) {
+  .rightside{
+      float: none;
+      min-width: 100%;
+      padding-left: 0;
+  }
+  .leftside{
+      min-width:100%;
+      float: none;
+  }
+  #ghostbar{
+    display: none;
+  }
+}

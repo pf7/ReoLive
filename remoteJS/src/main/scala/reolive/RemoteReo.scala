@@ -1,6 +1,7 @@
 package reolive
 
 import common.widgets._
+import common.widgets.ifta.IFTABox
 import org.scalajs.dom
 import dom.html
 import org.singlespaced.d3js.d3

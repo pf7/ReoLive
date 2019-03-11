@@ -3,6 +3,7 @@ package reolive
 import java.net.URLDecoder
 
 import common.widgets._
+import common.widgets.ifta.IFTABox
 import org.scalajs.dom.html
 import org.singlespaced.d3js.d3
 import widgets._
