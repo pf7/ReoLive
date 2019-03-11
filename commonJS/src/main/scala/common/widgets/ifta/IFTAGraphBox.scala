@@ -1,6 +1,7 @@
-package common.widgets
+package common.widgets.ifta
 
-import ifta.{IFTA, NIFTA}
+import common.widgets.{Box, OutputArea}
+import ifta.NIFTA
 import preo.ast.CoreConnector
 
 /**

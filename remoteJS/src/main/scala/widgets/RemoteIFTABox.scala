@@ -1,7 +1,8 @@
 package widgets
 
 import common.backend.{CCToFamily, NReoIFTA}
-import common.widgets.{Box, IFTABox, OutputArea}
+import common.widgets.ifta.IFTABox
+import common.widgets.{Box, OutputArea}
 import ifta.{DSL, IFTA}
 import ifta.backend.Show
 import org.scalajs.dom

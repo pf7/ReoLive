@@ -1,12 +1,12 @@
-package common.widgets
+package common.widgets.ifta
 
-import common.backend.{CCToFamily}
-import common.frontend.{IFTAToJS}
-import preo.ast.CoreConnector
-import ifta.{IFTA}
+import common.backend.CCToFamily
+import common.frontend.IFTAToJS
+import common.widgets.{Box, GraphBox, OutputArea}
+import ifta.IFTA
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
-import preo.backend.{Automata, PortAutomata}
+import preo.ast.CoreConnector
 
 
 /**
