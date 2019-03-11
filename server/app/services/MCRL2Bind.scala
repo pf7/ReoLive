@@ -9,7 +9,7 @@ import sys.process._
 
 object MCRL2Bind {
   private val mcrl2path = "/Applications/mCRL2.app/Contents/bin/"
-//  val mcrl2path = ""
+//  private val mcrl2path = "/usr/bin/"
 
   def savepbes(): (Int, String) = {
     val id = Thread.currentThread().getId
