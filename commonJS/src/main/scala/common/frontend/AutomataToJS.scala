@@ -66,7 +66,7 @@ object AutomataToJS {
 //                     else return d.group;
 //                   });
 //              nodeG.append("circle")
-                node.enter().append("circle")
+                var nd = node.enter().append("circle")
                   .merge(node)
                   .attr("r", function(d){
                     if(d.group == 0 || d.group == 1){
@@ -82,7 +82,7 @@ object AutomataToJS {
                   .on("drag", draggedAut)
                   .on("end", dragendedAut))
                   .style("stroke-opacity" , "1")
-                  .style("stroke-widthAut", function(d){
+                  .style("stroke-width", function(d){
                     if(d.group == 0 || d.group == 1) {
                       return "1px";
                     } else {
@@ -160,11 +160,39 @@ object AutomataToJS {
                   .append('textPath')
                   .attr('xlink:href', function (d, i) {return '#edgepath' + i})
                   .style("text-anchor", "middle")
-                  .style("pointer-events", "none")
+                  //.style("pointer-events", "none")
                   .attr("startOffset", "50%")
+                  .on("mouseenter", function(d) {
+                    //console.log("me: "+d.type);
+                    d3.select(this).style("font-size","14px");
+                    var ports = d.type.split("~");
+                    ports.shift();
+                    ports.forEach(function(el) {
+                      var p = document.getElementById("gr_"+el);
+                      //console.log("port "+el);
+                      if (p!=null) {
+                        p.style.backgroundColor = p.style.fill;
+                        p.style.fill = "#00aaff";
+                      }
+                    });
+                  })
+
+                  .on("mouseleave", function(d) {
+                    d3.select(this).style("font-size", "10px");
+                    var ports = d.type.split("~");
+                    ports.shift();
+                    ports.forEach(function(el) {
+                      var p = document.getElementById("gr_"+el);
+                      //console.log("port "+el);
+                      if (p!=null) {
+                        p.style.fill = p.style.backgroundColor;
+                      }
+                    });
+                  })
                   .text(function (d) {
-                    return d.type;
-                  });
+                    return d.type.split("~")[0];
+                  })
+                  ;
             } else {
               var textpath = d3.select(".labelsautomata")
                     .selectAll(".edgelabel")

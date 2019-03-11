@@ -53,9 +53,9 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
     "x;y{x=..,y=..}" :: "x ; y ; z {\n  x = lossy * fifo ,\n  y = merger,\n  [hide] z = lossy }"::"[all*] @x <!fifo> true"::Nil,
 //    "Treo" :: "alt1 {\n alt1(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c) \n ,\n alt2 =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
 //           :: "// sometimes the drain cannot fire\n<all*> @alt1 [!drain] false"::Nil,
-    "alternator (preo)" :: "alt {\n alt =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
+    "alternator (preo)" :: "in1*in2; alt; out {\n alt =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
       :: "// sometimes the drain cannot fire\n<all*> @alt [!drain] false"::Nil,
-    "alternator (treo)" :: "alt {\n alt(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c)\n}"
+    "alternator (treo)" :: "in1*in2; alt; out {\n alt(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c)\n}"
       :: "// sometimes the drain cannot fire\n<all*> @alt [!drain] false"::Nil,
     "barrier"::"dupl*dupl ; id*drain*id"::"// drain can always fire\n<all*.drain>true"::Nil,
     "exrouter (preo)"::"""dupl ; dupl*id ;
@@ -68,7 +68,7 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
                          |[all*.(out1 & out2)] false
                          |// always: either out1 or out2 is active
                          |<all*.(out1 + out2)> true""".stripMargin::Nil,
-    "exrouter (treo)" :: """xor ; out1*out2 {
+    "exrouter (treo)" :: """in; xor ; out1*out2 {
                            | xor(a?,b!,c!) =
                            |   lossy(a,x) lossy(a,y)
                            |   sync(x,m) sync(y,m)
