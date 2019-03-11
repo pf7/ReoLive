@@ -67,7 +67,8 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
                      ::"""// out1 and out2 cannot go together
                          |[all*.(out1 & out2)] false
                          |// always: either out1 or out2 is active
-                         |<all*.(out1 + out2)> true""".stripMargin::Nil,
+                         |<all*.(out1 + out2)> true""".stripMargin::
+                     descr("Exclusive Router","Version using the Preo language. Exclusively sends incoming data to one of 2 outputs.")::Nil,
     "exrouter (treo)" :: """in; xor ; out1*out2 {
                            | xor(a?,b!,c!) =
                            |   lossy(a,x) lossy(a,y)
@@ -78,7 +79,8 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
                       :: """// out1 and out2 cannot go together
                            |[all*.(out1 & out2)] false
                            |// always: either out1 or out2 is active
-                           |<all*.(out1 + out2)> true""".stripMargin::Nil,
+                           |<all*.(out1 + out2)> true""".stripMargin::
+                      descr("Exclusive Router","Version using the Treo language. Exclusively sends incoming data to one of 2 outputs.")::Nil,
     //    "exrouter=.."::"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2"::Nil,
     "zip":: """zip_ 3
 {
@@ -178,7 +180,9 @@ unzip_ =
         |    xor*dupl;
         |    id*swap*id;
         |    gateOpen * gateClosed
-        |}""".stripMargin::"// sometimes gateOpen cannot fire\n<all*>@switcher[gateOpen]false"::Nil,
+        |}""".stripMargin::"// sometimes gateOpen cannot fire\n<all*>@switcher[gateOpen]false"
+        ::descr("Switcher","Sends data along one out of 2 flows, allowing to change which flow can be active.")
+        ::Nil,
     "Prelude"::
       """id_
         |{
