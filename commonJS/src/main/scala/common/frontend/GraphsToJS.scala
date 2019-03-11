@@ -5,12 +5,12 @@ import preo.backend._
 
 //todo: add rectangle colision colision
 object GraphsToJS {
-  def apply(graph: Graph): String = {
+  def apply(graph: Circuit): String = {
     val mark = "gr"//graph.hashCode()
     generateJS(getNodes(graph,mark), getLinks(graph,mark))
   }
 
-  def toVirtuosoJs(graph:Graph):String = {
+  def toVirtuosoJs(graph:Circuit):String = {
     val mark = "gr" //graph.hashCode()
     generateJS(getNodes(graph,mark,virtuoso=true), getLinks(graph,mark))
   }
@@ -335,11 +335,11 @@ object GraphsToJS {
   }
 
 
-  private def getNodes(graph: Graph,mark:String,virtuoso:Boolean = false): String =
+  private def getNodes(graph: Circuit, mark:String, virtuoso:Boolean = false): String =
     graph.nodes.map(processNode(_, mark, virtuoso)).mkString("[", ",", "]")
 
 
-  private def getLinks(graph: Graph,mark:String): String =
+  private def getLinks(graph: Circuit, mark:String): String =
     graph.edges.map(processEdge(_,mark)).mkString("[",",","]")
 
 

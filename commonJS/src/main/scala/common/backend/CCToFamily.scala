@@ -6,7 +6,7 @@ import ifta.analyse.Simplify
 import ifta.common.FExpOverflowException
 import ifta.reo.Connectors._
 import preo.ast.{CPrim, CoreConnector}
-import preo.backend.ReoGraph
+import preo.backend.Network
 import preo.common.GenerationException
 
 /**
@@ -22,28 +22,28 @@ object CCToFamily {
 //  }
 
   def toRifta(cc:CoreConnector):NReoIFTA = {
-    val reoGraph = ReoGraph.toGraphOneToOne(cc,hideClosed = false)
+    val reoGraph = Network.toGraphWithoutSimplification(cc,hideClosed = false)
     buildNIFTA(reoGraph)
   }
 
   def toIFTA(cc:CoreConnector,showFullName:Boolean,hideInternal:Boolean):IFTA ={
-    val reoGraph = ReoGraph.toGraphOneToOne(cc,hideClosed = false)
+    val reoGraph = Network.toGraphWithoutSimplification(cc,hideClosed = false)
     buildNIFTA(reoGraph).getReoIFTA(showFullName,hideInternal)
   }
 
-  private def buildNIFTA(reoGraph: ReoGraph): NReoIFTA = {
+  private def buildNIFTA(reoGraph: Network): NReoIFTA = {
 
     // to build automata in a more efficient way, i.e.
     // composing always primitive connectors that share ports
     // so that the automata doesn't grow to quickly
-    val (ins,outs) = ReoGraph.collectInsOuts(reoGraph)
-    def getNeighbours(e:ReoGraph.Edge): List[ReoGraph.Edge] =
+    val (ins,outs) = Network.collectInsOuts(reoGraph)
+    def getNeighbours(e:Network.Prim): List[Network.Prim] =
       (for (i <- e.ins)  yield outs.getOrElse(i,Set())).flatten ++
         (for (o <- e.outs) yield ins.getOrElse(o,Set())).flatten
 
-    if (reoGraph.edges.nonEmpty){
-      var currentEdge = reoGraph.edges.head
-      var restEdges = reoGraph.edges.toSet - currentEdge
+    if (reoGraph.prims.nonEmpty){
+      var currentEdge = reoGraph.prims.head
+      var restEdges = reoGraph.prims.toSet - currentEdge
 
       //      var nifta = NIFTA(Set(edgeToIFTA(currentEdge)))
       var nReoIFTA:NReoIFTA = NReoIFTA(Set(ReoIFTA(edgeToIFTA(currentEdge),currentEdge)))
@@ -73,43 +73,43 @@ object CCToFamily {
   }
 
 
-  private def edgeToIFTA(e: ReoGraph.Edge):IFTA = e match {
-    case ReoGraph.Edge(CPrim("sync",_,_,_),List(a),List(b),_) =>
+  private def edgeToIFTA(e: Network.Prim):IFTA = e match {
+    case Network.Prim(CPrim("sync",_,_,_),List(a),List(b),_) =>
       sync(a.toString,b.toString) name "sync"
-    case ReoGraph.Edge(CPrim("id",_,_,_),List(a),List(b),_) =>
+    case Network.Prim(CPrim("id",_,_,_),List(a),List(b),_) =>
       sync(a.toString,b.toString) name "id" // create something different later
-    case ReoGraph.Edge(CPrim("lossy", _, _, _), List(a), List(b),_) =>
+    case Network.Prim(CPrim("lossy", _, _, _), List(a), List(b),_) =>
       lossy(a.toString,b.toString) name "lossy"
-    case ReoGraph.Edge(CPrim("fifo",_,_,_),List(a),List(b),_) =>
+    case Network.Prim(CPrim("fifo",_,_,_),List(a),List(b),_) =>
       fifo(a.toString,b.toString) name "fifo"
-    case ReoGraph.Edge(CPrim("fifofull", _, _, _), List(a), List(b),_) =>
+    case Network.Prim(CPrim("fifofull", _, _, _), List(a), List(b),_) =>
       fifofull(a.toString,b.toString) name "fifofull"
-    case ReoGraph.Edge(CPrim("drain", _, _, _), List(a, b), List(),_) =>
+    case Network.Prim(CPrim("drain", _, _, _), List(a, b), List(),_) =>
       sdrain(a.toString,b.toString) name "drain"
-    case ReoGraph.Edge(CPrim("merger", _, _, _), List(a, b), List(c),_) =>
+    case Network.Prim(CPrim("merger", _, _, _), List(a, b), List(c),_) =>
       merger(a.toString,b.toString,c.toString) name "merger"
-    case ReoGraph.Edge(CPrim("dupl", _, _, _), List(a), List(b, c),_) =>
+    case Network.Prim(CPrim("dupl", _, _, _), List(a), List(b, c),_) =>
       repl(a.toString,b.toString,c.toString) name "dupl"
-    case ReoGraph.Edge(CPrim("writer", _, _, _), List(), List(a),_) =>
+    case Network.Prim(CPrim("writer", _, _, _), List(), List(a),_) =>
       writer(a.toString)
-    case ReoGraph.Edge(CPrim("reader", _, _, _), List(a), List(),_) =>
+    case Network.Prim(CPrim("reader", _, _, _), List(a), List(),_) =>
       reader(a.toString)
-    case ReoGraph.Edge(CPrim("noSnk", _, _, _), List(), List(a),_) =>
+    case Network.Prim(CPrim("noSnk", _, _, _), List(), List(a),_) =>
       noSink(a.toString)
-    case ReoGraph.Edge(CPrim("noSrc", _, _, _), List(a), List(),_) =>
+    case Network.Prim(CPrim("noSrc", _, _, _), List(a), List(),_) =>
       noSrc(a.toString)
 
     // unknown name with type 1->1 -- behave as identity
-    case ReoGraph.Edge(CPrim(name, _, _, _), List(a), List(b),_) =>
+    case Network.Prim(CPrim(name, _, _, _), List(a), List(b),_) =>
       sync(a.toString,b.toString) name name
 
-    case ReoGraph.Edge(p, _, _,_) =>
+    case Network.Prim(p, _, _,_) =>
       throw new GenerationException(s"Unknown ifta automata for primitive $p")
   }
 }
 
 
-case class ReoIFTA(ifta:IFTA, edge:ReoGraph.Edge) {
+case class ReoIFTA(ifta:IFTA, edge:Network.Prim) {
 
   lazy val conName = getName
 

@@ -7,7 +7,7 @@ import hub.{Guard, HubAutomata, Ltrue, Update}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.{CPrim, CoreConnector}
-import preo.backend.{Automata, ReoGraph}
+import preo.backend.{Automata, Network}
 
 /**
   * Created by guillecledou on 01/02/2019
@@ -33,7 +33,7 @@ class VirtuosoInfoBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   private def showInfo(): Unit = try {
     if(box!=null) {
       box.text("")
-      aut = Automata.fromOneToOneSimple[HubAutomata](dependency.get).serialize.simplify
+      aut = Automata[HubAutomata](dependency.get).serialize.simplify
       //    aut = dependency.get.asInstanceOf[HubAutomata]
 
       // Memory

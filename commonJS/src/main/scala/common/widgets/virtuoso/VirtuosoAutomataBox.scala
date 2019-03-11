@@ -6,7 +6,7 @@ import hub.HubAutomata
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
-import preo.backend.{Automata, PortAutomata, ReoGraph}
+import preo.backend.{Automata, PortAutomata, Network}
 import preo.frontend.Show
 
 /**
@@ -42,7 +42,7 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   private def drawAutomata(portNames:Boolean=true): Unit =
     try{
 //      automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get)//
-      automaton = Automata.fromOneToOneSimple[HubAutomata](dependency.get).serialize.simplify
+      automaton = Automata[HubAutomata](dependency.get).serialize.simplify
       //println(s"%%%\n${automaton.show}\n%%%")
       //println(s"${automaton.getTrans.mkString(" > ")}")
       val sizeAut = automaton.getStates.size

@@ -32,7 +32,8 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 
   private def drawAutomata(): Unit =
   try{
-    automaton = Automata.fromOneToOneSimple[PortAutomata](dependency.get)
+    // redundancy needed to generate new port names, so these can be linked to the graph being depicted.
+    val (automaton,ext) = Automata.toAutWithRedundandy[PortAutomata](dependency.get)
     val sizeAut = automaton.getStates.size
     //              println("########")
     //              println(aut)
@@ -42,7 +43,7 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     val height = (heightAutRatio * factorAut).toInt
     svg.attr("viewBox", s"00 00 $width $height")
 
-    scalajs.js.eval(AutomataToJS(automaton))
+    scalajs.js.eval(AutomataToJS(automaton,ext))
   }
   catch Box.checkExceptions(errorBox)
 

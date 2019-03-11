@@ -6,7 +6,7 @@ import preo.backend._
 //todo: add rectangle colision colision
 object AutomataToJS {
 
-  def apply[A<:Automata](aut: A): String = generateJS(getNodes(aut), getLinks(aut))
+  def apply[A<:Automata](aut: A,ext:Map[Int,Int]): String = generateJS(getNodes(aut), getLinks(aut))
 
   def virtuosoToJs[A<:Automata](aut:A,portNames:Boolean):String = generateJS(getNodes(aut),getLinks(aut,portNames),true)
 

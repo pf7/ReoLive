@@ -4,7 +4,7 @@ import common.widgets.{Box, OutputArea}
 import hub.analyse.ContextSwitch
 import hub.{DSL, Guard, HubAutomata, Update}
 import preo.ast.CoreConnector
-import preo.backend.{Automata, ReoGraph}
+import preo.backend.{Automata, Network}
 
 /**
   * Created by guillecledou on 07/03/2019
@@ -40,7 +40,7 @@ class VirtuosoCSInfoBox(dependency: Box[String], connector:Box[CoreConnector], e
         clear()
         try {
           var pattern = DSL.parsePattern(dependency.get)
-          var aut = Automata.fromOneToOneSimple[HubAutomata](connector.get).serialize.simplify
+          var aut = Automata[HubAutomata](connector.get).serialize.simplify
           val (found,trace,cs) = ContextSwitch(aut,pattern)
           if (!found)
             errorBox.message(s"""Pattern not found""".stripMargin)

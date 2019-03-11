@@ -5,13 +5,13 @@ import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import org.singlespaced.d3js.Selection
 import preo.ast.CoreConnector
-import preo.backend.Graph
+import preo.backend.Circuit
 
 class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
-    extends Box[Graph]("Circuit of the instance", List(dependency)) {
-  var graph: Graph = _
+    extends Box[Circuit]("Circuit of the instance", List(dependency)) {
+  var graph: Circuit = _
   var box: Block = _
-  override def get: Graph = graph
+  override def get: Circuit = graph
 
   protected val widthCircRatio = 7
   protected val heightCircRatio = 3
@@ -34,7 +34,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 
 
   protected def drawGraph(): Unit = try{
-    graph = Graph(dependency.get,true)
+    graph = Circuit(dependency.get,true)
     val size = graph.nodes.size
     val factor = Math.sqrt(size * 10000 / (densityCirc * widthCircRatio * heightCircRatio))
     val width = (widthCircRatio * factor).toInt
