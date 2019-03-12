@@ -2,15 +2,17 @@ package common.widgets.virtuoso
 
 import common.widgets.{ButtonsBox, Setable}
 
-class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Setable[String])
-  extends ButtonsBox(reload, List(msgBox, inputBox)){
+class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Setable[String],csBox:Setable[String])
+  extends ButtonsBox(reload, List(msgBox, inputBox,csBox)){
 
   override protected val buttons: Seq[List[String]] = Seq(
     "Port"::("<p><strong>Port Hub</strong></p>Forwards data from its source to its sink, acting" +
-      " as a synchronisation mechanism between two tasks." +
+      " as a synchronisation mechanism between two tasks."  +
       " There is no buffer capacity, i.e.data is transfer" +
       " directly between the two tasks.")::
-      """port """.stripMargin::Nil,
+      """port """::
+      "//minimum number of context switches\n//to read twice \n " +
+      "out^2".stripMargin::Nil,
     "Port - 2 sources"
       ::"""<p><strong>Merging Port Hub</strong></p>
           | <p>Similar to the simple Port, but uses only one of its source points.</p>""".stripMargin
@@ -24,7 +26,8 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
       ::("<p><strong>Duplicator</p></strong>" +
          "Similar to the simplr Port, duplicates incoming data to all of its sink poins." +
          " It can only receive data once all its sources are ready to receive data.")
-      :: "dupl"::Nil,
+      :: "dupl"
+      ::"//minimum number of context switches\n//to write once\n" + "in"::Nil,
     "Semaphore"
       ::("<p><strong>Semaphore</strong></p>"+
       "Has two interaction points: to signal the semaphore and "+
@@ -101,7 +104,9 @@ class VirtuosoExamplesBox(reload: => Unit, inputBox: Setable[String],msgBox:Seta
         |    event(d31,e1) eventFull(d41,e2)
         |    merger(d13,d23,get)
         |}
-      """.stripMargin::Nil,
+      """.stripMargin::
+      "//minimum number of context switches\n//to read twice \n " +
+      "get^2"::Nil,
   "RoundRobin tasks - with components"
     ::"Round robin between 2 tasks, sending to an actuator. Tasks are modelled as components always ready to interact."
     :: """t1 * t2;

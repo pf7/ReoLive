@@ -74,5 +74,4 @@ trait CodeBox
     */
   override def setValue(value: String): Unit =
     code.setValue(value)
-
 }

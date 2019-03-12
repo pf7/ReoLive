@@ -1,7 +1,7 @@
 package widgets
 
 import common.backend.{CCToFamily, NReoIFTA}
-import common.widgets.ifta.IFTABox
+import common.widgets.Ifta.IFTABox
 import common.widgets.{Box, OutputArea}
 import ifta.{DSL, IFTA}
 import ifta.backend.Show

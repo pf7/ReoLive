@@ -1,4 +1,4 @@
-package common.widgets.ifta
+package common.widgets.Ifta
 
 import common.backend.CCToFamily
 import common.frontend.IFTAToJS
