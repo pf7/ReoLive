@@ -87,9 +87,9 @@ object CCToFamily {
     case Network.Prim(CPrim("drain", _, _, _), List(a, b), List(),_) =>
       sdrain(a.toString,b.toString) name "drain"
     case Network.Prim(CPrim("merger", _, _, _), List(a, b), List(c),_) =>
-      merger(a.toString,b.toString,c.toString) name "merger"
+      vmerger(a.toString,b.toString,c.toString) name "merger"
     case Network.Prim(CPrim("dupl", _, _, _), List(a), List(b, c),_) =>
-      repl(a.toString,b.toString,c.toString) name "dupl"
+      vrepl(a.toString,b.toString,c.toString) name "dupl"
     case Network.Prim(CPrim("writer", _, _, _), List(), List(a),_) =>
       writer(a.toString)
     case Network.Prim(CPrim("reader", _, _, _), List(a), List(),_) =>
