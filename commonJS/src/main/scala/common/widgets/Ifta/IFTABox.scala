@@ -66,7 +66,7 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
       // evaluate js that generates the automaton
       box.attr("viewBox", s"00 00 $width $height")
 //      scalajs.js.eval(IFTAToJS(ifta))
-      scalajs.js.eval(AutomataToJS.iftaToJs(iftaAut))
+      scalajs.js.eval(AutomataToJS.toJs(iftaAut,"iftaAutomata",allNames))
     }
     catch Box.checkExceptions(errorBox)
   }

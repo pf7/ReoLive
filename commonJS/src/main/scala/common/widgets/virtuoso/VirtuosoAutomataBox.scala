@@ -54,7 +54,7 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
       val height = (heightAutRatio * factorAut).toInt
       svg.attr("viewBox", s"00 00 $width $height")
 
-      scalajs.js.eval(AutomataToJS.virtuosoToJs(automaton,portNames))
+      scalajs.js.eval(AutomataToJS.toJs(automaton,"virtuosoAutomata",portNames))
     }
     catch Box.checkExceptions(errorBox)
 

@@ -43,7 +43,7 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     val height = (heightAutRatio * factorAut).toInt
     svg.attr("viewBox", s"00 00 $width $height")
 
-    scalajs.js.eval(AutomataToJS(automaton,ext))
+    scalajs.js.eval(AutomataToJS(automaton,ext,"automata"))
   }
   catch Box.checkExceptions(errorBox)
 
