@@ -1,4 +1,4 @@
-package common.widgets.ifta
+package common.widgets.Ifta
 
 import common.widgets.{Box, OutputArea}
 import ifta.NIFTA

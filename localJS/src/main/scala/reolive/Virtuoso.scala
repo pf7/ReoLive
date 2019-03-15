@@ -71,10 +71,10 @@ object Virtuoso extends{
     graphics = new VirtuosoGraphBox(instantiate,errors)
     aut = new VirtuosoAutomataBox(instantiate,errors)
     infoBox = new VirtuosoInfoBox(instantiate,errors)
-    examples = new VirtuosoExamplesBox(softReload(),inputBox,descr)
     csBox = new VirtuosoCSInputBox(reloadCsInfo())
     outputCs = new OutputArea
     csInfoBox = new VirtuosoCSInfoBox(csBox,instantiate,outputCs)
+    examples = new VirtuosoExamplesBox(softReload(),inputBox,descr,csBox)
 
     inputBox.init(leftColumn,true)
     errors.init(leftColumn)
@@ -114,7 +114,6 @@ object Virtuoso extends{
   }
   private def softReload(): Unit = {
     errors.clear()
-    csBox.clear()
     csInfoBox.clear()
     inputBox.update()
     instantiate.update()
