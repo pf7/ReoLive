@@ -1,12 +1,14 @@
 package common.widgets.Ifta
 
 import common.backend.CCToFamily
-import common.frontend.IFTAToJS
+import common.frontend.{AutomataToJS, IFTAToJS}
 import common.widgets.{Box, GraphBox, OutputArea}
 import ifta.IFTA
+import ifta.backend.IftaAutomata
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
+import preo.backend.Automata
 
 
 /**
@@ -54,14 +56,17 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
     deleteAutomaton()
     try{
       // drawing ifta
-      ifta = CCToFamily.toIFTA(dependency.get,allNames,hideInternal)
+//      ifta = CCToFamily.toIFTA(dependency.get,allNames,hideInternal)
+      var iftaAut = Automata[IftaAutomata](dependency.get)
+      ifta = iftaAut.ifta
       val iftaSize = ifta.locs.size
       val iftaFactor = Math.sqrt(iftaSize*10000 / (densityAut * widthAutRatio * heightAutRatio))
       val width = (widthAutRatio * iftaFactor).toInt
       val height = (heightAutRatio * iftaFactor).toInt
       // evaluate js that generates the automaton
       box.attr("viewBox", s"00 00 $width $height")
-      scalajs.js.eval(IFTAToJS(ifta))
+//      scalajs.js.eval(IFTAToJS(ifta))
+      scalajs.js.eval(AutomataToJS.iftaToJs(iftaAut))
     }
     catch Box.checkExceptions(errorBox)
   }
@@ -78,8 +83,8 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
       val sol = ifta.feats.map(f => if (fs contains f) f -> true else f -> false).toMap
 
       val edgeShow: Set[(Int, Int)] = ifta.edges.map(e =>
-        if (e.fe.check(sol)) (e.act, e.fe).hashCode() -> 1
-        else (e.act, e.fe).hashCode() -> 0)
+        if (e.fe.check(sol)) (e.from, e.to, e.act, e.fe, e.cCons, e.cReset).hashCode() -> 1
+        else (e.from, e.to, e.act, e.fe, e.cCons, e.cReset).hashCode() -> 0)
 
       val showEdges = edgeShow.map(e => s"""["${e._1}", "${e._2}"]""").mkString("[", ",", "]")
       val updateEdges =

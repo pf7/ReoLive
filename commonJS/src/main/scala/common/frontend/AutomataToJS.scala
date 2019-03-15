@@ -1,24 +1,27 @@
 package common.frontend
 
+import ifta.backend.IftaAutomata
 import preo.backend._
 
 
 //todo: add rectangle colision colision
 object AutomataToJS {
 
-  def apply[A<:Automata](aut: A,ext:Map[Int,Int]): String = generateJS(getNodes(aut), getLinks(aut))
+  def apply[A<:Automata](aut: A,ext:Map[Int,Int]): String = generateJS(getNodes(aut), getLinks(aut,"automata"),"automata")
 
-  def virtuosoToJs[A<:Automata](aut:A,portNames:Boolean):String = generateJS(getNodes(aut),getLinks(aut,portNames),true)
+  def iftaToJs(aut:IftaAutomata):String = generateJS(getNodes(aut),getLinks(aut,"iftaAutomata"), "iftaAutomata")
+
+  def virtuosoToJs[A<:Automata](aut:A,portNames:Boolean):String = generateJS(getNodes(aut),getLinks(aut,"virtuosoAutomata",portNames),"virtuosoAutomata",true)
 
   /*todo: refactor in different methods or classes to avoid booolean virtuoso, or pass automata for
    * better customization for each type of automata, reo, ifta, hub*/
-  private def generateJS(nodes: String, edges: String,virtuoso:Boolean = false): String = {
+  private def generateJS(nodes: String, edges: String,aut:String,virtuoso:Boolean = false): String = {
     // println(nodes)
     // println(edges)
     s"""
         buildAut();
         function buildAut() {
-          var svgAut = d3.select("#automata");
+          var svgAut = d3.select("#${aut}");
           var vboxAut = svgAut.attr('viewBox').split(" ")
           var widthAut = vboxAut[2]; //svgAut.attr("widthAut");
           var heightAut = vboxAut[3];  //svgAut.attr("heightAut");
@@ -49,7 +52,7 @@ object AutomataToJS {
 
           function initAut(nodesAut, linksAut){
               //add nodes (nodes "circle" with group 0..2)
-              var node = d3.select(".nodesautomata")
+              var node = d3.select(".nodes${aut}")
                   .selectAll("circle")
                   .data(nodesAut);
 //              var nodeG = nodeout
@@ -107,7 +110,7 @@ object AutomataToJS {
 
 
                //add links
-               var link = d3.select(".linksautomata")
+               var link = d3.select(".links${aut}")
                   .selectAll("polyline")
                   .data(linksAut);
                link.enter().append("polyline")
@@ -127,7 +130,7 @@ object AutomataToJS {
               link.exit().remove();
 
               //add labels to graphAut
-              var edgepaths = svgAut.select(".pathsautomata")
+              var edgepaths = svgAut.select(".paths${aut}")
                   .selectAll(".edgepath")
                   .data(linksAut);
               edgepaths.enter()
@@ -135,30 +138,30 @@ object AutomataToJS {
                   .attr('class', 'edgepath')
                   .attr('fill-opacity', 0)
                   .attr('stroke-opacity', 0)
-                  .attr('id', function (d, i) {return 'edgepath' + i})
+                  .attr('id', function (d, i) {return 'edge${aut}path' + i})
                   .style("pointer-events", "none");
               edgepaths.exit().remove();
 
-              var edgelabels = svgAut.select(".labelsautomata")       // for all labels in data
+              var edgelabels = svgAut.select(".labels${aut}")       // for all labels in data
                   .selectAll(".edgelabel")
                   .data(linksAut);
               edgelabels.enter()
                   .append('text')
 //                  .style("pointer-events", "none")
                   .attr('class', 'edgelabel')
-                  .attr('id', function (d, i) {return 'edgelabel' + i})
+                  .attr('id', function (d, i) {return 'edge${aut}label' + i})
                   .attr('font-size', 10)
                   .attr('fill', 'black');
               edgelabels.exit().remove();
 
-              d3.select(".labelsautomata")
+              d3.select(".labels${aut}")
                   .selectAll("textPath").remove();
 
             if (${!virtuoso}) {
-              var textpath = d3.select(".labelsautomata")
+              var textpath = d3.select(".labels${aut}")
                   .selectAll(".edgelabel")
                   .append('textPath')
-                  .attr('xlink:href', function (d, i) {return '#edgepath' + i})
+                  .attr('xlink:href', function (d, i) {return '#edge${aut}path' + i})
                   .style("text-anchor", "middle")
                   //.style("pointer-events", "none")
                   .attr("startOffset", "50%")
@@ -194,14 +197,14 @@ object AutomataToJS {
                   })
                   ;
             } else {
-              var textpath = d3.select(".labelsautomata")
+              var textpath = d3.select(".labels${aut}")
                     .selectAll(".edgelabel")
                     .append('textPath')
                     .call(d3.drag()
                     .on("start", dragstartedAut)
                     .on("drag", draggedAut)
                     .on("end", dragendedAut))
-                    .attr('xlink:href', function (d, i) {return '#edgepath' + i})
+                    .attr('xlink:href', function (d, i) {return '#edge${aut}path' + i})
                     .style("text-anchor", "middle")
                     // .style("pointer-events", "none")
                     .attr("startOffset", "50%");
@@ -245,12 +248,12 @@ object AutomataToJS {
           }
 
           function tickedAut() {
-              var node = d3.select(".nodesautomata")
+              var node = d3.select(".nodes${aut}")
                   .selectAll("circle")
                   .attr('cx', function(d) {return d.x = Math.max(radiusAut, Math.min(widthAut - radiusAut, d.x)); })
                   .attr('cy', function(d) {return d.y = Math.max(radiusAut, Math.min(heightAut - radiusAut, d.y)); });
 
-              var link = d3.select(".linksautomata")
+              var link = d3.select(".links${aut}")
                   .selectAll("polyline")
                   .attr("points", function(d) {
                       return d.source.x + "," + d.source.y + " " +
@@ -260,7 +263,7 @@ object AutomataToJS {
   //                .attr("y1", function(d) { return d.source.y; })
   //                .attr("x2", function(d) { return d.target.x; })
   //                .attr("y2", function(d) { return d.target.y; });
-              d3.select(".pathsautomata").selectAll(".edgepath").attr('d', function (d) {
+              d3.select(".paths${aut}").selectAll(".edgepath").attr('d', function (d) {
                   m = (d.target.y - d.source.y)/(d.target.x - d.source.x);
                   b = d.target.y - m*d.target.x;
                   new_source_x = d.source.x - 2000;
@@ -270,7 +273,7 @@ object AutomataToJS {
                   //return 'M ' + new_source_x +' '+ new_source_y  +' L '+ new_target_x +' '+ new_target_y;
                   return 'M ' + new_source_x +' '+ new_source_y  +' L '+ new_target_x +' '+ new_target_y;
               });
-              d3.select(".labelsautomata").selectAll(".edgelabel").attr('transform', function (d) {
+              d3.select(".labels${aut}").selectAll(".edgelabel").attr('transform', function (d) {
                 new_source_x = d.source.x - 2000;
                 new_target_x = d.target.x + 2000;
                   if (new_target_x < new_source_x) {
@@ -309,8 +312,8 @@ object AutomataToJS {
   private def getNodes[A<:Automata](aut: A): String =
     aut.getTrans().flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
 
-  private def getLinks[A<:Automata](aut: A,portNames:Boolean=false): String =
-    aut.getTrans(portNames).flatMap(processEdge).mkString("[",",","]")
+  private def getLinks[A<:Automata](aut: A,code:String,portNames:Boolean=false): String =
+    aut.getTrans(portNames).flatMap(t => processEdge(t,code)).mkString("[",",","]")
 
 
   private def processNode(initAut:Int,trans:(Int,Any,String,Int)): Set[String] = trans match{
@@ -343,11 +346,11 @@ object AutomataToJS {
       , "2" , "2"
     )
 
-  private def processEdge(trans:(Int,Any,String,Int)): Set[String] = trans match {
+  private def processEdge(trans:(Int,Any,String,Int),aut:String=""): Set[String] = trans match {
     case (from, lbl,id, to) => {
-      Set(s"""{"source": "$from", "target": "$from-1-$to-$id", "type":"", "start":"start", "end": "end"}""",
-        s"""{"source": "$from-1-$to-$id", "target": "$to-2-$from-$id", "type":"$lbl", "start":"start", "end": "end"}""",
-        s"""{"source": "$to-2-$from-$id", "target": "$to", "type":"", "start":"start", "end": "endarrowoutautomata"}""")
+      Set(s"""{"id": "${id}" , "source": "$from", "target": "$from-1-$to-$id", "type":"", "start":"start", "end": "end"}""",
+        s"""{"id": "${id}" , "source": "$from-1-$to-$id", "target": "$to-2-$from-$id", "type":"$lbl", "start":"start", "end": "end"}""",
+        s"""{"id": "${id}" , "source": "$to-2-$from-$id", "target": "$to", "type":"", "start":"start", "end": "endarrowout${aut}"}""")
     }
   }
   //  private def processEdge(trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match {

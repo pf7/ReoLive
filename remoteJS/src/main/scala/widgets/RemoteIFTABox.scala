@@ -3,12 +3,13 @@ package widgets
 import common.backend.{CCToFamily, NReoIFTA}
 import common.widgets.Ifta.IFTABox
 import common.widgets.{Box, OutputArea}
-import ifta.{DSL, IFTA}
-import ifta.backend.Show
+import ifta.{DSL, IFTA, NIFTA}
+import ifta.backend.{IftaAutomata, Show}
 import org.scalajs.dom
 import org.scalajs.dom.{EventTarget, html}
 import org.scalajs.dom.raw.MouseEvent
 import preo.ast.CoreConnector
+import preo.backend.Automata
 
 import scala.scalajs.js.UndefOr
 
@@ -50,9 +51,10 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAut:IFTABox, errorBox:Out
 
   private def solveFm():Unit ={
     try {
-      var rifta = CCToFamily.toRifta(dependency.get)
-      var fmInfo =  s"""{ "fm":     "${Show(rifta.getFm)}", """ +
-                    s"""  "feats":  "${rifta.getFeats.mkString("(",",",")")}" }"""
+//      var rifta = CCToFamily.toRifta(dependency.get)
+      var nifta = NIFTA(Automata[IftaAutomata](dependency.get).nifta)
+      var fmInfo =  s"""{ "fm":     "${Show(nifta.fm)}", """ +
+                    s"""  "feats":  "${nifta.iFTAs.flatMap(i => i.feats).mkString("(",",",")")}" }"""
       RemoteBox.remoteCall("ifta", fmInfo, showProducts)
     } catch {
       case e:Throwable =>

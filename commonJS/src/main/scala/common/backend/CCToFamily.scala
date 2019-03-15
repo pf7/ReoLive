@@ -11,6 +11,8 @@ import preo.common.GenerationException
 
 /**
   * Created by guille on 11/12/2018
+  *
+  * OLD WAY TO BUILD AND (N)IFTA, NOT USED NOW
   */
 
 
