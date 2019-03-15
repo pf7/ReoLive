@@ -1,82 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="noscroll full">
   <head>
-    @head()
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="Online Tools by the ARCA research group using JavaScript">
+    <meta name="author" content="">
+
+
+    <title>Online Tools by the ARCA research group</title>
+
+    <!-- icons -->
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="mask-icon" href="favicon.svg" color="#34569c">
+    <!-- Bootstrap core CSS -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="assets/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+
+
+    <!-- Custom styles for this template -->
+    <!-- <link href="theme.css" rel="stylesheet"> -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
   </head>
 
-  <body>
+  <body class="full">
 
-  <!-- Number reflects index of the tab -->
-  @topnav(1)
+  <div class="navbar navbar-inverse"> <!-- navbar-fixed-top -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">
+        <!-- <img id="reolivelogo" src="....png" alt="ReoLive logo"> -->
+      ArcaTools
+    </a>
+    </div>
+    <div class="navbar-collapse collapse navbar-responsive-collapse">
+      <ul class="nav navbar-nav" id="myTab">
+        <!--~~~~~~~~~~~~~~~~~
+          CHANGE TABS HERE
+        ~~~~~~~~~~~~~~~~~~-->
+        <!-- <li><a href="#families" data-toggle="tab" aria-expanded="true">Reo Families</a></li> -->
+        <!-- <li><a href="#lince" data-toggle="tab" aria-expanded="false">Hybrid Programs</a></li> -->
+        <!-- <li><a href="#about" data-toggle="tab" aria-expanded="false">About</a></li> -->
+        <li><a href="#webReo" data-toggle="tab" onclick='load_home("webReo")'>Reo</a>
+        <!-- <li><a href="#remote" data-toggle="tab" onclick='load_WS("remote")'>Online Reo (old)</a> -->
+        <li><a href="#onlineReo" data-toggle="tab" onclick='load_WS("onlineReo")'>Online Reo</a>
+        <li><a href="#lince" data-toggle="tab" onclick='load_home("lince")'>Lince</a> 
+        <li><a href="#virtuoso" data-toggle="tab" onclick='load_home("virtuoso")'>VirtuosoNext</a> 
+        <li><a href="#about" data-toggle="tab" onclick='load_home("about")'>About</a></li>
+        <!--~~~~~~~~~~~~~~-->
 
-  <div id="myTabContent" class="container">
-  <div class="row">
+      </ul>
+    </div>
+  </div>
 
 
+    <div id="content" style="width: 100%; height: calc(100% - 68px);"></div>
 
-    <div id="contentWrap"></div>
 
   </div>
+
+  <!-- ~~~~~~~~~~~~~~~~~ -->
+  <!-- ~~~~ FOOTERS ~~~~ -->
+  <!-- ~~~~~~~~~~~~~~~~~ -->
+
+  <div class="panel-footer" id="wrapper-footer">
+    <div id="footer">
+      Copyright 2017-2019 – <a href="http://arca.di.uminho.pt">ARCA.di.uminho.pt</a>
+    </div>
   </div>
-
-
-  @footer()
 
   </body>
 
-  <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>-->
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/jquery-1.10.2.min.js")'></script>
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/springy.min.js")'> </script>
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/bootstrap.min.js")'></script>
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/d3.v4.min.js")'></script>
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/ploty.min.js")'></script>
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/codemirror.js")'></script>
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/addon/edit/matchbrackets.js")'></script>
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/mode/preo/preo.js")'></script>
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/codemirror/mode/modal/modal.js")'></script>
-  <script type="text/javascript" src='@routes.Assets.versioned("javascripts/local_js-opt.js")'></script>
-  <script type="text/javascript" src='@routes.Assets.versioned("../assets/javascripts/starter.js")'></script>
+  <style>
 
-  <script type="text/javascript">reolive.WebReo.main(document.getElementById('contentWrap'));</script>
+    .links line {
+      stroke: #999;
+      stroke-opacity: 0.6;
+      stroke-width: 2.0px;
+    }
+
+    .nodes circle {
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+
+  </style>
+
+
+  <script type="text/javascript" src="assets/js/jquery-1.10.2.min.js"></script>
+  <script type="text/javascript" src="assets/js/bootstrap.min.js"></script>
+
+
+  <script>
+      ////////////////////
+      // ACTIVATING TABS BASED ON URL
+      ////////////////////
+      $(function () {
+       var lhash = location.hash;
+       if (lhash=="") { lhash = "#webReo";}
+       var activeTab = $('[href=' + lhash + ']');
+    //    activeTab && activeTab.tab('show');
+       activeTab.tab('show');
+       activeTab.click();
+      });
+
+  </script>
+
 
   <script type="text/javascript">
-      //// RESIZING
-      var i = 0;
-      var id = "";
-      var dragging = false;
-      $('#dragbar_wr').mousedown(function(e){
-          id = "wr";
-          e.preventDefault();
-          dragging = true;
-          var main = $('#rightbar_wr');
-          var ghostbar = $('<div>',
-              {id:'ghostbar',
-                  css: {
-                      height: "100%", //main.outerHeight(),
-                      top: main.offset().top,
-                      left: main.offset().left
-                  }
-              }).appendTo('body');
-
-          $(document).mousemove(function(e){
-              ghostbar.css("left",e.pageX+2);
-          });
-      });
-      $(document).mouseup(function(e){
-          if (dragging)
-          {
-              var percentage = (e.pageX / window.innerWidth) * 100;
-              var mainPercentage = 100-percentage;
-              // $('#console').text("side:" + percentage + " main:" + mainPercentage);
-
-              $('#leftbar_'+id).css("width",percentage + "%");
-              $('#rightbar_'+id).css("width",mainPercentage + "%");
-              $('#dragbar_'+id).css("margin-left",(percentage) + "%");
-              $('#ghostbar').remove();
-              $(document).unbind('mousemove');
-              dragging = false;
-          }
-      });
+    function load_home(file) {
+     document.getElementById("content").innerHTML='<object type="text/html" data="assets/content/'+file+'.html" class="full"></object>';
+     window.location.hash = file
+    }
+    function load_WS(service) {
+    var url = 'http://localhost:9000/'+service
+    document.getElementById("content").innerHTML='<object type="text/html" data="'+url+'" class="full"><h4 style="padding:15px;">"'+url+'" not found. Check if the server is running.</object>';
+    window.location.hash = service
+    }
   </script>
+
 </html>
 

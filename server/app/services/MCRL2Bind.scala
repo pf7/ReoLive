@@ -25,6 +25,14 @@ object MCRL2Bind {
     s"${mcrl2path}pbes2bool /tmp/modal_$id.pbes".!!
   }
 
+  def solvepbes2(): String = {
+    val id = Thread.currentThread().getId
+    s"${mcrl2path}pbessolve -v --file=/tmp/model_$id.lps /tmp/modal_$id.pbes".!!
+//    s"${mcrl2path}lps2lts /tmp/modal_$id.pbes.evidence.lps /tmp/modal_$id.pbes.evidence.lts".!!
+    s"${mcrl2path}lpspp /tmp/modal_$id.pbes.evidence.lps".!!
+
+  }
+
   def storeInFile(model:Model): Unit = {
     val id = Thread.currentThread().getId
     val file = new File(s"/tmp/model_$id.mcrl2")
