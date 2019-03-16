@@ -48,12 +48,16 @@ class VirtuosoCSInfoBox(dependency: Box[String], connector:Box[CoreConnector], e
             // CS
             csInfo.append("p")
               .append("strong")
-              .text(s"Context Switches: ${cs} (minimum)")
+              .text(s"Context Switches: ${cs} cs (minimum)")
 
-            csInfo.append("ul")
+            var listt = csInfo.append("ul")
               .attr("style", "margin-bottom: 20pt;")
-              .append("li")
-                .text(s"${trace.size} transition(s) involved \n")
+//              .append("li")
+//                .text(s"${trace.size} transition(s) involved \n")
+            trace.foreach( t=>
+              listt.append("li")
+              .text(s"${t._1} --> ${t._2._1} by ${t._2._2.map(p => aut.getPortName(p)).mkString(",")}: ${t._2._2.size*2} cs ")
+            )
 
             // Pattern used
             csInfo.append("p")
