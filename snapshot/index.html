@@ -55,7 +55,7 @@
         <!-- <li><a href="#about" data-toggle="tab" aria-expanded="false">About</a></li> -->
         <li><a href="#webReo" data-toggle="tab" onclick='load_home("webReo")'>Reo</a>
         <!-- <li><a href="#remote" data-toggle="tab" onclick='load_WS("remote")'>Online Reo (old)</a> -->
-        <!-- <li><a href="#onlineReo" data-toggle="tab" onclick='load_WS("onlineReo")'>Online Reo</a> -->
+        <li><a href="#onlineReo" data-toggle="tab" onclick='load_WS("onlineReo")'>Online Reo</a>
         <li><a href="#lince" data-toggle="tab" onclick='load_home("lince")'>Lince</a> 
         <li><a href="#virtuoso" data-toggle="tab" onclick='load_home("virtuoso")'>VirtuosoNext</a> 
         <li><a href="#about" data-toggle="tab" onclick='load_home("about")'>About</a></li>
@@ -121,11 +121,11 @@
 
   <script type="text/javascript">
     function load_home(file) {
-     document.getElementById("content").innerHTML='<object type="text/html" data="'+file+'.html" class="full"></object>';
+     document.getElementById("content").innerHTML='<object type="text/html" data="content/'+file+'.html" class="full"></object>';
      window.location.hash = file
     }
     function load_WS(service) {
-    var url = 'https://localhost:9000/'+service
+    var url = 'http://localhost:9000/'+service
     document.getElementById("content").innerHTML='<object type="text/html" data="'+url+'" class="full"><h4 style="padding:15px;">"'+url+'" not found. Check if the server is running.</object>';
     window.location.hash = service
     }

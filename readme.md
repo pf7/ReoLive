@@ -7,34 +7,28 @@ A snapshot of Reo Live can be found in https://reolanguage.github.io/ReoLive/sna
 It uses ScalaJS to generate JavaScript, and imports independent Reo related tools using git submodules feature.
 
 
-How to compile local javascript and try-out
+How to compile local javascript
 ==============
 * Pull the git submodules:
 
 > git submodule update --init
 
-* Generate the JavaScript code using sbt:
+* Run the compilation script:
 
-> sbt localJS/fastOptJS
+> ./compile.sh
 
-* Open the `index-dev.html` file, already linking to the generated JavaScript code:
 
-> open localJS/src/main/resources/index-dev.html
+How to run the framework
+=====
 
-How to compile client-server project and try-out
-==============
+* For the static version, open the `index.html` file, already linking to the generated JavaScript code:
 
-* Compile files using the script:
+> open localJS/src/main/resources/index.html
 
-> fast_compile.sh
-
-* Start the server using sbt:
+* For the server-based version, start the server using sbt and open localhost:9000
 
 > sbt server/run
-
-* Open a browser and type:
-
-> localhost:9000
+> open http://localhost:9000
 
 
 
