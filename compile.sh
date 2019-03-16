@@ -13,10 +13,10 @@ cd ../../
 cd localJS/src/main/resources/js/
 ln -s ../../../../target/scala-2.12/local_js-fastopt.js     # used by local index
 ln -s ../../../../target/scala-2.12/local_js-fastopt.js.map # used by local index
-ln -s ../../../../target/scala-2.12/local_js-opt.js         # used by snapshot + server
-ln -s ../../../../target/scala-2.12/local_js-opt.js.map     # used by snapshot + server
-ln -s ../../../../../remoteJS/target/scala-2.12/remote_js-opt.js     # used by snapshot + server
-ln -s ../../../../../remoteJS/target/scala-2.12/remote_js-opt.js.map # used by snapshot + server
+ln -s ../../../../target/scala-2.12/local_js-opt.js         # used by server
+ln -s ../../../../target/scala-2.12/local_js-opt.js.map     # used by server
+ln -s ../../../../../remoteJS/target/scala-2.12/remote_js-opt.js     # used by server
+ln -s ../../../../../remoteJS/target/scala-2.12/remote_js-opt.js.map # used by server
 
 ## to run the html provided by the play-server
 cd ../../../../../server/public
