@@ -35,10 +35,10 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
     * @param visible is true when this box is initially visible (i.e., expanded).
     */
   override def init(div: Block, visible: Boolean): Unit = {
-    box = GraphBox.appendSvg(panelBox(div,visible,buttons=
-      List(Left("all ports")      -> (()=> draw(false,false),"Show internal and interface ports"),
-          Left("interface ports") -> (()=> draw(false,true),"Show interface ports only"),
-          Left("full names")       -> (()=> draw(true,false),"Identify all port names by connector index"))),name="iftaAutomata")
+    box = GraphBox.appendSvg(panelBox(div,visible),"iftaAutomata")//,buttons=
+//      List(Left("all ports")      -> (()=> draw(false,false),"Show internal and interface ports"),
+//          Left("interface ports") -> (()=> draw(false,true),"Show interface ports only"),
+//          Left("full names")       -> (()=> draw(true,false),"Identify all port names by connector index"))),name="iftaAutomata")
     dom.document.getElementById("IFTA automaton of the instance")
       .firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {e: MouseEvent => if (!isVisible) drawAutomata() else deleteAutomaton()}

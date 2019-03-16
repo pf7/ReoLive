@@ -12,7 +12,7 @@ object AutomataToJS {
     generateJS(getNodes(aut), getLinks(aut,boxName), boxName)
 
   def toJs[A<:Automata](aut: A, boxName:String, portNames:Boolean=false): String =
-    generateJS(getNodes(aut), getLinks(aut,boxName), boxName)
+    generateJS(getNodes(aut), getLinks(aut,boxName,portNames), boxName)
 
 
   /*todo: refactor in different methods or classes to avoid booolean virtuoso, or pass automata for
@@ -159,7 +159,7 @@ object AutomataToJS {
               d3.select(".labels${name}")
                   .selectAll("textPath").remove();
 
-            if (${name == "automata"}) {
+              if (${name == "automata"}) {
               var textpath = d3.select(".labels${name}")
                   .selectAll(".edgelabel")
                   .append('textPath')
@@ -211,14 +211,14 @@ object AutomataToJS {
                     .attr('xlink:href', function (d, i) {return '#edge${name}path' + i})
                     .style("text-anchor", "middle")
                     // .style("pointer-events", "none")
-                    .attr("startOffset", "50%");
+                    .attr("startOffset", "50%")
+                    .on("mouseenter", function(d) {
+                      d3.select(this).style("font-size","14px");})
+                    .on("mouseleave", function(d) {
+                      d3.select(this).style("font-size", "10px");});
                   textpath.append("tspan")
                     .attr("class", "guards")
                     .style("fill","#008900")
-                    .on("mouseover", function(d) {
-                      d3.select(this).style("font-size","14px");})
-                    .on("mouseout", function(d) {
-                      d3.select(this).style("font-size", "10px");})
                     .text(function (d) {
                       var g = d.type.split("~")[0] ;
                       return (g != "" ) ?  "〈" + g + "〉" : "";
@@ -226,10 +226,6 @@ object AutomataToJS {
                   textpath.append("tspan")
                     .attr("class", "acts")
                     .style("fill","#3B01E9")
-                    .on("mouseover", function(d) {
-                      d3.select(this).style("font-size","14px");})
-                    .on("mouseout", function(d) {
-                      d3.select(this).style("font-size", "10px");})
                     .text(function (d) {
                       var g = d.type.split("~")[0] ;
                       var a = d.type.split("~")[1] ;
@@ -239,16 +235,12 @@ object AutomataToJS {
                   textpath.append("tspan")
                     .attr("class", "updates")
                     .style("fill","#0F024F")
-                    .on("mouseover", function(d) {
-                      d3.select(this).style("font-size", "14px");})
-                    .on("mouseout", function(d) {
-                      d3.select(this).style("font-size", "10px");})
                     .text(function (d) {
                       var u = d.type.split("~")[2] ;
 //                      return (typeof u != 'undefined') ? (", " + u) : " ";
                       return (u != "" && u!== undefined) ? ", " + u : "";
                     });
-            } else {//iftaAutomata {
+            } else { //iftaAutomata
                 var textpath = d3.select(".labels${name}")
                     .selectAll(".edgelabel")
                     .append('textPath')
@@ -260,9 +252,9 @@ object AutomataToJS {
                     .style("text-anchor", "middle")
                     // .style("pointer-events", "none")
                     .attr("startOffset", "50%")
-                    .on("mouseover", function(d) {
+                    .on("mouseenter", function(d) {
                       d3.select(this).style("font-size","14px");})
-                    .on("mouseout", function(d) {
+                    .on("mouseleave", function(d) {
                       d3.select(this).style("font-size", "10px");});
                   textpath.append("tspan")
                     .attr("class", "cc")
