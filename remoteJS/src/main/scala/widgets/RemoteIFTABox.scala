@@ -3,7 +3,7 @@ package widgets
 import common.backend.{CCToFamily, NReoIFTA}
 import common.widgets.Ifta.IFTABox
 import common.widgets.{Box, OutputArea}
-import ifta.{DSL, IFTA, NIFTA}
+import ifta.{DSL, Feat, IFTA, NIFTA}
 import ifta.backend.{IftaAutomata, Show}
 import org.scalajs.dom
 import org.scalajs.dom.{EventTarget, html}
@@ -18,13 +18,13 @@ import scala.scalajs.js.UndefOr
   */
 
 
-class RemoteIFTABox(dependency:Box[CoreConnector], iftaAut:IFTABox, errorBox:OutputArea)
-  extends Box[NReoIFTA]("IFTA Products",List(dependency)){
+class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox, errorBox:OutputArea)
+  extends Box[IftaAutomata]("IFTA Products",List(dependency)){
 
   private var solutionsBox: Block = _
-  private var nrifta:NReoIFTA = _
+  private var iftaAut:IftaAutomata= _
 
-  override def get: NReoIFTA = nrifta
+  override def get: IftaAutomata = iftaAut
 
   /**
     * Executed once at creation time, to append the content to the inside of this box
@@ -52,7 +52,9 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAut:IFTABox, errorBox:Out
   private def solveFm():Unit ={
     try {
 //      var rifta = CCToFamily.toRifta(dependency.get)
-      var nifta = NIFTA(Automata[IftaAutomata](dependency.get).nifta)
+//      var nifta = NIFTA(Automata[IftaAutomata](dependency.get).nifta)
+      iftaAut = Automata[IftaAutomata](dependency.get)
+      var nifta:NIFTA = NIFTA(iftaAut.nifta)
       var fmInfo =  s"""{ "fm":     "${Show(nifta.fm)}", """ +
                     s"""  "feats":  "${nifta.iFTAs.flatMap(i => i.feats).mkString("(",",",")")}" }"""
       RemoteBox.remoteCall("ifta", fmInfo, showProducts)
@@ -65,6 +67,26 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAut:IFTABox, errorBox:Out
   private def showProducts(data:String):Unit = {
     deleteProducts()
     val solutions = DSL.parseProducts(data)
+    // # of features
+    solutionsBox.append("p")
+      .append("strong")
+      .text(s"Number of features: ${iftaAut.getFeats.size}\n")
+    solutionsBox.append("ul")
+      .attr("style","margin-bottom: 20pt;")
+      .append("li")
+      .text(s"${iftaAut.getFeats.map(Show(_)).mkString(",")}")
+    // fm
+    solutionsBox.append("p")
+      .append("strong")
+      .text("Feature model:")
+    val list = solutionsBox.append("ul")
+    list.attr("style","margin-bottom: 20pt;")
+    list.append("li")
+      .text(s"${Show(iftaAut.getFm)}")
+    // solutions
+    solutionsBox.append("p")
+      .append("strong")
+      .text(s"Solutions: ${solutions.size}")
     solutions.map(mkSolButton)
   }
 
@@ -73,11 +95,12 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAut:IFTABox, errorBox:Out
   }
 
   private def mkSolButton(sol:Set[String]):Unit = {
-    val text = sol.mkString(",")
+//    val text = sol.mkString(",")
+    val renamedSols = sol.map(ft => Feat(ft)).map(ft => Show(iftaAut.getRenamedFe(ft))).mkString(",")
     val b = solutionsBox.append("button").text(
-      if (text == "") "⊥" else text)
+      if (renamedSols == "") "⊥" else renamedSols)
     b.on("click",{(e:EventTarget, a:Int, b:UndefOr[Int]) => {
-      iftaAut.showFs(sol)
+      iftaAutBox.showFs(sol)
     }}:b.DatumFunction[Unit])
   }
 }
