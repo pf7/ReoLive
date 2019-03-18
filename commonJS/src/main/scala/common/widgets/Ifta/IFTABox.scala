@@ -98,6 +98,12 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
            |  .attr("marker-end", function(d) {
            |    return (showEdges.get(d.id) == 1) ? "url(#" + d.end + ")" : "url(#" + d.end + "light)"
            |  });
+           |
+           |d3.select(".labelsiftaAutomata")
+           |  .selectAll("textPath")
+           |  .style("opacity", function(d) {
+           |    return (showEdges.get(d.id) == 1 ) ? "1" : "0.1"
+           |    });
        """.stripMargin
       scalajs.js.eval(updateEdges)
     }
