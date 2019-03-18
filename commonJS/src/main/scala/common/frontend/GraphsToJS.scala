@@ -62,6 +62,8 @@ object GraphsToJS {
                 .merge(node)
                 .attr("r", radius - 0.75)
                 .attr("id", function (d) {return d.id;})
+                .on("mouseenter", function(d) {
+                  console.log("node:"+d.id);})
                 .call(d3.drag()
                   .on("start", dragstarted)
                   .on("drag", dragged)

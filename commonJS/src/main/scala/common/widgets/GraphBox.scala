@@ -110,7 +110,26 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 //    dom.document.body.removeChild(downloadLink)
   }
 
-}
+  def showFs(fs:Set[String]) = if (isVisible) {
+    val remapedFs =
+      fs.map(f => if (f.startsWith("v_")) s"gr_${f.drop(2)}" else s"gr_${f.drop(1)}")
+
+    val showCircuit =
+      s"""
+         |var fs = new Set(${remapedFs.map(s=> s""""$s"""").mkString("[",",","]")});
+         |d3.select(".linkscircuit")
+         |  .selectAll("polyline")
+         |  .style("opacity", function(d) {
+         |    return (fs.has(d.source.id) && fs.has(d.target.id)) ? "1" : "0.1"
+         |  });
+         |
+       """.stripMargin
+
+    scalajs.js.eval(showCircuit)
+  }
+
+
+    }
 
 object GraphBox {
   type Block = Selection[dom.EventTarget]

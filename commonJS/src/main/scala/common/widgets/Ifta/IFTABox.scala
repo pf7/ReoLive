@@ -4,7 +4,7 @@ import common.backend.CCToFamily
 import common.frontend.{AutomataToJS, IFTAToJS}
 import common.widgets.{Box, GraphBox, OutputArea}
 import ifta.IFTA
-import ifta.backend.IftaAutomata
+import ifta.backend.{IftaAutomata, Show}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
@@ -57,7 +57,7 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
     try{
       // drawing ifta
 //      ifta = CCToFamily.toIFTA(dependency.get,allNames,hideInternal)
-      var iftaAut = Automata[IftaAutomata](dependency.get)
+      val (iftaAut,ext) = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
       ifta = iftaAut.ifta
       val iftaSize = ifta.locs.size
       val iftaFactor = Math.sqrt(iftaSize*10000 / (densityAut * widthAutRatio * heightAutRatio))

@@ -269,7 +269,7 @@ object AutomataToJS {
                     .text(function (d) {
                       var g = d.type.split("~")[0] ;
                       var a = d.type.split("~")[1] ;
-                      var acts = (a !== undefined) ? a : ""
+                      var acts = (a !== undefined) ? (a!="" ? a : "τ") : ""
                       return (g != "" && acts!= "")? ", " + acts : acts;
                     }) ;
                   textpath.append("tspan")

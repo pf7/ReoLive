@@ -2,7 +2,7 @@ package widgets
 
 import common.backend.{CCToFamily, NReoIFTA}
 import common.widgets.Ifta.IFTABox
-import common.widgets.{Box, OutputArea}
+import common.widgets.{Box, GraphBox, OutputArea}
 import ifta.{DSL, Feat, IFTA, NIFTA}
 import ifta.backend.{IftaAutomata, Show}
 import org.scalajs.dom
@@ -18,8 +18,8 @@ import scala.scalajs.js.UndefOr
   */
 
 
-class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox, errorBox:OutputArea)
-  extends Box[IftaAutomata]("IFTA Products",List(dependency)){
+class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox:GraphBox, errorBox:OutputArea)
+  extends Box[IftaAutomata]("IFTA Products",List(dependency,iftaAutBox,circuitBox)){
 
   private var solutionsBox: Block = _
   private var iftaAut:IftaAutomata= _
@@ -53,7 +53,7 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox, errorBox:
     try {
 //      var rifta = CCToFamily.toRifta(dependency.get)
 //      var nifta = NIFTA(Automata[IftaAutomata](dependency.get).nifta)
-      iftaAut = Automata[IftaAutomata](dependency.get)
+      iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)._1
       var nifta:NIFTA = NIFTA(iftaAut.nifta)
       var fmInfo =  s"""{ "fm":     "${Show(nifta.fm)}", """ +
                     s"""  "feats":  "${nifta.iFTAs.flatMap(i => i.feats).mkString("(",",",")")}" }"""
@@ -101,6 +101,7 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox, errorBox:
       if (renamedSols == "") "⊥" else renamedSols)
     b.on("click",{(e:EventTarget, a:Int, b:UndefOr[Int]) => {
       iftaAutBox.showFs(sol)
+      circuitBox.showFs(sol)
     }}:b.DatumFunction[Unit])
   }
 }
