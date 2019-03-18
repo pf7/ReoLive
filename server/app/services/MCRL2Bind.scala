@@ -27,6 +27,11 @@ object MCRL2Bind {
 
   def solvepbes2(): String = {
     val id = Thread.currentThread().getId
+    s"${mcrl2path}mcrl22lps /tmp/model_$id.mcrl2 /tmp/model_$id.lps".!
+    s"lps2pbes -c -f {name}/{name}.prop.mcf {name}/{name}.lps {name}/{name}.prop.pbes')"
+
+      // .... under construction...
+
     s"${mcrl2path}pbessolve -v --file=/tmp/model_$id.lps /tmp/modal_$id.pbes".!!
 //    s"${mcrl2path}lps2lts /tmp/modal_$id.pbes.evidence.lps /tmp/modal_$id.pbes.evidence.lts".!!
     s"${mcrl2path}lpspp /tmp/modal_$id.pbes.evidence.lps".!!
