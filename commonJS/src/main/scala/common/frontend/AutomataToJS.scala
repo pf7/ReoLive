@@ -274,7 +274,7 @@ object AutomataToJS {
                     }) ;
                   textpath.append("tspan")
                     .attr("class", "fexp")
-                    .style("fill","#B601A8")
+                    .style("fill","#0F024F")
                     .text(function (d) {
                       var u = d.type.split("~")[2] ;
                       return (u != "" && u!== undefined) ? ", " + u : "";
