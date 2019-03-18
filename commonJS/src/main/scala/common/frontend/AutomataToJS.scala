@@ -272,13 +272,13 @@ object AutomataToJS {
                       var acts = (a !== undefined) ? a : ""
                       return (g != "" && acts!= "")? ", " + acts : acts;
                     }) ;
-//                  textpath.append("tspan")
-//                    .attr("class", "fexp")
-//                    .style("fill","#B601A8")
-//                    .text(function (d) {
-//                      var u = d.type.split("~")[2] ;
-//                      return (u != "" && u!== undefined) ? ", " + u : "";
-//                    });
+                  textpath.append("tspan")
+                    .attr("class", "fexp")
+                    .style("fill","#B601A8")
+                    .text(function (d) {
+                      var u = d.type.split("~")[2] ;
+                      return (u != "" && u!== undefined) ? ", " + u : "";
+                    });
                   textpath.append("tspan")
                     .attr("class", "cresets")
                     .style("fill","#4C2EAA")
