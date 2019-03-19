@@ -256,13 +256,13 @@ object AutomataToJS {
                       d3.select(this).style("font-size","14px");})
                     .on("mouseleave", function(d) {
                       d3.select(this).style("font-size", "10px");});
-                  textpath.append("tspan")
-                    .attr("class", "cc")
-                    .style("fill","#00B248")
-                    .text(function (d) {
-                      var g = d.type.split("~")[0] ;
-                      return (g != "" ) ?  g : "";
-                    });
+//                  textpath.append("tspan")
+//                    .attr("class", "cc")
+//                    .style("fill","#00B248")
+//                    .text(function (d) {
+//                      var g = d.type.split("~")[0] ;
+//                      return (g != "" ) ?  g : "";
+//                    });
                   textpath.append("tspan")
                     .attr("class", "iftaActs")
                     .style("fill","#3B01E9")
@@ -272,19 +272,59 @@ object AutomataToJS {
                       var acts = (a !== undefined) ? ((a != "") ?a: "τ") : ""
                       return (g != "" && acts!= "")? ", " + acts : acts;
                     }) ;
-                  textpath.append("tspan")
+//                  textpath.append("tspan")
+//                    .attr("class", "fexp")
+//                    .style("fill","#0F024F")
+//                    .text(function (d) {
+//                      var u = d.type.split("~")[2] ;
+//                      return (u != "" && u!== undefined) ? ", " + u : "";
+//                    });
+//                  textpath.append("tspan")
+//                    .attr("class", "cresets")
+//                    .style("fill","#4C2EAA")
+//                    .text(function (d) {
+//                      var r = d.type.split("~")[3] ;
+////                      return (typeof r != 'undefined') ? (", " + r) : " ";
+//                      return (r != "" && r!== undefined) ? ", " + r : "";
+//                    });
+
+                  var belowTextpath = d3.select(".labels${name}")
+                    .selectAll(".edgelabel")
+                    .append('textPath')
+                    .call(d3.drag()
+                    .on("start", dragstartedAut)
+                    .on("drag", draggedAut)
+                    .on("end", dragendedAut))
+                    .attr('xlink:href', function (d, i) {return '#edge${name}path' + i})
+                    .style("text-anchor", "middle")
+                    // .style("pointer-events", "none")
+                    .attr("startOffset", "50%")
+                    .on("mouseenter", function(d) {
+                      d3.select(this).style("font-size","14px");})
+                    .on("mouseleave", function(d) {
+                      d3.select(this).style("font-size", "10px");});
+
+                  belowTextpath.append("tspan")
+                    .attr("class", "cc")
+                    .style("fill","#00B248")
+                    .attr("dy","1em")
+                    .text(function (d) {
+                      var g = d.type.split("~")[0] ;
+                      return (g != "" ) ?  g : " ";
+                    });
+                  belowTextpath.append("tspan")
                     .attr("class", "fexp")
                     .style("fill","#0F024F")
                     .text(function (d) {
+                      var cc = d.type.split("~")[0] ;
                       var u = d.type.split("~")[2] ;
-                      return (u != "" && u!== undefined) ? ", " + u : "";
+                      return (u != "" && u!== undefined) ? ((cc!="") ?", " + u : u) : "";
                     });
-                  textpath.append("tspan")
+                  belowTextpath.append("tspan")
                     .attr("class", "cresets")
                     .style("fill","#4C2EAA")
                     .text(function (d) {
                       var r = d.type.split("~")[3] ;
-//                      return (typeof r != 'undefined') ? (", " + r) : " ";
                       return (r != "" && r!== undefined) ? ", " + r : "";
                     });
 

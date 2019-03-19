@@ -45,7 +45,6 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     //println("Drawing graph - produced: "+ graph)
 //    toJs(graph)
     scalajs.js.eval(GraphsToJS(graph))
-    println(graph)
   }
   catch Box.checkExceptions(errorBox)
 
