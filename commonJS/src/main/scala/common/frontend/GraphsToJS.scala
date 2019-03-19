@@ -2,6 +2,9 @@ package common.frontend
 
 import preo.backend._
 
+import scala.collection.Map
+import scala.reflect.ClassTag
+
 
 //todo: add rectangle colision colision
 object GraphsToJS {
@@ -63,7 +66,7 @@ object GraphsToJS {
                 .attr("r", radius - 0.75)
                 .attr("id", function (d) {return d.id;})
                 .on("mouseenter", function(d) {
-                  console.log("node:"+d.id);})
+                  console.log("node id:"+d.id + "; ports: " +d.ports );})
                 .call(d3.drag()
                   .on("start", dragstarted)
                   .on("drag", dragged)
@@ -107,6 +110,8 @@ object GraphsToJS {
                  .attr('width', rectangle_width)
                  .attr('height', rectangle_height)
                  .attr("y","-10px")
+                .on("mouseenter", function(d) {
+                  console.log("node id:"+d.id + "; ports: " +d.ports );})
                  .call(d3.drag()
                    .on("start", dragstarted)
                    .on("drag", dragged)
@@ -137,6 +142,8 @@ object GraphsToJS {
                  .attr('width', function (d) {return ((d.name.length*8.3) + 10);} )
                  .attr('height', rectangle_height)
                  .attr("y","-10px")
+                  .on("mouseenter", function(d) {
+                      console.log("node id:"+d.id + "; ports: " +d.ports );})
                  .call(d3.drag()
                    .on("start", dragstarted)
                    .on("drag", dragged)
@@ -167,6 +174,8 @@ object GraphsToJS {
                   .attr("width",hubSize)
                   .attr("height",hubSize)
                   .attr("xlink:href", function(d) {return "svg/"+d.group+".svg";})
+                  .on("mouseenter", function(d) {
+                    console.log("node id:"+d.id + "; ports: " +d.ports );})
                   .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
@@ -346,12 +355,12 @@ object GraphsToJS {
 
 
   private def processNode(node:ReoNode,mark:String,virtuoso:Boolean = false):String = node match {
-    case ReoNode(id, name, nodeType, extra) => {
+    case ReoNode(id, name, nodeType, extra,ports) => {
       val nodeGroup = typeToGroup(nodeType, extra,virtuoso);
-      s"""{"id": "${mark}_$id", "group": "$nodeGroup", "name": "${name.getOrElse("")}" }"""
+//      val ports:Set[Int] = Set()
+      s"""{"id": "${mark}_$id", "group": "$nodeGroup", "name": "${name.getOrElse("")}", "ports" : ${ports.map(p => s""""${p.toString}"""").mkString("[",",","]")} }"""
     }
   }
-
 
   /**
     * Select the right group:

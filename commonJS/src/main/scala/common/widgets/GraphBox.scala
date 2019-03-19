@@ -6,6 +6,7 @@ import org.scalajs.dom.{MouseEvent, html}
 import org.singlespaced.d3js.Selection
 import preo.ast.CoreConnector
 import preo.backend.Circuit
+import preo.frontend.Show
 
 class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     extends Box[Circuit]("Circuit of the instance", List(dependency)) {
@@ -44,6 +45,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     //println("Drawing graph - produced: "+ graph)
 //    toJs(graph)
     scalajs.js.eval(GraphsToJS(graph))
+    println(graph)
   }
   catch Box.checkExceptions(errorBox)
 
@@ -112,7 +114,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 
   def showFs(fs:Set[String]) = if (isVisible) {
     val remapedFs =
-      fs.map(f => if (f.startsWith("v_")) s"gr_${f.drop(2)}" else s"gr_${f.drop(1)}")
+      fs.map(f => if (f.startsWith("v_")) s"${f.drop(2)}" else s"${f.drop(1)}")
 
     val showCircuit =
       s"""
@@ -120,7 +122,11 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
          |d3.select(".linkscircuit")
          |  .selectAll("polyline")
          |  .style("opacity", function(d) {
-         |    return (fs.has(d.source.id) && fs.has(d.target.id)) ? "1" : "0.1"
+         |    var srcPorts = d.source.ports;
+         |    var trgPorts = d.target.ports;
+         |    var srcIntersect = new Set(srcPorts.filter(x => fs.has(x)));
+         |    var trgIntersect = new Set(trgPorts.filter(x => fs.has(x)));
+         |    return ((srcIntersect.size > 0) && (trgIntersect.size > 0)) ? "1" : "0.1"
          |  });
          |
        """.stripMargin

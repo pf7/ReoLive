@@ -19,10 +19,11 @@ import scala.scalajs.js.UndefOr
 
 
 class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox:GraphBox, errorBox:OutputArea)
-  extends Box[IftaAutomata]("IFTA Products",List(dependency,iftaAutBox,circuitBox)){
+  extends Box[IftaAutomata]("IFTA Analysis",List(dependency,iftaAutBox,circuitBox)){
 
   private var solutionsBox: Block = _
   private var iftaAut:IftaAutomata= _
+  private var iftaAutSimple:IftaAutomata = _
 
   override def get: IftaAutomata = iftaAut
 
@@ -37,7 +38,7 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
       .append("div")
       .attr("id","iftaProducts")
 
-    dom.document.getElementById("IFTA Products").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById("IFTA Analysis").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = { e : MouseEvent => if (!isVisible) solveFm else deleteProducts}
   }
 
@@ -54,13 +55,19 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
 //      var rifta = CCToFamily.toRifta(dependency.get)
 //      var nifta = NIFTA(Automata[IftaAutomata](dependency.get).nifta)
       iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)._1
+//      iftaAutSimple = Automata[IftaAutomata](dependency.get)
       var nifta:NIFTA = NIFTA(iftaAut.nifta)
       var fmInfo =  s"""{ "fm":     "${Show(nifta.fm)}", """ +
                     s"""  "feats":  "${nifta.iFTAs.flatMap(i => i.feats).mkString("(",",",")")}" }"""
+//      var niftaSimple = NIFTA(iftaAutSimple.nifta)
+//      var fmInfoSimple = s"""{ "fm":     "${Show(niftaSimple.fm)}", """ +
+//        s"""  "feats":  "${niftaSimple.iFTAs.flatMap(i => i.feats).mkString("(",",",")")}" }"""
       RemoteBox.remoteCall("ifta", fmInfo, showProducts)
+//      RemoteBox.remoteCall("ifta",fmInfoSimple,showProducts)
     } catch {
       case e:Throwable =>
-        throw new RuntimeException("Not possible to calculate IFTA products: \n" + e.getMessage)
+        errorBox.error(e.getMessage)
+      //throw new RuntimeException("Not possible to calculate IFTA products: \n" + e.getMessage)
     }
   }
 
@@ -77,6 +84,7 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
       .text(s"${iftaAut.getFeats.map(Show(_)).mkString(",")}")
     // fm
     solutionsBox.append("p")
+      .append("strong")
       .append("strong")
       .text("Feature model:")
     val list = solutionsBox.append("ul")
@@ -95,7 +103,7 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
   }
 
   private def mkSolButton(sol:Set[String]):Unit = {
-//    val text = sol.mkString(",")
+//    val renamedSols = sol.mkString(",")
     val renamedSols = sol.map(ft => Feat(ft)).map(ft => Show(iftaAut.getRenamedFe(ft))).mkString(",")
     val b = solutionsBox.append("button").text(
       if (renamedSols == "") "⊥" else renamedSols)

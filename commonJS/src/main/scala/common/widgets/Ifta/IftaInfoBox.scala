@@ -46,7 +46,7 @@ class IftaInfoBox(dependency:Box[CoreConnector], errorBox:OutputArea)
   private def showInfo() = {
     deleteInfo()
     try{
-      var iftaAut = Automata[IftaAutomata](dependency.get)
+      var iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)._1
       ifta = iftaAut.ifta
 
       // # of features

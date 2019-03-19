@@ -58,6 +58,7 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
       // drawing ifta
 //      ifta = CCToFamily.toIFTA(dependency.get,allNames,hideInternal)
       val (iftaAut,ext) = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
+//      val iftaAut = Automata[IftaAutomata](dependency.get)
       ifta = iftaAut.ifta
       val iftaSize = ifta.locs.size
       val iftaFactor = Math.sqrt(iftaSize*10000 / (densityAut * widthAutRatio * heightAutRatio))
@@ -67,6 +68,8 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
       box.attr("viewBox", s"00 00 $width $height")
 //      scalajs.js.eval(IFTAToJS(ifta))
       scalajs.js.eval(AutomataToJS.toJs(iftaAut,"iftaAutomata",allNames))
+
+
     }
     catch Box.checkExceptions(errorBox)
   }
