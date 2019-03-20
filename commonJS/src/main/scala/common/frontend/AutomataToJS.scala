@@ -251,6 +251,7 @@ object AutomataToJS {
                     .attr('xlink:href', function (d, i) {return '#edge${name}path' + i})
                     .style("text-anchor", "middle")
                     // .style("pointer-events", "none")
+                    .style("font-size", "10px")
                     .attr("startOffset", "50%")
                     .on("mouseenter", function(d) {
                       d3.select(this).style("font-size","14px");})
@@ -297,12 +298,13 @@ object AutomataToJS {
                     .on("end", dragendedAut))
                     .attr('xlink:href', function (d, i) {return '#edge${name}path' + i})
                     .style("text-anchor", "middle")
+                      .style("font-size", "6px")
                     // .style("pointer-events", "none")
                     .attr("startOffset", "50%")
                     .on("mouseenter", function(d) {
                       d3.select(this).style("font-size","14px");})
                     .on("mouseleave", function(d) {
-                      d3.select(this).style("font-size", "10px");});
+                      d3.select(this).style("font-size", "6px");});
 
                   belowTextpath.append("tspan")
                     .attr("class", "cc")
