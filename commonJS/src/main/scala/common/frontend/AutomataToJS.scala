@@ -271,7 +271,7 @@ object AutomataToJS {
                       var g = d.type.split("~")[0] ;
                       var a = d.type.split("~")[1] ;
                       var acts = (a !== undefined) ? ((a != "") ?a: "τ") : ""
-                      return (g != "" && acts!= "")? ", " + acts : acts;
+                      return acts;
                     }) ;
 //                  textpath.append("tspan")
 //                    .attr("class", "fexp")

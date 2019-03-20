@@ -30,6 +30,11 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
     "fifo"::"fifo"::"// can always fire\n<all*.fifo>true"::
       descr("Empty FIFO1 channel","The empty FIFO1 channel (also called the empty one " +
         "slot buffer) can store a single datum.")::Nil,
+    "timer"::"timer(5)"::""::
+      descr("Timer", "An asynchronous blocking channel with internal state parameterized " +
+        "by an integer value t. After receiving a value, it delays for t ammount of time before " +
+        "sending it through its output channel. If t is not specify it assumes t=0 and behaves as " +
+        "a sync channel.")::Nil,
     "merger"::"merger"::"// can always fire\n<all*.merger>true"::
       descr("Sink node: merger","A sink node acts like a merger. A get that is performed " +
         "at a sink node receives a datum from one of its offering coincident channels. If multiple " +

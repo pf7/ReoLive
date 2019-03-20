@@ -278,6 +278,24 @@ object GraphBox {
       .attr("width","60")
       .attr("height","30")
 
+    svg.append("defs")
+      .append("marker")
+      .attr("id","timermarker"+name)
+      .attr("refX","6")
+      .attr("refY","6")
+      .attr("markerUnits","strokeWidth")
+      .attr("markerWidth","24")
+      .attr("markerHeight","24")
+      .attr("stroke","black")
+      .attr("stroke-width","1")
+      .attr("fill","white")
+//      .attr("orient","auto")
+      .append("circle")
+      .attr("cx","6")
+      .attr("cy","6")
+      .attr("r","5")
+      .attr("fill","white")
+
     svg
   }
 }

@@ -197,6 +197,8 @@ object GraphsToJS {
                      return 'url(#boxmarkercircuit)'
                   } else if (d.type === "fifofull"){
                      return 'url(#boxfullmarkercircuit)'
+                  } else if (d.type === "timer") {
+                     return 'url(#timermarkercircuit)'
                   } else {
                    return ("");
                 }})
@@ -250,13 +252,32 @@ object GraphsToJS {
                 .text(function (d) {
                   if(d.type === "drain" || d.type === "lossy" || d.type === "merger" ||
                      d.type === "sync" || d.type === "fifo" || d.type
-                     === "fifofull"){
+                     === "fifofull" || d.type === "timer"){
                     return "";
-                  }
-                  else{
+//                  }
+//                  else if (d.type === "timer") {
+//                    return "t"
+                  }else {
                     return d.type;
                   }
                 });
+
+            var timerTextPath = d3.select(".labelscircuit").selectAll(".edgelabel")
+                .append('textPath')
+                .attr('xlink:href', function (d, i) {return '#edgepathcircuit' + i})
+                .style("text-anchor", "middle")
+                .style("pointer-events", "none")
+                .style("font-size","8px")
+                .attr("startOffset", "50%")
+                .append("tspan")
+                .style("fill","#00B248")
+                .attr("dy","0.3em")
+                .text(function (d) {
+                  if (d.type === "timer") {
+                    return d.to
+                  } else return "";
+                });
+
         }
 
         function ticked() {
@@ -396,8 +417,14 @@ object GraphsToJS {
     case ReoChannel(src,trg, srcType, trgType, name, style) => {
       var start = arrowToString(srcType);
       var end = arrowToString(trgType);
-      s"""{"source": "${mark}_$src", "target": "${mark}_$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit"}"""
+      var to = if (name == "timer") getTimerInfo(channel)
+        s"""{"source": "${mark}_$src", "target": "${mark}_$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit", "to": "${to}"}"""
     }
+  }
+
+  private def getTimerInfo(channel: ReoChannel):Int = {
+    var info = channel.extra.iterator.filter(e => e.isInstanceOf[(String,Int)]).map(e => e.asInstanceOf[(String,Int)])
+    info.toMap.getOrElse("to",0)
   }
 
   private def arrowToString(endType: EndType): String = endType match{
