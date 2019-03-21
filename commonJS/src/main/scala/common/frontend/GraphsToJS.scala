@@ -417,14 +417,19 @@ object GraphsToJS {
     case ReoChannel(src,trg, srcType, trgType, name, style) => {
       var start = arrowToString(srcType);
       var end = arrowToString(trgType);
-      var to = if (name == "timer") getTimerInfo(channel)
+      var to = if (name == "timer") getTimerInfo(channel) else ""
         s"""{"source": "${mark}_$src", "target": "${mark}_$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit", "to": "${to}"}"""
     }
   }
 
   private def getTimerInfo(channel: ReoChannel):Int = {
-    var info = channel.extra.iterator.filter(e => e.isInstanceOf[(String,Int)]).map(e => e.asInstanceOf[(String,Int)])
-    info.toMap.getOrElse("to",0)
+//    var info = channel.extra.iterator.filter(e => e.isInstanceOf[(String,Int)]).map(e => e.asInstanceOf[(String,Int)])
+//    info.toMap.getOrElse("to",0)
+    var extraInfo = channel.extra.iterator.filter(e => e.isInstanceOf[String]).map(e => e.asInstanceOf[String])
+    extraInfo.find(e => e.startsWith("to:")) match {
+      case Some(s) => s.drop(3).toInt
+      case _ => 0
+    }
   }
 
   private def arrowToString(endType: EndType): String = endType match{

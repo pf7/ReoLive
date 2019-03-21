@@ -76,13 +76,13 @@ object Loader{
 
   private def convertInterface(i: String): CoreInterface = CoreInterface(i.toInt)
   private def convertSome(s:String): Option[String] = if (s.isEmpty) None else Some(s)
-  private def convertSet(s:String): Set[Any] = if (s.isEmpty) Set() else Set(s)
+  private def convertSet(s:String): Set[Any] =
+    if (s.isEmpty) Set() else s.split(",").toSet
   private def convertAnns(map: Map[String, Any]): List[Annotation] = map("type") match {
     case "Nil" => Nil
     case _ => convertAnn(map("head").asInstanceOf[Map[String,Any]]) :: convertAnns(map("tail").asInstanceOf[Map[String,Any]])
   }
   private def convertAnn(map: Map[String, Any]): Annotation = Annotation(map("name").asInstanceOf[String],None) // IGNORING VALUES
-
 
   def loadModalOutput(msg: String): Either[String, String] = {
 //    val js = Json.parse(msg)

@@ -106,7 +106,7 @@ object AutomataToJS {
                 // add invariants to ifta automata nodes
                 var nodelabel = nd.append("text")
                   .style("font-size","6px")
-                  .style("fill","#00B248")
+                  .style("fill","#A742A8")
                   .attr('dy', 9)
                   .attr('dx', 6)
                   .on("mouseenter", function(d) {
