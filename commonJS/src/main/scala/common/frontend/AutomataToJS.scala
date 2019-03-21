@@ -1,7 +1,9 @@
 package common.frontend
 
 import hub.HubAutomata
-import ifta.backend.IftaAutomata
+import ifta.analyse.Simplify
+import ifta.{CTrue, ClockCons}
+import ifta.backend.{IftaAutomata, Show}
 import preo.backend._
 
 
@@ -11,8 +13,12 @@ object AutomataToJS {
   def apply[A<:Automata](aut: A, ext:Map[Int,Int], boxName:String, portNames:Boolean=false): String =
     generateJS(getNodes(aut), getLinks(aut,boxName), boxName)
 
-  def toJs[A<:Automata](aut: A, boxName:String, portNames:Boolean=false): String =
-    generateJS(getNodes(aut), getLinks(aut,boxName,portNames), boxName)
+  def toJs[A<:Automata](aut: A, boxName:String, portNames:Boolean=false): String = aut match {
+    case a:IftaAutomata => generateJS(getIftaNodes(a) , getLinks(aut,boxName,portNames), boxName)
+    case _              => generateJS(getNodes(aut)   , getLinks(aut,boxName,portNames), boxName)
+  }
+
+
 
 
   /*todo: refactor in different methods or classes to avoid booolean virtuoso, or pass automata for
@@ -56,23 +62,11 @@ object AutomataToJS {
               //add nodes (nodes "circle" with group 0..2)
               var node = d3.select(".nodes${name}")
                   .selectAll("circle")
-                  .data(nodesAut);
-//              var nodeG = nodeout
-//                  .enter();
-//                  .append("g")
-//                  .attr("class","node");
-//              nodeG.append("text")
-//                  .attr("dx", 12)
-//                  .attr("dy", ".35em")
-//                  .text(function(d) {
-//                     if (d.group == 0 || d.group == 1 || d.group == 2) {
-//                       return "";
-//                     }
-//                     else return d.group;
-//                   });
-//              nodeG.append("circle")
-                var nd = node.enter().append("circle")
-                  .merge(node)
+                  .data(nodesAut)
+                  .enter().append("g")
+//              var nd = node.enter().append("circle")
+              var nd = node.append("circle")
+//                  .merge(node)
                   .attr("r", function(d){
                     if(d.group == 0 || d.group == 1){
                       return radiusAut + 0.75;
@@ -105,8 +99,26 @@ object AutomataToJS {
                     else{
                       return "green";
                     }
+                });
+
+                // add invariants to ifta automata nodes
+                var nodelabel = node.append("text")
+                  .style("font-size","6px")
+                  .style("fill","#00B248")
+                  .attr('dy', 9)
+                  .attr('dx', 6)
+                  .on("mouseenter", function(d) {
+                    d3.select(this).style("font-size","14px");
                   })
-                  ;
+                  .on("mouseleave", function(d) {
+                    d3.select(this).style("font-size","6px");
+                  })
+                  .text(function(d) {
+                    if (d.group == 0 || d.group == 1)
+                      return d.inv;
+                    else
+                      return "";
+                    });
 
               node.exit().remove();
 
@@ -338,6 +350,10 @@ object AutomataToJS {
                   .selectAll("circle")
                   .attr('cx', function(d) {return d.x = Math.max(radiusAut, Math.min(widthAut - radiusAut, d.x)); })
                   .attr('cy', function(d) {return d.y = Math.max(radiusAut, Math.min(heightAut - radiusAut, d.y)); });
+              var label = d3.select(".nodes${name}")
+                  .selectAll("text")
+                  .attr('x', function(d) {return d.x = Math.max(radiusAut, Math.min(widthAut - radiusAut, d.x)); })
+                  .attr('y', function(d) {return d.y = Math.max(radiusAut, Math.min(heightAut - radiusAut, d.y)); });
 
               var link = d3.select(".links${name}")
                   .selectAll("polyline")
@@ -398,16 +414,21 @@ object AutomataToJS {
   private def getNodes[A<:Automata](aut: A): String =
     aut.getTrans().flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
 
+  private def getIftaNodes(aut:IftaAutomata):String =
+    aut.getTrans().flatMap(processNode(aut.getInit, _, aut.ifta.cInv)).mkString("[",",","]")
+
   private def getLinks[A<:Automata](aut: A,name:String,portNames:Boolean=false): String =
     aut.getTrans(portNames).flatMap(t => processEdge(t,name)).mkString("[",",","]")
 
-  private def processNode(initAut:Int,trans:(Int,Any,String,Int)): Set[String] = trans match{
+  private def processNode(initAut:Int,trans:(Int,Any,String,Int),nodeInvariant:Map[Int,ClockCons]=Map()): Set[String] = trans match{
     case (from,lbl,id,to) =>
+      val toInv   = Show(Simplify(nodeInvariant.getOrElse(to,CTrue)))
+      val fromInv = Show(Simplify(nodeInvariant.getOrElse(from,CTrue)))
       val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)
-      Set(s"""{"id": "$from", "group": $gfrom }""",
-        s"""{"id": "$to", "group": $gto }""",
-        s"""{"id": "$from-1-$to-$id", "group": "$gp1"}""",
-        s"""{"id": "$to-2-$from-$id", "group": "$gp2" }""")
+      Set(s"""{"id": "$from", "group": $gfrom ,"inv":"${if (fromInv == "true") "" else fromInv}"}""",
+        s"""{"id": "$to", "group": $gto ,"inv":"${if (toInv == "true") "" else toInv }"}""",
+        s"""{"id": "$from-1-$to-$id", "group": "$gp1","inv":""}""",
+        s"""{"id": "$to-2-$from-$id", "group": "$gp2" ,"inv":""}""")
   }
 
   //  private def processNode(initAut:Int,trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match{
