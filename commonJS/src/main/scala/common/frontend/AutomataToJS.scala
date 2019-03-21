@@ -62,11 +62,11 @@ object AutomataToJS {
               //add nodes (nodes "circle" with group 0..2)
               var node = d3.select(".nodes${name}")
                   .selectAll("circle")
-                  .data(nodesAut)
-                  .enter().append("g")
-//              var nd = node.enter().append("circle")
-              var nd = node.append("circle")
-//                  .merge(node)
+                  .data(nodesAut);
+//                  .enter().append("g")
+              var nd = node.enter().append("circle")
+//              var nd = node.append("circle")
+                  .merge(node)
                   .attr("r", function(d){
                     if(d.group == 0 || d.group == 1){
                       return radiusAut + 0.75;
@@ -102,23 +102,23 @@ object AutomataToJS {
                 });
 
                 // add invariants to ifta automata nodes
-                var nodelabel = node.append("text")
-                  .style("font-size","6px")
-                  .style("fill","#00B248")
-                  .attr('dy', 9)
-                  .attr('dx', 6)
-                  .on("mouseenter", function(d) {
-                    d3.select(this).style("font-size","14px");
-                  })
-                  .on("mouseleave", function(d) {
-                    d3.select(this).style("font-size","6px");
-                  })
-                  .text(function(d) {
-                    if (d.group == 0 || d.group == 1)
-                      return d.inv;
-                    else
-                      return "";
-                    });
+//                var nodelabel = node.append("text")
+//                  .style("font-size","6px")
+//                  .style("fill","#00B248")
+//                  .attr('dy', 9)
+//                  .attr('dx', 6)
+//                  .on("mouseenter", function(d) {
+//                    d3.select(this).style("font-size","14px");
+//                  })
+//                  .on("mouseleave", function(d) {
+//                    d3.select(this).style("font-size","6px");
+//                  })
+//                  .text(function(d) {
+//                    if (d.group == 0 || d.group == 1)
+//                      return d.inv;
+//                    else
+//                      return "";
+//                    });
 
               node.exit().remove();
 

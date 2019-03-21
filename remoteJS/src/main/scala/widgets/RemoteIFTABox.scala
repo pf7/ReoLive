@@ -74,6 +74,11 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
   private def showProducts(data:String):Unit = {
     deleteProducts()
     val solutions = DSL.parseProducts(data)
+    // solutions
+    solutionsBox.append("p")
+      .append("strong")
+      .text(s"Instantiations: ${solutions.size}")
+    solutions.map(mkSolButton)
     // # of features
     solutionsBox.append("p")
       .append("strong")
@@ -91,11 +96,6 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
     list.attr("style","margin-bottom: 20pt;")
     list.append("li")
       .text(s"${Show(iftaAut.getFm)}")
-    // solutions
-    solutionsBox.append("p")
-      .append("strong")
-      .text(s"Solutions: ${solutions.size}")
-    solutions.map(mkSolButton)
   }
 
   private def deleteProducts(): Unit = {
