@@ -40,19 +40,24 @@ class ReoActor(out: ActorRef) extends Actor {
       case Right(result) =>
         try {
           val typ = DSL.checkVerbose(result)
+          var warn = ""
 
 
           val reduc = Eval.instantiate(result)
           val reducType = DSL.typeOf(reduc)
           val coreConnector = Eval.reduce(reduc)
 
-          val model = preo.frontend.mcrl2.Model(coreConnector)
+          try {
+            val model = preo.frontend.mcrl2.Model(coreConnector)
+            storeInFile(model)
+            //generateLPS (called by generateLTS)
+            //generateLTS
+          } catch {
+            case e: GenerationException =>
+              warn += s"Generation of mCRL2 failed: ${e.getMessage}"
+          }
 
-          storeInFile(model)
-          //generateLPS (called by generateLTS)
-//          generateLTS
-
-          JsonCreater.create(typ, reducType, coreConnector).toString
+            JsonCreater.create(typ, reducType, coreConnector, warn).toString
 //          val id=Thread.currentThread().getId
 //          val msg = common.messages.Message.ConnectorMsg(typ,reducType,coreConnector,id)
 //          msg.asJson.toString()

@@ -55,7 +55,7 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
 //           :: "// sometimes the drain cannot fire\n<all*> @alt1 [!drain] false"::Nil,
     "alternator (preo)" :: "in1*in2; alt; out {\n alt =\n   dupl*dupl;\n   fifo*drain*id;\n   merger\n}"
       :: "// sometimes the drain cannot fire\n<all*> @alt [!drain] false"::Nil,
-    "alternator (treo)" :: "in1*in2; alt; out {\n alt(a?,b?,c!) =\n   drain(a, b)\n   sync(b, x)\n   fifo(x, c)\n   sync(a, c)\n}"
+    "alternator (treo)" :: "alt {\n alt(i1?,i2?,o!) =\n   in1(i1,a) in2(i2,b)\n   drain(a, b)\n   sync(a, c)\n   fifo(b, c)\n   out(c,o)\n}"
       :: "// sometimes the drain cannot fire\n<all*> @alt [!drain] false"::Nil,
     "barrier"::"dupl*dupl ; id*drain*id"::"// drain can always fire\n<all*.drain>true"::Nil,
     "exrouter (preo)"::"""dupl ; dupl*id ;
@@ -69,17 +69,17 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
                          |// always: either out1 or out2 is active
                          |<all*.(out1 + out2)> true""".stripMargin::
                      descr("Exclusive Router","Version using the Preo language. Exclusively sends incoming data to one of 2 outputs.")::Nil,
-    "exrouter (treo)" :: """in; xor ; out1*out2 {
-                           | xor(a?,b!,c!) =
-                           |   lossy(a,x) lossy(a,y)
-                           |   sync(x,m) sync(y,m)
-                           |   drain (a,m)
-                           |   sync(x,b) sync(y,c)
+    "exrouter (treo)" :: """xor {
+                           | xor(i?,o1!,o2!) =
+                           |   lossy(i,a) lossy(i,b)
+                           |   sync(a,m) sync(b,m)
+                           |   drain(i,m)
+                           |   out1(a,o1) out2(b,o2)
                            |}""".stripMargin
                       :: """// out1 and out2 cannot go together
-                           |[all*.(out1 & out2)] false
+                           |@xor[all*.(out1 & out2)] false
                            |// always: either out1 or out2 is active
-                           |<all*.(out1 + out2)> true""".stripMargin::
+                           |@xor<all*.(out1 + out2)> true""".stripMargin::
                       descr("Exclusive Router","Version using the Treo language. Exclusively sends incoming data to one of 2 outputs.")::Nil,
     //    "exrouter=.."::"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2"::Nil,
     "zip":: """zip_ 3

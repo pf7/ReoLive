@@ -39,10 +39,10 @@ class ModalActor(out: ActorRef) extends Actor{
     * @return
     */
   private def process(msg: String): String = {
-    val (raw_connector, raw_formula, operation) = JsonLoader.parse(msg)
+    val (raw_connector, raw_formula, operation, warning) = JsonLoader.parse(msg)
     (raw_connector,raw_formula,operation) match {
-      case (Some(c),Some(f),Some("check")) => modelCheck(c, f)
-      case (Some(c),Some(f),Some("view")) => view(c, f)
+      case (Some(c),Some(f),Some("check")) => modelCheck(c, f, warning)
+      case (Some(c),Some(f),Some("view")) => view(c, f, warning)
       case (None,_,_) => error("Parser error: no connector found")
       case (_,None,_) => error("Parser error: no modal logic found")
       case _ => error("Unknown operation: " + operation)
@@ -65,9 +65,9 @@ class ModalActor(out: ActorRef) extends Actor{
     * @param form
     * @return
     */
-  private def modelCheck(raw_conn: String, raw_form: String): String = {
+  private def modelCheck(raw_conn: String, raw_form: String, warning: Option[String]): String = {
     ParserUtils.parseAndHide(raw_conn, raw_form) match {
-      case Right((model, mcrl2form)) => modelCheck(model, mcrl2form)
+      case Right((model, mcrl2form)) => modelCheck(model, mcrl2form, warning)
       case Left(err) => error(err)
     }
 
@@ -99,7 +99,7 @@ class ModalActor(out: ActorRef) extends Actor{
 //    }
 //  }
 
-  private def modelCheck(model: Model,form:String): String = {
+  private def modelCheck(model: Model,form:String, warning: Option[String]): String = {
     try {
       val id = Thread.currentThread().getId
       storeInFile(model) // create model_id.mcrl2
@@ -113,7 +113,7 @@ class ModalActor(out: ActorRef) extends Actor{
 
       val save_output = savepbes()
       if(save_output._1 == 0)
-        JsonCreater.create(solvepbes()).toString
+        JsonCreater.create(solvepbes(),warning).toString
       else
         error("Modal Logic failed: " + save_output._2+
            "\n when parsing\n"+form)
@@ -125,7 +125,7 @@ class ModalActor(out: ActorRef) extends Actor{
   }
 
 
-  private def view(raw_conn: String, raw_form: String): String = {
+  private def view(raw_conn: String, raw_form: String, warning: Option[String]): String = {
     val conn = ParserUtils.parseCoreConnector(raw_conn)
     conn match {
       case Left(s) => s
@@ -133,7 +133,10 @@ class ModalActor(out: ActorRef) extends Actor{
         val model = preo.frontend.mcrl2.Model(c)
         storeInFile(model) // save to fie
         callLtsGraph()     // generateLTS
-        "ok"
+        warning match {
+          case Some(w) => "warning: "+w
+          case _ => "ok"
+        }
     }
   }
 

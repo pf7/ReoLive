@@ -10,18 +10,22 @@ import preo.frontend.Show
   */
 object JsonCreater {
 
-  def create(typ: Type, reductyp:Type, con:CoreConnector): JsValue =
+  def create(typ: Type, reductyp:Type, con:CoreConnector, warning:String): JsValue =
     JsObject(Map(
       "type" -> convert(typ),
       "reducType" -> convert(reductyp),
       "connector" -> convert(con),
-      "id" -> JsNumber(Thread.currentThread().getId)
+      "id" -> JsNumber(Thread.currentThread().getId),
+      "warning" -> JsString(warning)
     ))
 
-  def create(output: String): JsValue = {
-    JsObject(Map(
-      "output" -> JsString(output)
-    ))
+  def create(output: String, warning: Option[String]): JsValue = {
+    JsObject(
+      Map("output" -> JsString(output)) ++
+      (warning match {
+        case Some(w) => Map("warning"->JsString(w))
+        case _ => Map()
+    }))
   }
 
 

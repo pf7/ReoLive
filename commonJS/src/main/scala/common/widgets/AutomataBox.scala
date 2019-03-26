@@ -4,7 +4,8 @@ import common.frontend.AutomataToJS
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
-import preo.backend.{Automata, PortAutomata}
+import preo.backend.Network.Mirrors
+import preo.backend.{Automata, Circuit, PortAutomata}
 import preo.common.TimeoutException
 
 
@@ -33,7 +34,13 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   private def drawAutomata(): Unit =
   try{
     // redundancy needed to generate new port names, so these can be linked to the graph being depicted.
-    val (automaton,ext) = Automata.toAutWithRedundandy[PortAutomata](dependency.get)
+//    val automaton = Automata.toAutWithRedundandy[PortAutomata](dependency.get)
+    val mirrors = new Mirrors()
+    //println("- Starting Automata drawing - 1st the circuit")
+    Circuit(dependency.get,true,mirrors) // just to update mirrors
+    //println("- Mirrors after circuit creation: "+mirrors)
+    val automaton = Automata[PortAutomata](dependency.get,mirrors)
+    //println("- Mirrors after Automata: "+mirrors)
     val sizeAut = automaton.getStates.size
     //              println("########")
     //              println(aut)
@@ -43,7 +50,7 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     val height = (heightAutRatio * factorAut).toInt
     svg.attr("viewBox", s"00 00 $width $height")
 
-    scalajs.js.eval(AutomataToJS(automaton,ext,"automata"))
+    scalajs.js.eval(AutomataToJS(automaton,mirrors,"automata"))
   }
   catch Box.checkExceptions(errorBox)
 

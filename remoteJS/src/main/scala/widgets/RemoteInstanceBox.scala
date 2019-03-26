@@ -80,7 +80,7 @@ class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: Output
         case Right(message) => {
           errors.error(message)
         }
-        case Left((typ, reducTyp, con, ide)) => {
+        case Left((typ, reducTyp, con, ide, warn)) => {
           typeInfo.append("p")
             .text(typ)
           instanceInfo.append("p")
@@ -88,6 +88,10 @@ class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: Output
               reducTyp)
           ccon = con
           this.id = ide
+          warn match {
+            case Some(w) if w.nonEmpty => errors.warning(w)
+            case _ =>
+          }
           reload
         }
       }

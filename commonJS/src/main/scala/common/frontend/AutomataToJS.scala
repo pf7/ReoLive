@@ -2,17 +2,20 @@ package common.frontend
 
 import hub.HubAutomata
 import ifta.backend.IftaAutomata
+import preo.backend.Network.Mirrors
 import preo.backend._
+
+import scala.util.Try
 
 
 //todo: add rectangle colision colision
 object AutomataToJS {
 
-  def apply[A<:Automata](aut: A, ext:Map[Int,Int], boxName:String, portNames:Boolean=false): String =
-    generateJS(getNodes(aut), getLinks(aut,boxName), boxName)
+  def apply[A<:Automata](aut: A, mirrors: Mirrors, boxName:String, portNames:Boolean=false): String =
+    generateJS(getNodes(aut), getLinks(aut,boxName,portNames,mirrors), boxName)
 
-  def toJs[A<:Automata](aut: A, boxName:String, portNames:Boolean=false): String =
-    generateJS(getNodes(aut), getLinks(aut,boxName,portNames), boxName)
+  def toJs[A<:Automata](aut: A, boxName:String, portNames:Boolean=false, mirrors: Mirrors=new Mirrors): String =
+    generateJS(getNodes(aut), getLinks(aut,boxName,portNames,mirrors), boxName)
 
 
   /*todo: refactor in different methods or classes to avoid booolean virtuoso, or pass automata for
@@ -176,9 +179,10 @@ object AutomataToJS {
                     ports.forEach(function(el) {
                       var p = document.getElementById("gr_"+el);
                       //console.log("port "+el);
-                      if (p!=null) {
+                      if (p!=null && p.style.fill!="#00aaff") {
                         p.style.backgroundColor = p.style.fill;
                         p.style.fill = "#00aaff";
+                        p.style.fontWeight = "bold";
                       }
                     });
                   })
@@ -192,7 +196,7 @@ object AutomataToJS {
                       //console.log("port "+el);
                       if (p!=null) {
                         p.style.fill = p.style.backgroundColor;
-                      }
+                        p.style.fontWeight = "normal";                      }
                     });
                   })
 
@@ -356,8 +360,8 @@ object AutomataToJS {
   private def getNodes[A<:Automata](aut: A): String =
     aut.getTrans().flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
 
-  private def getLinks[A<:Automata](aut: A,name:String,portNames:Boolean=false): String =
-    aut.getTrans(portNames).flatMap(t => processEdge(t,name)).mkString("[",",","]")
+  private def getLinks[A<:Automata](aut: A,name:String,portNames:Boolean=false, ms: Mirrors): String =
+    aut.getTrans(portNames).flatMap(t => processEdge(expandMirrors(t,ms),name)).mkString("[",",","]")
 
   private def processNode(initAut:Int,trans:(Int,Any,String,Int)): Set[String] = trans match{
     case (from,lbl,id,to) =>
@@ -366,6 +370,28 @@ object AutomataToJS {
         s"""{"id": "$to", "group": $gto }""",
         s"""{"id": "$from-1-$to-$id", "group": "$gp1"}""",
         s"""{"id": "$to-2-$from-$id", "group": "$gp2" }""")
+  }
+
+  private def expandMirrors(trans: (Int, Any, String, Int), mirrors: Network.Mirrors): (Int,String,String,Int) =
+  trans match {
+    case (from,lbl,id,to) => (from, expandMirrors(lbl.toString,mirrors),id,to)
+  }
+  private def expandMirrors(string: String,mirrors: Mirrors): String = {
+    val res = string.split("~").toList match {
+      case Nil => string
+      case head :: tl =>
+        val ints:Set[Int] = collectInts(tl,mirrors)
+//        val expanded = ints.flatMap(mirrors(_))
+        (head::ints.map(_.toString).toList).mkString("~")
+    }
+    //println(s"- expanding $string --> $res")
+    res
+  }
+  private def collectInts(strings: List[String],mirrors: Mirrors): Set[Int] = {
+    strings.toSet.flatMap((s:String) => Try(s.toInt).toOption match {
+      case Some(i:Int) => mirrors(i) + i
+      case _ => Set[Int]()
+    })
   }
 
   //  private def processNode(initAut:Int,trans:(Int,(Int,Set[Int],Set[Edge]))): Set[String] = trans match{
@@ -389,7 +415,7 @@ object AutomataToJS {
       , "2" , "2"
     )
 
-  private def processEdge(trans:(Int,Any,String,Int), name:String): Set[String] = trans match {
+  private def processEdge(trans:(Int,String,String,Int), name:String): Set[String] = trans match {
     case (from, lbl,id, to) => {
       Set(s"""{"id": "${id}" , "source": "$from", "target": "$from-1-$to-$id", "type":"", "start":"start", "end": "end"}""",
         s"""{"id": "${id}" , "source": "$from-1-$to-$id", "target": "$to-2-$from-$id", "type":"$lbl", "start":"start", "end": "end"}""",
