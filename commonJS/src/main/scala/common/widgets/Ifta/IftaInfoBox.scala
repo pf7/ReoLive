@@ -46,9 +46,19 @@ class IftaInfoBox(dependency:Box[CoreConnector], errorBox:OutputArea)
   private def showInfo() = {
     deleteInfo()
     try{
-      var iftaAut = Automata[IftaAutomata](dependency.get)
+      var iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
       ifta = iftaAut.ifta
 
+//      // clocks
+//      box.append("p")
+//        .append("strong")
+//        .text(s"Clocks: ${ifta.clocks.size}\n")
+//      if (ifta.clocks.nonEmpty) {
+//        box.append("ul")
+//          .attr("style", "margin-bottom: 20pt;")
+//          .append("li")
+//          .text(s"${ifta.clocks.mkString(",")}")
+//      }
       // # of features
       box.append("p")
         .append("strong")

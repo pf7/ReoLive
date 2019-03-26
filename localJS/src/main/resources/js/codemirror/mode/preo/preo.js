@@ -204,7 +204,7 @@ CodeMirror.defineMode("preo", function(_config, modeConfig) {
       "I", "B", "hide");
 
     setType("builtin")(
-      "fifo","fifofull","lossy","drain","id","sync","merger","vmerger","dupl","vdupl","exrouter",
+      "fifo","fifofull","lossy","timer","drain","id","sync","merger","vmerger","dupl","vdupl","exrouter",
       "noSrc","noSnk",
       "node","ids","mergers","dupls","vdupls","vmergers","exrouters","loop","swap",
       "writer","reader"

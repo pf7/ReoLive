@@ -6,6 +6,7 @@ import org.scalajs.dom.{MouseEvent, html}
 import org.singlespaced.d3js.Selection
 import preo.ast.CoreConnector
 import preo.backend.Circuit
+import preo.frontend.Show
 
 class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     extends Box[Circuit]("Circuit of the instance", List(dependency)) {
@@ -110,7 +111,30 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 //    dom.document.body.removeChild(downloadLink)
   }
 
-}
+  def showFs(fs:Set[String]) = if (isVisible) {
+    val remapedFs =
+      fs.map(f => if (f.startsWith("v_")) s"${f.drop(2)}" else s"${f.drop(1)}")
+
+    val showCircuit =
+      s"""
+         |var fs = new Set(${remapedFs.map(s=> s""""$s"""").mkString("[",",","]")});
+         |d3.select(".linkscircuit")
+         |  .selectAll("polyline")
+         |  .style("opacity", function(d) {
+         |    var srcPorts = d.source.ports;
+         |    var trgPorts = d.target.ports;
+         |    var srcIntersect = new Set(srcPorts.filter(x => fs.has(x)));
+         |    var trgIntersect = new Set(trgPorts.filter(x => fs.has(x)));
+         |    return ((srcIntersect.size > 0) && (trgIntersect.size > 0)) ? "1" : "0.1"
+         |  });
+         |
+       """.stripMargin
+
+    scalajs.js.eval(showCircuit)
+  }
+
+
+    }
 
 object GraphBox {
   type Block = Selection[dom.EventTarget]
@@ -253,6 +277,24 @@ object GraphBox {
       .attr("y","0")
       .attr("width","60")
       .attr("height","30")
+
+    svg.append("defs")
+      .append("marker")
+      .attr("id","timermarker"+name)
+      .attr("refX","6")
+      .attr("refY","6")
+      .attr("markerUnits","strokeWidth")
+      .attr("markerWidth","24")
+      .attr("markerHeight","24")
+      .attr("stroke","black")
+      .attr("stroke-width","1")
+      .attr("fill","white")
+//      .attr("orient","auto")
+      .append("circle")
+      .attr("cx","6")
+      .attr("cy","6")
+      .attr("r","5")
+      .attr("fill","white")
 
     svg
   }

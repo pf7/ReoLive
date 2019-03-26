@@ -1,8 +1,10 @@
 package common.frontend
 
 import hub.HubAutomata
-import ifta.backend.IftaAutomata
 import preo.backend.Network.Mirrors
+import ifta.analyse.Simplify
+import ifta.{CTrue, ClockCons}
+import ifta.backend.{IftaAutomata, Show}
 import preo.backend._
 
 import scala.util.Try
@@ -14,8 +16,10 @@ object AutomataToJS {
   def apply[A<:Automata](aut: A, mirrors: Mirrors, boxName:String, portNames:Boolean=false): String =
     generateJS(getNodes(aut), getLinks(aut,boxName,portNames,mirrors), boxName)
 
-  def toJs[A<:Automata](aut: A, boxName:String, portNames:Boolean=false, mirrors: Mirrors=new Mirrors): String =
-    generateJS(getNodes(aut), getLinks(aut,boxName,portNames,mirrors), boxName)
+  def toJs[A<:Automata](aut: A, boxName:String, portNames:Boolean=false, mirrors: Mirrors=new Mirrors): String = aut match {
+    case a:IftaAutomata => generateJS(getIftaNodes(a) , getLinks(aut,boxName,portNames,mirrors), boxName)
+    case _              => generateJS(getNodes(aut)   , getLinks(aut,boxName,portNames,mirrors), boxName)
+  }
 
 
   /*todo: refactor in different methods or classes to avoid booolean virtuoso, or pass automata for
@@ -60,25 +64,15 @@ object AutomataToJS {
               var node = d3.select(".nodes${name}")
                   .selectAll("circle")
                   .data(nodesAut);
-//              var nodeG = nodeout
-//                  .enter();
-//                  .append("g")
-//                  .attr("class","node");
-//              nodeG.append("text")
-//                  .attr("dx", 12)
-//                  .attr("dy", ".35em")
-//                  .text(function(d) {
-//                     if (d.group == 0 || d.group == 1 || d.group == 2) {
-//                       return "";
-//                     }
-//                     else return d.group;
-//                   });
-//              nodeG.append("circle")
-                var nd = node.enter().append("circle")
+//                  .enter().append("g");
+              var nd = node.enter().append("g")
+//                  .append("g").append("circle")
+//              var nd = node.append("circle")
+                  nd.append("circle")
                   .merge(node)
                   .attr("r", function(d){
                     if(d.group == 0 || d.group == 1){
-                      return radiusAut + 0.75;
+                      return radiusAut + 0.75;m
                     }
                     else{
                       return 0;
@@ -108,8 +102,26 @@ object AutomataToJS {
                     else{
                       return "green";
                     }
+                });
+
+                // add invariants to ifta automata nodes
+                var nodelabel = nd.append("text")
+                  .style("font-size","6px")
+                  .style("fill","#A742A8")
+                  .attr('dy', 9)
+                  .attr('dx', 6)
+                  .on("mouseenter", function(d) {
+                    d3.select(this).style("font-size","14px");
                   })
-                  ;
+                  .on("mouseleave", function(d) {
+                    d3.select(this).style("font-size","6px");
+                  })
+                  .text(function(d) {
+                    if (d.group == 0 || d.group == 1)
+                      return d.inv;
+                    else
+                      return "";
+                    });
 
               node.exit().remove();
 
@@ -255,40 +267,82 @@ object AutomataToJS {
                     .attr('xlink:href', function (d, i) {return '#edge${name}path' + i})
                     .style("text-anchor", "middle")
                     // .style("pointer-events", "none")
+                    .style("font-size", "10px")
                     .attr("startOffset", "50%")
                     .on("mouseenter", function(d) {
                       d3.select(this).style("font-size","14px");})
                     .on("mouseleave", function(d) {
                       d3.select(this).style("font-size", "10px");});
-                  textpath.append("tspan")
-                    .attr("class", "cc")
-                    .style("fill","#00B248")
-                    .text(function (d) {
-                      var g = d.type.split("~")[0] ;
-                      return (g != "" ) ?  g : "";
-                    });
+//                  textpath.append("tspan")
+//                    .attr("class", "cc")
+//                    .style("fill","#00B248")
+//                    .text(function (d) {
+//                      var g = d.type.split("~")[0] ;
+//                      return (g != "" ) ?  g : "";
+//                    });
                   textpath.append("tspan")
                     .attr("class", "iftaActs")
                     .style("fill","#3B01E9")
                     .text(function (d) {
                       var g = d.type.split("~")[0] ;
                       var a = d.type.split("~")[1] ;
-                      var acts = (a !== undefined) ? a : ""
-                      return (g != "" && acts!= "")? ", " + acts : acts;
+                      var acts = (a !== undefined) ? ((a != "") ?a: "τ") : ""
+                      return acts;
                     }) ;
-                  textpath.append("tspan")
+//                  textpath.append("tspan")
+//                    .attr("class", "fexp")
+//                    .style("fill","#0F024F")
+//                    .text(function (d) {
+//                      var u = d.type.split("~")[2] ;
+//                      return (u != "" && u!== undefined) ? ", " + u : "";
+//                    });
+//                  textpath.append("tspan")
+//                    .attr("class", "cresets")
+//                    .style("fill","#4C2EAA")
+//                    .text(function (d) {
+//                      var r = d.type.split("~")[3] ;
+////                      return (typeof r != 'undefined') ? (", " + r) : " ";
+//                      return (r != "" && r!== undefined) ? ", " + r : "";
+//                    });
+
+                  var belowTextpath = d3.select(".labels${name}")
+                    .selectAll(".edgelabel")
+                    .append('textPath')
+                    .call(d3.drag()
+                    .on("start", dragstartedAut)
+                    .on("drag", draggedAut)
+                    .on("end", dragendedAut))
+                    .attr('xlink:href', function (d, i) {return '#edge${name}path' + i})
+                    .style("text-anchor", "middle")
+                      .style("font-size", "6px")
+                    // .style("pointer-events", "none")
+                    .attr("startOffset", "50%")
+                    .on("mouseenter", function(d) {
+                      d3.select(this).style("font-size","14px");})
+                    .on("mouseleave", function(d) {
+                      d3.select(this).style("font-size", "6px");});
+
+                  belowTextpath.append("tspan")
+                    .attr("class", "cc")
+                    .style("fill","#00B248")
+                    .attr("dy","1em")
+                    .text(function (d) {
+                      var g = d.type.split("~")[0] ;
+                      return (g != "" ) ?  g : " ";
+                    });
+                  belowTextpath.append("tspan")
                     .attr("class", "fexp")
                     .style("fill","#0F024F")
                     .text(function (d) {
+                      var cc = d.type.split("~")[0] ;
                       var u = d.type.split("~")[2] ;
-                      return (u != "" && u!== undefined) ? ", " + u : "";
+                      return (u != "" && u!== undefined) ? ((cc!="") ?", " + u : u) : "";
                     });
-                  textpath.append("tspan")
+                  belowTextpath.append("tspan")
                     .attr("class", "cresets")
                     .style("fill","#4C2EAA")
                     .text(function (d) {
                       var r = d.type.split("~")[3] ;
-//                      return (typeof r != 'undefined') ? (", " + r) : " ";
                       return (r != "" && r!== undefined) ? ", " + r : "";
                     });
 
@@ -300,6 +354,10 @@ object AutomataToJS {
                   .selectAll("circle")
                   .attr('cx', function(d) {return d.x = Math.max(radiusAut, Math.min(widthAut - radiusAut, d.x)); })
                   .attr('cy', function(d) {return d.y = Math.max(radiusAut, Math.min(heightAut - radiusAut, d.y)); });
+              var label = d3.select(".nodes${name}")
+                  .selectAll("text")
+                  .attr('x', function(d) {return d.x = Math.max(radiusAut, Math.min(widthAut - radiusAut, d.x)); })
+                  .attr('y', function(d) {return d.y = Math.max(radiusAut, Math.min(heightAut - radiusAut, d.y)); });
 
               var link = d3.select(".links${name}")
                   .selectAll("polyline")
@@ -360,16 +418,21 @@ object AutomataToJS {
   private def getNodes[A<:Automata](aut: A): String =
     aut.getTrans().flatMap(processNode(aut.getInit, _)).mkString("[",",","]")
 
+  private def getIftaNodes(aut:IftaAutomata):String =
+    aut.getTrans().flatMap(processNode(aut.getInit, _, aut.ifta.cInv)).mkString("[",",","]")
+
   private def getLinks[A<:Automata](aut: A,name:String,portNames:Boolean=false, ms: Mirrors): String =
     aut.getTrans(portNames).flatMap(t => processEdge(expandMirrors(t,ms),name)).mkString("[",",","]")
 
-  private def processNode(initAut:Int,trans:(Int,Any,String,Int)): Set[String] = trans match{
+  private def processNode(initAut:Int,trans:(Int,Any,String,Int),nodeInvariant:Map[Int,ClockCons]=Map()): Set[String] = trans match{
     case (from,lbl,id,to) =>
+      val toInv   = Show(Simplify(nodeInvariant.getOrElse(to,CTrue)))
+      val fromInv = Show(Simplify(nodeInvariant.getOrElse(from,CTrue)))
       val (gfrom,gto,gp1,gp2) = nodeGroups(initAut,from,to)
-      Set(s"""{"id": "$from", "group": $gfrom }""",
-        s"""{"id": "$to", "group": $gto }""",
-        s"""{"id": "$from-1-$to-$id", "group": "$gp1"}""",
-        s"""{"id": "$to-2-$from-$id", "group": "$gp2" }""")
+      Set(s"""{"id": "$from", "group": $gfrom ,"inv":"${if (fromInv == "true") "" else fromInv}"}""",
+        s"""{"id": "$to", "group": $gto ,"inv":"${if (toInv == "true") "" else toInv }"}""",
+        s"""{"id": "$from-1-$to-$id", "group": "$gp1","inv":""}""",
+        s"""{"id": "$to-2-$from-$id", "group": "$gp2" ,"inv":""}""")
   }
 
   private def expandMirrors(trans: (Int, Any, String, Int), mirrors: Network.Mirrors): (Int,String,String,Int) =

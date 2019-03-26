@@ -95,7 +95,7 @@ object RemoteReo extends{
     iftaAut =
       new IFTABox(typeInstanceInfo, errors)
     ifta =
-      new RemoteIFTABox(typeInstanceInfo,iftaAut,errors)
+      new RemoteIFTABox(typeInstanceInfo,iftaAut,svg,errors)
 
     inputBox.init(leftside,true)
     errors.init(leftside)

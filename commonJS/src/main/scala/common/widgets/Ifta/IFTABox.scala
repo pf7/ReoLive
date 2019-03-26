@@ -4,7 +4,7 @@ import common.backend.CCToFamily
 import common.frontend.{AutomataToJS, IFTAToJS}
 import common.widgets.{Box, GraphBox, OutputArea}
 import ifta.IFTA
-import ifta.backend.IftaAutomata
+import ifta.backend.{IftaAutomata, Show}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
@@ -57,7 +57,8 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
     try{
       // drawing ifta
 //      ifta = CCToFamily.toIFTA(dependency.get,allNames,hideInternal)
-      var iftaAut = Automata[IftaAutomata](dependency.get)
+      val iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
+//      val iftaAut = Automata[IftaAutomata](dependency.get)
       ifta = iftaAut.ifta
       val iftaSize = ifta.locs.size
       val iftaFactor = Math.sqrt(iftaSize*10000 / (densityAut * widthAutRatio * heightAutRatio))
@@ -67,6 +68,8 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
       box.attr("viewBox", s"00 00 $width $height")
 //      scalajs.js.eval(IFTAToJS(ifta))
       scalajs.js.eval(AutomataToJS.toJs(iftaAut,"iftaAutomata",allNames))
+
+
     }
     catch Box.checkExceptions(errorBox)
   }
@@ -98,6 +101,12 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
            |  .attr("marker-end", function(d) {
            |    return (showEdges.get(d.id) == 1) ? "url(#" + d.end + ")" : "url(#" + d.end + "light)"
            |  });
+           |
+           |d3.select(".labelsiftaAutomata")
+           |  .selectAll("textPath")
+           |  .style("opacity", function(d) {
+           |    return (showEdges.get(d.id) == 1 ) ? "1" : "0.1"
+           |    });
        """.stripMargin
       scalajs.js.eval(updateEdges)
     }

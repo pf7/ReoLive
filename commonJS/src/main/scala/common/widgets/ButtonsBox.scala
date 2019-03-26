@@ -5,7 +5,7 @@ import org.scalajs.dom.EventTarget
 import scala.scalajs.js.UndefOr
 
 class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Setable[String], logicBox: Setable[String])
-    extends Box[String]("examples", Nil){
+    extends Box[String]("Examples", Nil){
 
   private def descr(s1:String,s2:String):String =
     s"<p><strong>$s1</strong></p> $s2"
@@ -30,14 +30,31 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
     "fifo"::"fifo"::"// can always fire\n<all*.fifo>true"::
       descr("Empty FIFO1 channel","The empty FIFO1 channel (also called the empty one " +
         "slot buffer) can store a single datum.")::Nil,
+    "timer"::"timer(5)"::""::
+      descr("Timer", "An asynchronous blocking channel with internal state parameterized " +
+        "by an integer value t. After receiving a value, it delays for t ammount of time before " +
+        "sending it through its output channel. If t is not specify it assumes t=0 and behaves as " +
+        "a sync channel.")::Nil,
     "merger"::"merger"::"// can always fire\n<all*.merger>true"::
       descr("Sink node: merger","A sink node acts like a merger. A get that is performed " +
         "at a sink node receives a datum from one of its offering coincident channels. If multiple " +
         "channels can offer data, one channel is selected non-deterministically.")::Nil,
+    "variable merger"::"vmerger"::""::
+      descr("Variable merger","A family of synchronous mergers. " +
+        "Like the merger connector but enhanced with boolean expressions over " +
+        "variables associated to its input ports, allowing some of its coincident channels " +
+        "to be absent. A feature model determines what are the valid connectors allowed in the family. " +
+        "In this case, four connectors: all inputs present, only one (either), or none.")::Nil,
     "dupl"::"dupl"::"// can always fire\n<all*.dupl>true"::
       descr("Source node: duplicator","A source node acts like a duplicator. Any datum " +
         "that is put at a source node is replicated through all of its coincident channels if and " +
         "only if all of the channels can accept the datum.")::Nil,
+    "variable dupl"::"vdupl"::""::
+      descr("Variable duplicator","A family of synchronous duplicators. " +
+        "Like the dupl connector but enhanced with boolean expressions over " +
+        "variables associated to its output ports, allowing some of its coincident channels " +
+        "to be absent. A feature model determines what are the valid connectors allowed in the family. " +
+        "In this case, four connectors: all outputs present, only one (either), or none.")::Nil,
     "drain"::"drain"::"// can always fire\n<all*.drain>true"::
       descr("Synchronous drain","The synchronous drain (or syncdrain) has two source ends. " +
         "A put at either end blocks until a put is performed on the other end. Then, both data are " +
@@ -81,6 +98,16 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
                            |// always: either out1 or out2 is active
                            |@xor<all*.(out1 + out2)> true""".stripMargin::
                       descr("Exclusive Router","Version using the Treo language. Exclusively sends incoming data to one of 2 outputs.")::Nil,
+    "variable exrouter"::"""vdupl ; vdupl*id ;
+                         |(lossy;dupl)*(lossy;dupl)*id ;
+                         |id*vmerger*id*id ;
+                         |id*id*swap ;
+                         |id*drain*id ;
+                         |out1*out2""".stripMargin
+      ::""::
+      descr("Variabled Exclusive Router","Version using the Preo language. Exclusively sends incoming data to one of 2 outputs. " +
+        "Enhanced with variable connectors, allowing one of its outputs to be absent, in which case it always sends the incoming data to " +
+        "the available output. If the input or both outputs are absent, the entire connector is absent.")::Nil,
     //    "exrouter=.."::"writer ; dupl ; dupl*id ; (lossy*lossy ; dupl*dupl ; id*swap*id ; id*id*merger)*id ; id*id*drain ; reader^2"::Nil,
     "zip":: """zip_ 3
 {

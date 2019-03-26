@@ -2,6 +2,9 @@ package common.frontend
 
 import preo.backend._
 
+import scala.collection.Map
+import scala.reflect.ClassTag
+
 
 //todo: add rectangle colision colision
 object GraphsToJS {
@@ -62,6 +65,8 @@ object GraphsToJS {
                 .merge(node)
                 .attr("r", radius - 0.75)
                 .attr("id", function (d) {return d.id;})
+                .on("mouseenter", function(d) {
+                  console.log("node id:"+d.id + "; ports: " +d.ports );})
                 .call(d3.drag()
                   .on("start", dragstarted)
                   .on("drag", dragged)
@@ -105,6 +110,8 @@ object GraphsToJS {
                  .attr('width', rectangle_width)
                  .attr('height', rectangle_height)
                  .attr("y","-10px")
+                .on("mouseenter", function(d) {
+                  console.log("node id:"+d.id + "; ports: " +d.ports );})
                  .call(d3.drag()
                    .on("start", dragstarted)
                    .on("drag", dragged)
@@ -135,6 +142,8 @@ object GraphsToJS {
                  .attr('width', function (d) {return ((d.name.length*8.3) + 10);} )
                  .attr('height', rectangle_height)
                  .attr("y","-10px")
+                  .on("mouseenter", function(d) {
+                      console.log("node id:"+d.id + "; ports: " +d.ports );})
                  .call(d3.drag()
                    .on("start", dragstarted)
                    .on("drag", dragged)
@@ -165,6 +174,8 @@ object GraphsToJS {
                   .attr("width",hubSize)
                   .attr("height",hubSize)
                   .attr("xlink:href", function(d) {return "svg/"+d.group+".svg";})
+                  .on("mouseenter", function(d) {
+                    console.log("node id:"+d.id + "; ports: " +d.ports );})
                   .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
@@ -186,6 +197,8 @@ object GraphsToJS {
                      return 'url(#boxmarkercircuit)'
                   } else if (d.type === "fifofull"){
                      return 'url(#boxfullmarkercircuit)'
+                  } else if (d.type === "timer") {
+                     return 'url(#timermarkercircuit)'
                   } else {
                    return ("");
                 }})
@@ -239,13 +252,32 @@ object GraphsToJS {
                 .text(function (d) {
                   if(d.type === "drain" || d.type === "lossy" || d.type === "merger" ||
                      d.type === "sync" || d.type === "fifo" || d.type
-                     === "fifofull"){
+                     === "fifofull" || d.type === "timer"){
                     return "";
-                  }
-                  else{
+//                  }
+//                  else if (d.type === "timer") {
+//                    return "t"
+                  }else {
                     return d.type;
                   }
                 });
+
+            var timerTextPath = d3.select(".labelscircuit").selectAll(".edgelabel")
+                .append('textPath')
+                .attr('xlink:href', function (d, i) {return '#edgepathcircuit' + i})
+                .style("text-anchor", "middle")
+                .style("pointer-events", "none")
+                .style("font-size","8px")
+                .attr("startOffset", "50%")
+                .append("tspan")
+                .style("fill","#00B248")
+                .attr("dy","0.3em")
+                .text(function (d) {
+                  if (d.type === "timer") {
+                    return d.to
+                  } else return "";
+                });
+
         }
 
         function ticked() {
@@ -344,12 +376,12 @@ object GraphsToJS {
 
 
   private def processNode(node:ReoNode,mark:String,virtuoso:Boolean = false):String = node match {
-    case ReoNode(id, name, nodeType, extra) => {
+    case ReoNode(id, name, nodeType, extra,ports) => {
       val nodeGroup = typeToGroup(nodeType, extra,virtuoso);
-      s"""{"id": "${mark}_$id", "group": "$nodeGroup", "name": "${name.getOrElse("")}" }"""
+//      val ports:Set[Int] = Set()
+      s"""{"id": "${mark}_$id", "group": "$nodeGroup", "name": "${name.getOrElse("")}", "ports" : ${ports.map(p => s""""${p.toString}"""").mkString("[",",","]")} }"""
     }
   }
-
 
   /**
     * Select the right group:
@@ -385,7 +417,18 @@ object GraphsToJS {
     case ReoChannel(src,trg, srcType, trgType, name, style) => {
       var start = arrowToString(srcType);
       var end = arrowToString(trgType);
-      s"""{"source": "${mark}_$src", "target": "${mark}_$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit"}"""
+      var to = if (name == "timer") getTimerInfo(channel) else ""
+        s"""{"source": "${mark}_$src", "target": "${mark}_$trg", "type":"$name", "start":"start${start}circuit", "end": "end${end}circuit", "to": "${to}"}"""
+    }
+  }
+
+  private def getTimerInfo(channel: ReoChannel):Int = {
+//    var info = channel.extra.iterator.filter(e => e.isInstanceOf[(String,Int)]).map(e => e.asInstanceOf[(String,Int)])
+//    info.toMap.getOrElse("to",0)
+    var extraInfo = channel.extra.iterator.filter(e => e.isInstanceOf[String]).map(e => e.asInstanceOf[String])
+    extraInfo.find(e => e.startsWith("to:")) match {
+      case Some(s) => s.drop(3).toInt
+      case _ => 0
     }
   }
 
