@@ -440,10 +440,10 @@ object AutomataToJS {
     case (from,lbl,id,to) => (from, expandMirrors(lbl.toString,mirrors),id,to)
   }
   private def expandMirrors(string: String,mirrors: Mirrors): String = {
-    val res = string.split("~").toList match {
+    val res = string.split("§").toList match {
       case Nil => string
       case head :: tl =>
-        val ints:Set[Int] = collectInts(tl,mirrors)
+        val ints = collectInts(tl,mirrors)
 //        val expanded = ints.flatMap(mirrors(_))
         (head::ints.map(_.toString).toList).mkString("~")
     }

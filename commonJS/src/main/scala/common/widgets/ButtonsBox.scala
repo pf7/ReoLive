@@ -63,7 +63,10 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
     "\\x . fifo^x*writer ; drain^2" :: "\\x . fifo^x*writer ; drain^2"::""::Nil,
     "(\\x.fifo^x) ; (\\n.drain^n)" :: "(\\x.fifo^x) ; (\\n.drain^n)"::""::Nil,
     //    "\\b:B . (b? fifo + dupl) & merger" :: "\\b:B . (b? fifo + dupl) & merger"::Nil,
-    "b? fifo + lossy^2" :: "\\b:B . (b? fifo + lossy*lossy) ; merger"::""::Nil,
+    "if_then_else" :: "\\b:B .\n (if b then fifo else lossy*lossy) ;\n merger"::""
+      ::"Usage of the if-then-else construct for connectors"::Nil,
+    "fifo + lossy*lossy" :: "fifo + lossy*lossy ; merger"::""
+      ::"The sum of connectors is translated into a if-then-else construct with a new parameter 'b'."::Nil,
     "(\\x .drain^(x-1)) 3" :: "(\\x .drain^(x-1)) 3"::""::Nil,
     "(\\x. lossy^x |x>2)" :: "(\\x. lossy^x |x>2) ; (\\n. merger^n | n>1 & n<6)"::""::Nil,
     "merger!" :: "writer^8 ; merger! ; merger! ; reader!"::""::Nil,

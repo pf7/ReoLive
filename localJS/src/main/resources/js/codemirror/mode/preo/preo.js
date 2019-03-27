@@ -194,7 +194,7 @@ CodeMirror.defineMode("preo", function(_config, modeConfig) {
       );
 
     setType("keyword")(
-      "=", "<-");
+      "=", "<-","if","then","else");
 
     setType("keyword")(
        "&&", "+", "-", ".", "/", "/=", "<", "<=",
