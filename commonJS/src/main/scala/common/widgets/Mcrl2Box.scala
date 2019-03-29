@@ -57,10 +57,11 @@ class Mcrl2Box(dependency: Box[CoreConnector], errorBox: OutputArea)
   }
   override def update(): Unit = if(isVisible) produceMcrl2()
 
-  private def produceMcrl2(): Unit = {
+  private def produceMcrl2(): Unit = try {
     model = Model(dependency.get)
     box.html(model.webString)
   }
+  catch Box.checkExceptions(errorBox,"mCRL2-code")
 
   private def deleteMcrl2(): Unit = {
     box.html("")

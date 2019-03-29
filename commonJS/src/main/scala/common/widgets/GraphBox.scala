@@ -8,7 +8,7 @@ import preo.ast.CoreConnector
 import preo.backend.Circuit
 import preo.frontend.Show
 
-class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
+class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea, path: String=".")
     extends Box[Circuit]("Circuit of the instance", List(dependency)) {
   var graph: Circuit = _
   var box: Block = _
@@ -23,7 +23,7 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea)
     box = GraphBox.appendSvg(super.panelBox(div,visible,
       buttons = List(
         Left("&dArr;")-> (() => saveSvg(),"Download image as SVG")
-      )),"circuit")
+      )),"circuit", path=path)
     dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {e: MouseEvent => if(!isVisible) drawGraph() else deleteDrawing()}
   }
@@ -142,7 +142,7 @@ object GraphBox {
   private var width = 700
   private var height = 400
 
-  def appendSvg(div: Block,name: String): Block = {
+  def appendSvg(div: Block,name: String, path:String = "."): Block = {
     val svg = div.append("svg")
       .attr("style","margin: auto;")
       .attr("viewBox",s"0 0 $width $height")
@@ -295,6 +295,18 @@ object GraphBox {
       .attr("cy","6")
       .attr("r","5")
       .attr("fill","white")
+
+    svg.append("defs")
+      .append("pattern")
+      .attr("id", "xorpattern")
+      .attr("patternUnits", "userSpaceOnUse")
+      .attr("width", 10)
+      .attr("height", 10)
+      .append("image")
+        .attr("xlink:href", s"$path/svg/x.svg")
+        .attr("width", 10)
+        .attr("height", 10);
+
 
     svg
   }

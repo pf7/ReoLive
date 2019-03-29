@@ -131,30 +131,34 @@ object Box {
     * @param errorBox is the placeholder where the exception will be appended to.
     * @return the function to be placed at a catch point.
     */
-  def checkExceptions(errorBox: OutputArea): PartialFunction[Throwable,Unit] = {
-    // type error
-    case e: TypeCheckException =>
-      errorBox.error(/*Show(result)+ */"Type error: " + e.getMessage)
-    //            instanceInfo.append("p").text("-")
-    case e: GenerationException =>
-      errorBox.warning(/*Show(result)+ */"Generation failed: " + e.getMessage)
-    case e: preo.common.TimeoutException =>
-      errorBox.error("Timeout: " + e.getMessage)
-    case e: ifta.common.TimeoutException =>
-      errorBox.error("Timeout: " + e.getMessage)
-    case e:FExpOverflowException =>
-      errorBox.error("Overflow:" + e.getMessage)
-    case e:ParseException =>
-      errorBox.error("ParseException:" + e.getMessage)
-    case e: JavaScriptException => {
-//      val sw = new StringWriter
-//      e.printStackTrace(new PrintWriter(sw))
-//      errorBox.error(/*Show(result)+ */ "JavaScript error : " + e + " - " + e.getClass + "\n" + sw.toString )
-      errorBox.error(/*Show(result)+ */ "JavaScript error : " + e + " - " + e.getClass)
+  def checkExceptions(errorBox: OutputArea, source:String = ""): PartialFunction[Throwable,Unit] = {
+    val by = if (source.nonEmpty) s" by $source" else source
+    val f: PartialFunction[Throwable,Unit] = {
+      // type error
+      case e: TypeCheckException =>
+        errorBox.error(/*Show(result)+ */ s"Type error$by: " + e.getMessage)
+      //            instanceInfo.append("p").text("-")
+      case e: GenerationException =>
+        errorBox.error(/*Show(result)+ */ s"Generation failed$by: " + e.getMessage)
+      case e: preo.common.TimeoutException =>
+        errorBox.error(s"Timeout$by: " + e.getMessage)
+      case e: ifta.common.TimeoutException =>
+        errorBox.error(s"Timeout$by: " + e.getMessage)
+      case e: FExpOverflowException =>
+        errorBox.error(s"Overflow$by:" + e.getMessage)
+      case e: ParseException =>
+        errorBox.error(s"ParseException$by:" + e.getMessage)
+      case e: JavaScriptException => {
+        //      val sw = new StringWriter
+        //      e.printStackTrace(new PrintWriter(sw))
+        //      errorBox.error(/*Show(result)+ */ "JavaScript error : " + e + " - " + e.getClass + "\n" + sw.toString )
+        errorBox.error(/*Show(result)+ */ s"JavaScript error$by: " + e + " - " + e.getClass)
+      }
+      //            instanceInfo.append("p").text("-")
+      case e: java.lang.AssertionError => errorBox.error(e.getMessage)
+      case e: Throwable => errorBox.error(s"unknown error$by:" + e + " - " + e.getClass) //+"/n - "+e.getStackTrace.mkString("\n - "))
     }
-    //            instanceInfo.append("p").text("-")
-    case e: java.lang.AssertionError => errorBox.error(e.getMessage)
-    case e => errorBox.error("unknown error:"+e+" - "+e.getClass) //+"/n - "+e.getStackTrace.mkString("\n - "))
+    f
   }
 
 }

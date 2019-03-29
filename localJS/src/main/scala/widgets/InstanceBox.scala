@@ -34,6 +34,6 @@ class InstanceBox(dependency: Box[Connector], errorBox: OutputArea)
         errorBox.warning("Failed to reduce connector: " + Show(Simplify.unsafe(dependency.get)))
     }
   }
-  catch Box.checkExceptions(errorBox)
+  catch Box.checkExceptions(errorBox,"Instance")
 }
 
