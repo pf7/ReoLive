@@ -19,7 +19,7 @@ class LogicBox(connector: Box[CoreConnector], default: String, outputBox: Output
 
   override protected val codemirror: String = "modal"
 
-  override def reload(): Unit = {
+  override def reload(): Unit = try {
     update()
     outputBox.clear()
 //    val model = Model(connector.get)
@@ -40,8 +40,9 @@ class LogicBox(connector: Box[CoreConnector], default: String, outputBox: Output
       }
     }
   }
+  catch Box.checkExceptions(outputBox,"Modal-Logic")
 
-  protected def debugNames(): Unit = {
+  protected def debugNames(): Unit = try {
     outputBox.clear()
     if (connector.get == null)
       outputBox.warning("null model...")
@@ -52,6 +53,7 @@ class LogicBox(connector: Box[CoreConnector], default: String, outputBox: Output
         .mkString("\n"))
     }
   }
+  catch Box.checkExceptions(outputBox,"Modal-Logic")
 
 
 }

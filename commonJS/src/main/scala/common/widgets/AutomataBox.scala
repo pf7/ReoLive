@@ -52,7 +52,7 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 
     scalajs.js.eval(AutomataToJS(automaton,mirrors,"automata"))
   }
-  catch Box.checkExceptions(errorBox)
+  catch Box.checkExceptions(errorBox,"Automata")
 
   private def deleteAutomaton(): Unit = {
       svg.selectAll("g").html("")

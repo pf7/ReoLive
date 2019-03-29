@@ -58,7 +58,7 @@ object GraphsToJS {
             var node = d3.select(".nodescircuit").selectAll("circle")
                 .data(nodes.filter(function(d){
                   //return d.group >"0" && d.group < "4"
-                  return (d.group == "src" || d.group == "mix" || d.group == "snk");
+                  return (d.group == "src" || d.group == "mix" || d.group == "xrouter" | d.group == "snk");
                   }));
             node.enter()
                 .append("circle")
@@ -72,9 +72,11 @@ object GraphsToJS {
                   .on("drag", dragged)
                   .on("end", dragended))
                 .style("stroke-opacity" , "1")
-                .style("stroke-width", "2px")
+                .style("stroke-width", function(d){
+                  if(d.group == "xrouter") {return "1px";} else {return "2px";}
+                })
                 .style("stroke", function(d){
-                   if(d.group == "src" || d.group == "snk"){
+                   if(d.group == "src" || d.group == "snk" || d.group == "xrouter"){
                      return "black";
                    }
                    else{
@@ -86,10 +88,21 @@ object GraphsToJS {
                   if(d.group == "src" || d.group == "snk"){
                     return "white";
                   }
+                  else if (d.group == "xrouter"){
+                    return "url(#xorpattern)";
+                  }
                   else{
                     return "black";
                   }
-                });
+                })
+                .style("background-color", function(d){
+                  if (d.group == "xrouter"){
+                    return "gray";
+                  }
+                  else {
+                    return "black";
+                  }})
+                .append("text").text("X");
             node.exit().remove();
 
             // add components (nodes "rect" with group in {0,4})
@@ -405,11 +418,16 @@ object GraphsToJS {
   private def typeToGroup(nodeType: NodeType, extra: Set[Any],virtuoso:Boolean=false):String = nodeType match{
     case Source => if (extra.contains("component")) "wr"  else "src"
     case Sink   => if (extra.contains("component")) "rd"  else "snk"
-    case Mixed  => if (extra.contains("box"))       "box" else
-      if (virtuoso ) {
+    case Mixed  =>
+      if (extra.contains("box"))
+        "box"
+      else if (virtuoso ) {
         (extra - "mrg").headOption.getOrElse("xor").toString
       }
-      else "mix"
+      else if (extra.contains("xor"))
+        "xrouter"
+      else
+        "mix"
       // todo: probably "xor" should be "port", now just to show a P instead of a mixed node
   }
 
