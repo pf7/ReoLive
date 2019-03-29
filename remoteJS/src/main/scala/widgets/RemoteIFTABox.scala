@@ -25,7 +25,7 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
   private var solutionsBox: Block = _
   private var iftaAut:IftaAutomata= _
   private var iftaAutSimple:IftaAutomata = _
-
+  private var mirrors:Mirrors = _
   override def get: IftaAutomata = iftaAut
 
   /**
@@ -54,22 +54,20 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
   private def solveFm():Unit ={
     try {
 
-      iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
-//      val mirrors = new Mirrors()
-////      println("- Starting Automata drawing - 1st the circuit")
-//      var c:Circuit = Circuit(dependency.get,true,mirrors) // just to update mirrors
-////      println("- Mirrors after circuit creation: "+mirrors)
-//
-//      val iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get,mirrors)
-      iftaAut.getTrans()
+      mirrors = new Mirrors()
+//      println("- Starting Automata drawing - 1st the circuit")
+      var c = Circuit(dependency.get,true,mirrors) // just to update mirrors
+//      println(s"circuit: ${c}")
+//      println("- Mirrors after circuit creation: "+mirrors)
+
+      iftaAut = Automata[IftaAutomata](dependency.get,mirrors)
+
       var nifta:NIFTA = NIFTA(iftaAut.nifta)
       var fmInfo =  s"""{ "fm":     "${Show(nifta.fm)}", """ +
                     s"""  "feats":  "${nifta.iFTAs.flatMap(i => i.feats).mkString("(",",",")")}" }"""
-//      var niftaSimple = NIFTA(iftaAutSimple.nifta)
-//      var fmInfoSimple = s"""{ "fm":     "${Show(niftaSimple.fm)}", """ +
-//        s"""  "feats":  "${niftaSimple.iFTAs.flatMap(i => i.feats).mkString("(",",",")")}" }"""
+
       RemoteBox.remoteCall("ifta", fmInfo, showProducts)
-//      RemoteBox.remoteCall("ifta",fmInfoSimple,showProducts)
+
     } catch {
       case e:Throwable =>
         errorBox.error(e.getMessage)
@@ -109,13 +107,20 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
   }
 
   private def mkSolButton(sol:Set[String]):Unit = {
-//    val renamedSols = sol.mkString(",")
+    val sol4circuit =
+      sol.map(f => f.drop(2))
+        .filter(f => f.nonEmpty)
+        .map(_.toInt)
+        .flatMap(f=> if (mirrors(f).nonEmpty) mirrors(f)+f else Set(f))
+        .map(_.toString)
+
     val renamedSols = sol.map(ft => Feat(ft)).map(ft => Show(iftaAut.getRenamedFe(ft))).mkString(",")
+
     val b = solutionsBox.append("button").text(
       if (renamedSols == "") "⊥" else renamedSols)
     b.on("click", { (e: EventTarget, a: Int, b: UndefOr[Int]) => {
       iftaAutBox.showFs(sol)
-      circuitBox.showFs(sol)
+      circuitBox.showFs(sol4circuit)
     }
     }: b.DatumFunction[Unit])
   }

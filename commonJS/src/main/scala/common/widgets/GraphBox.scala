@@ -6,7 +6,10 @@ import org.scalajs.dom.{MouseEvent, html}
 import org.singlespaced.d3js.Selection
 import preo.ast.CoreConnector
 import preo.backend.Circuit
+import preo.backend.Network.Mirrors
 import preo.frontend.Show
+
+import scala.util.Try
 
 class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea, path: String=".")
     extends Box[Circuit]("Circuit of the instance", List(dependency)) {
@@ -112,12 +115,9 @@ class GraphBox(dependency: Box[CoreConnector], errorBox: OutputArea, path: Strin
   }
 
   def showFs(fs:Set[String]) = if (isVisible) {
-    val remapedFs =
-      fs.map(f => if (f.startsWith("v_")) s"${f.drop(2)}" else s"${f.drop(1)}")
-
     val showCircuit =
       s"""
-         |var fs = new Set(${remapedFs.map(s=> s""""$s"""").mkString("[",",","]")});
+         |var fs = new Set(${fs.map(s=> s""""$s"""").mkString("[",",","]")});
          |d3.select(".linkscircuit")
          |  .selectAll("polyline")
          |  .style("opacity", function(d) {

@@ -57,12 +57,12 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
     deleteAutomaton()
     try{
       // drawing ifta
-      val iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
-//      val mirrors = new Mirrors()
-//      //println("- Starting Automata drawing - 1st the circuit")
-//      Circuit(dependency.get,true,mirrors) // just to update mirrors
-//      //println("- Mirrors after circuit creation: "+mirrors)
-//      val iftaAut = Automata[IftaAutomata](dependency.get,mirrors)
+//      val iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
+      val mirrors = new Mirrors()
+      //println("- Starting Automata drawing - 1st the circuit")
+      Circuit(dependency.get,true,mirrors) // just to update mirrors
+      //println("- Mirrors after circuit creation: "+mirrors)
+      val iftaAut = Automata[IftaAutomata](dependency.get,mirrors)
 
       ifta = iftaAut.ifta
       val iftaSize = ifta.locs.size
@@ -71,9 +71,8 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
       val height = (heightAutRatio * iftaFactor).toInt
       // evaluate js that generates the automaton
       box.attr("viewBox", s"00 00 $width $height")
-//      scalajs.js.eval(IFTAToJS(ifta))
-//      scalajs.js.eval(AutomataToJS(iftaAut,mirrors,"iftaAutomata",allNames))
-        scalajs.js.eval(AutomataToJS.toJs(iftaAut,"iftaAutomata",allNames))
+      scalajs.js.eval(AutomataToJS(iftaAut,mirrors,"iftaAutomata",allNames))
+//        scalajs.js.eval(AutomataToJS.toJs(iftaAut,"iftaAutomata",allNames))
 
     }
     catch Box.checkExceptions(errorBox)

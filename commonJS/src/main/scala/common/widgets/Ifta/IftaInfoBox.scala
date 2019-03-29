@@ -47,12 +47,12 @@ class IftaInfoBox(dependency:Box[CoreConnector], errorBox:OutputArea)
   private def showInfo() = {
     deleteInfo()
     try{
-      var iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
-//      val mirrors = new Mirrors()
-////      println("- Starting Automata drawing - 1st the circuit")
-//      Circuit(dependency.get,true,mirrors) // just to update mirrors
-////      println("- Mirrors after circuit creation: "+mirrors)
-//      val iftaAut = Automata[IftaAutomata](dependency.get,mirrors)
+//      var iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
+      val mirrors = new Mirrors()
+//      println("- Starting Automata drawing - 1st the circuit")
+      Circuit(dependency.get,true,mirrors) // just to update mirrors
+//      println("- Mirrors after circuit creation: "+mirrors)
+      val iftaAut = Automata[IftaAutomata](dependency.get,mirrors)
 
       ifta = iftaAut.ifta
 
