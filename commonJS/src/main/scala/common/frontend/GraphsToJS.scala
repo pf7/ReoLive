@@ -82,26 +82,33 @@ object GraphsToJS {
                    else{
                      return "white";
                    }
-                   }
-                )
+                })
                 .style("fill", function(d){
                   if(d.group == "src" || d.group == "snk"){
                     return "white";
                   }
-                  else if (d.group == "xrouter"){
-                    return "url(#xorpattern)";
-                  }
+//                  else if (d.group == "xrouter"){
+//                    return "url(#xorpattern)";
+//                    return "none";
+//                  }
                   else{
                     return "black";
                   }
                 })
-                .style("background-color", function(d){
+                .style("fill-opacity", function(d){
                   if (d.group == "xrouter"){
-                    return "gray";
+                    return "0.2";
                   }
                   else {
-                    return "black";
+                    return "";
                   }})
+//                .style("background-color", function(d){
+//                  if (d.group == "xrouter"){
+//                    return "gray";
+//                  }
+//                  else {
+//                    return "black";
+//                  }})
                 .append("text").text("X");
             node.exit().remove();
 

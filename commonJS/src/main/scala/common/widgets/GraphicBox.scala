@@ -2,6 +2,7 @@ package widgets
 
 import common.widgets.{Box, OutputArea}
 import hprog.common.ParserException
+import hprog.frontend.{Show, Solver}
 
 class GraphicBox(dependency: Box[String], errorBox: OutputArea)
   extends Box[Unit]("Trajectories", List(dependency)) {
@@ -48,6 +49,12 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
       //      println("a")
       //      val (traj,_) = hprog.ast.Trajectory.hprogToTraj(Map(),prog)
       val prog = hprog.frontend.Semantics.syntaxToValuation(syntax)
+      //
+      // tests: to feed to Sage
+      val eqs = Solver.getDiffEqs(syntax)
+      for (e <- eqs)
+        errorBox.message(s"- ${e.map(Show(_)).mkString(", ")}:\n${hprog.frontend.Semantics.genSage(e)}")
+      //
       val traj = prog.traj(Map())
       //      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
       val max: Double = traj.dur.getOrElse(10)

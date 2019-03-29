@@ -19,7 +19,7 @@ object Lince extends{
   var inputBox: LinceBox = _
 //  var information: Box[Syntax] = _
   var examples: LinceExamplesBox = _
-  var graphics: Box[Unit] = _
+  var graphics: GraphicBox = _
   var errors: OutputArea = _
 
   @JSExportTopLevel("reolive.Lince.main")
