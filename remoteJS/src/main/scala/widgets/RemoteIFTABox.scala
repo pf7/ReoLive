@@ -9,7 +9,8 @@ import org.scalajs.dom
 import org.scalajs.dom.{EventTarget, html}
 import org.scalajs.dom.raw.MouseEvent
 import preo.ast.CoreConnector
-import preo.backend.Automata
+import preo.backend.Network.Mirrors
+import preo.backend.{Automata, Circuit}
 
 import scala.scalajs.js.UndefOr
 
@@ -52,10 +53,15 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
 
   private def solveFm():Unit ={
     try {
-//      var rifta = CCToFamily.toRifta(dependency.get)
-//      var nifta = NIFTA(Automata[IftaAutomata](dependency.get).nifta)
+
       iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
-//      iftaAutSimple = Automata[IftaAutomata](dependency.get)
+//      val mirrors = new Mirrors()
+////      println("- Starting Automata drawing - 1st the circuit")
+//      var c:Circuit = Circuit(dependency.get,true,mirrors) // just to update mirrors
+////      println("- Mirrors after circuit creation: "+mirrors)
+//
+//      val iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get,mirrors)
+      iftaAut.getTrans()
       var nifta:NIFTA = NIFTA(iftaAut.nifta)
       var fmInfo =  s"""{ "fm":     "${Show(nifta.fm)}", """ +
                     s"""  "feats":  "${nifta.iFTAs.flatMap(i => i.feats).mkString("(",",",")")}" }"""
@@ -107,9 +113,11 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
     val renamedSols = sol.map(ft => Feat(ft)).map(ft => Show(iftaAut.getRenamedFe(ft))).mkString(",")
     val b = solutionsBox.append("button").text(
       if (renamedSols == "") "⊥" else renamedSols)
-    b.on("click",{(e:EventTarget, a:Int, b:UndefOr[Int]) => {
+    b.on("click", { (e: EventTarget, a: Int, b: UndefOr[Int]) => {
       iftaAutBox.showFs(sol)
       circuitBox.showFs(sol)
-    }}:b.DatumFunction[Unit])
+    }
+    }: b.DatumFunction[Unit])
   }
+
 }
