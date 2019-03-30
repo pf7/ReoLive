@@ -207,7 +207,10 @@ object AutomataToJS {
                       var p = document.getElementById("gr_"+el);
                       //console.log("port "+el);
                       if (p!=null) {
-                        p.style.fill = p.style.backgroundColor;
+                        if (p.style.backgroundColor == "")
+                          {p.style.fill = "none";}
+                        else
+                          {p.style.fill = p.style.backgroundColor;}
                         p.style.fontWeight = "normal";                      }
                     });
                   })
