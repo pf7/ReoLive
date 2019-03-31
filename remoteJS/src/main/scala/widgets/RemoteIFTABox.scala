@@ -50,15 +50,11 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
     */
   override def update(): Unit = if (isVisible) solveFm
 
-
   private def solveFm():Unit ={
     try {
 
       mirrors = new Mirrors()
-//      println("- Starting Automata drawing - 1st the circuit")
-      var c = Circuit(dependency.get,true,mirrors) // just to update mirrors
-//      println(s"circuit: ${c}")
-//      println("- Mirrors after circuit creation: "+mirrors)
+      Circuit(dependency.get,true,mirrors) // just to update mirrors
 
       iftaAut = Automata[IftaAutomata](dependency.get,mirrors)
 
@@ -71,7 +67,6 @@ class RemoteIFTABox(dependency:Box[CoreConnector], iftaAutBox:IFTABox,circuitBox
     } catch {
       case e:Throwable =>
         errorBox.error(e.getMessage)
-      //throw new RuntimeException("Not possible to calculate IFTA products: \n" + e.getMessage)
     }
   }
 
