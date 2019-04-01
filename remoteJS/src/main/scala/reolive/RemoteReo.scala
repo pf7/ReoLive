@@ -9,7 +9,7 @@ import preo.backend._
 import preo.frontend.mcrl2.Model
 import preo.ast.CoreConnector
 import reolive.RemoteReo.outputBox
-import widgets.{RemoteIFTABox, RemoteInstanceBox, RemoteLogicBox, RemoteModelBox}
+import widgets._
 
 import scalajs.js.annotation.JSExportTopLevel
 
@@ -34,6 +34,7 @@ object RemoteReo extends{
   private var mcrl2Box: RemoteModelBox = _
   private var ifta: RemoteIFTABox = _
   private var iftaAut: IFTABox =_
+  private var uppaalAut:RemoteUppaalAutBox = _
 
   @JSExportTopLevel("reolive.RemoteReo.main")
   def main(content: html.Div): Unit = {
@@ -96,6 +97,8 @@ object RemoteReo extends{
       new IFTABox(typeInstanceInfo, errors)
     ifta =
       new RemoteIFTABox(typeInstanceInfo,iftaAut,svg,errors)
+    uppaalAut =
+      new RemoteUppaalAutBox(typeInstanceInfo,errors)
 
     inputBox.init(leftside,true)
     errors.init(leftside)
@@ -109,6 +112,7 @@ object RemoteReo extends{
     svgAut.init(rightside,false)
     mcrl2Box.init(rightside,false)
     iftaAut.init(rightside,visible=false)
+    uppaalAut.init(rightside,visible = false)
 
 
     // default button
@@ -149,6 +153,7 @@ object RemoteReo extends{
     mcrl2Box.update
     ifta.update
     iftaAut.update
+    uppaalAut.update
   }
 
   private def export(): Unit = {

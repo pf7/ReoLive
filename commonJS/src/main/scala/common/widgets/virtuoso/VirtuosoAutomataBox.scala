@@ -6,7 +6,8 @@ import hub.HubAutomata
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
-import preo.backend.{Automata, PortAutomata, Network}
+import preo.backend.Network.Mirrors
+import preo.backend.{Automata, Network, PortAutomata}
 import preo.frontend.Show
 
 /**
@@ -54,7 +55,7 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
       val height = (heightAutRatio * factorAut).toInt
       svg.attr("viewBox", s"00 00 $width $height")
 
-      scalajs.js.eval(AutomataToJS.toJs(automaton,"virtuosoAutomata",portNames))
+      scalajs.js.eval(AutomataToJS(automaton,new Mirrors(),"virtuosoAutomata",portNames))
     }
     catch Box.checkExceptions(errorBox)
 

@@ -8,7 +8,8 @@ import ifta.backend.{IftaAutomata, Show}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 import preo.ast.CoreConnector
-import preo.backend.Automata
+import preo.backend.Network.Mirrors
+import preo.backend.{Automata, Circuit}
 
 
 /**
@@ -56,9 +57,13 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
     deleteAutomaton()
     try{
       // drawing ifta
-//      ifta = CCToFamily.toIFTA(dependency.get,allNames,hideInternal)
-      val iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
-//      val iftaAut = Automata[IftaAutomata](dependency.get)
+//      val iftaAut = Automata.toAutWithRedundandy[IftaAutomata](dependency.get)
+      val mirrors = new Mirrors()
+      //println("- Starting Automata drawing - 1st the circuit")
+      Circuit(dependency.get,true,mirrors) // just to update mirrors
+      //println("- Mirrors after circuit creation: "+mirrors)
+      val iftaAut = Automata[IftaAutomata](dependency.get,mirrors)
+
       ifta = iftaAut.ifta
       val iftaSize = ifta.locs.size
       val iftaFactor = Math.sqrt(iftaSize*10000 / (densityAut * widthAutRatio * heightAutRatio))
@@ -66,9 +71,8 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
       val height = (heightAutRatio * iftaFactor).toInt
       // evaluate js that generates the automaton
       box.attr("viewBox", s"00 00 $width $height")
-//      scalajs.js.eval(IFTAToJS(ifta))
-      scalajs.js.eval(AutomataToJS.toJs(iftaAut,"iftaAutomata",allNames))
-
+      scalajs.js.eval(AutomataToJS(iftaAut,mirrors,"iftaAutomata",allNames))
+//        scalajs.js.eval(AutomataToJS.toJs(iftaAut,"iftaAutomata",allNames))
 
     }
     catch Box.checkExceptions(errorBox)

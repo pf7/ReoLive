@@ -13,13 +13,15 @@ import scala.util.Try
 //todo: add rectangle colision colision
 object AutomataToJS {
 
-  def apply[A<:Automata](aut: A, mirrors: Mirrors, boxName:String, portNames:Boolean=false): String =
-    generateJS(getNodes(aut), getLinks(aut,boxName,portNames,mirrors), boxName)
-
-  def toJs[A<:Automata](aut: A, boxName:String, portNames:Boolean=false, mirrors: Mirrors=new Mirrors): String = aut match {
-    case a:IftaAutomata => generateJS(getIftaNodes(a) , getLinks(aut,boxName,portNames,mirrors), boxName)
-    case _              => generateJS(getNodes(aut)   , getLinks(aut,boxName,portNames,mirrors), boxName)
+  def apply[A<:Automata](aut: A, mirrors: Mirrors, boxName:String, portNames:Boolean=false): String = aut match {
+    case a: IftaAutomata => generateJS(getIftaNodes(a), getLinks(aut, boxName, portNames, mirrors), boxName)
+    case _ => generateJS(getNodes(aut), getLinks(aut, boxName, portNames, mirrors), boxName)
   }
+
+//  def toJs[A<:Automata](aut: A, boxName:String, portNames:Boolean=false, mirrors: Mirrors=new Mirrors): String = aut match {
+//    case a:IftaAutomata => generateJS(getIftaNodes(a) , getLinks(aut,boxName,portNames,mirrors), boxName)
+//    case _              => generateJS(getNodes(aut)   , getLinks(aut,boxName,portNames,mirrors), boxName)
+//  }
 
 
   /*todo: refactor in different methods or classes to avoid booolean virtuoso, or pass automata for
@@ -273,9 +275,35 @@ object AutomataToJS {
                     .style("font-size", "10px")
                     .attr("startOffset", "50%")
                     .on("mouseenter", function(d) {
-                      d3.select(this).style("font-size","14px");})
+                      d3.select(this).style("font-size","14px");
+                        var ports = d.type.split("~");
+                        ports.shift();
+                        ports.forEach(function(el) {
+                          var p = document.getElementById("gr_"+el);
+                          //console.log("port "+el);
+                          if (p!=null && p.style.fill!="#00aaff") {
+                            p.style.backgroundColor = p.style.fill;
+                            p.style.fill = "#00aaff";
+                            p.style.fontWeight = "bold";
+                          }
+                        });
+                      })
                     .on("mouseleave", function(d) {
-                      d3.select(this).style("font-size", "10px");});
+                      d3.select(this).style("font-size", "10px");
+                        var ports = d.type.split("~");
+                        ports.shift();
+                        ports.forEach(function(el) {
+                          var p = document.getElementById("gr_"+el);
+                          //console.log("port "+el);
+                          if (p!=null) {
+                            if (p.style.backgroundColor == "")
+                              {p.style.fill = "none";}
+                            else
+                              {p.style.fill = p.style.backgroundColor;}
+                            p.style.fontWeight = "normal";
+                           }
+                        });
+                      });
 //                  textpath.append("tspan")
 //                    .attr("class", "cc")
 //                    .style("fill","#00B248")
