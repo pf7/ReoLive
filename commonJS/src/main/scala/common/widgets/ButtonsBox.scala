@@ -7,7 +7,7 @@ import scala.scalajs.js.UndefOr
 class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Setable[String], logicBox: Setable[String])
     extends Box[String]("Examples", Nil){
 
-  private def descr(s1:String,s2:String):String =
+  protected def descr(s1:String,s2:String):String =
     s"<p><strong>$s1</strong></p> $s2"
 
   /**
@@ -59,6 +59,10 @@ class ButtonsBox(reload: => Unit, toSet: List[Setable[String]]) //inputBox: Seta
       descr("Synchronous drain","The synchronous drain (or syncdrain) has two source ends. " +
         "A put at either end blocks until a put is performed on the other end. Then, both data are " +
         "lost in the channel")::Nil,
+    "dupl;lossy*fifo"::"dupl; lossy*fifo"::"<all*> <fifo> true"::
+        descr("Composing Channels","Composing a duplicator (dupl) with a FIFO and a Lossy channels. " +
+          "The program is specified inside the \"Reo Program\" widget, and it's properties in " +
+          "\"Modal Logic\" widget.")::Nil,
     "fifo*writer ; drain"::"fifo*writer ; drain"::"// writer fails first write\n[writer]false"::Nil,
     "\\x . fifo^x*writer ; drain^2" :: "\\x . fifo^x*writer ; drain^2"::""::Nil,
     "(\\x.fifo^x) ; (\\n.drain^n)" :: "(\\x.fifo^x) ; (\\n.drain^n)"::""::Nil,
@@ -259,8 +263,6 @@ unzip_ =
       .style("display:block; padding:2pt")
 
     for (ops <- buttons ) yield genButton(ops,buttonsDiv)
-
-
   }
 
   override def update: Unit = ()
@@ -277,6 +279,20 @@ unzip_ =
           reload
         }} : button.DatumFunction[Unit])
       case Nil =>
+    }
+  }
+
+  /** Applies a button, if it exists.
+    * @param button name of the button to be applied
+    */
+  def loadButton(button:String): Boolean = {
+    buttons.find(l=>l.headOption.getOrElse(false) == button) match {
+      case Some(_::fields) =>
+        toSet.zip(fields).foreach(pair => pair._1.setValue(pair._2))
+        toSet.drop(fields.size).foreach(_.setValue(""))
+        reload
+        true
+      case _ => false
     }
   }
 }

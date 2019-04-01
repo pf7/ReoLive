@@ -53,7 +53,7 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
       // tests: to feed to Sage
       val eqs = Solver.getDiffEqs(syntax)
       for (e <- eqs)
-        errorBox.message(s"- ${e.map(Show(_)).mkString(", ")}:\n${hprog.frontend.Semantics.genSage(e)}")
+        errorBox.message(s"- ${e.map(Show(_)).mkString(", ")}:\n${hprog.frontend.SageSolver.genSage(e)}")
       //
       val traj = prog.traj(Map())
       //      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")

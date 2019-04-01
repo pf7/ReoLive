@@ -32,11 +32,20 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
 //    drawGraph()
 //  }
 
-  def draw(js: String): Unit = {
+  def draw(reply: String): Unit = {
 //    println("before eval")
-    if (js.startsWith("Error")) errorBox.error(js)
-    else scala.scalajs.js.eval(js)
-//    println("after eval")
+    reply.split("§§").toList match {
+      case js::rest =>
+        if (js.startsWith("Error")) errorBox.error(js)
+        else scala.scalajs.js.eval(js)
+        rest match {
+          case sages :: _ => errorBox.warning("Results from SageMath:\n"+sages)
+          case _ =>
+        }
+      //    println("after eval")
+      case x =>
+        errorBox.error(s"unexpexted reply from LinceWS: $x")
+    }
   }
 
   override def update(): Unit = {

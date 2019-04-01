@@ -65,9 +65,7 @@ object WebReo extends{
 
 
     // add InputArea
-    descr = new OutputArea {
-      override def setValue(msg: String): Unit = {clear(); if(msg.nonEmpty) super.setValue(msg)}
-    }
+    descr        = new OutputArea
     errors       = new OutputArea //(id="wr")
     inputBox     = new PreoBox(reload(), export(), conn, errors)
     outputLogic  = new OutputArea //(id="wrLog")
@@ -98,8 +96,10 @@ object WebReo extends{
     mcrl2Box.init(rightside,visible = false)
     ifta.init(rightside,visible = false)
 
-    reload()
-
+    // default button
+    if (args.isEmpty && !buttonsDiv.loadButton("dupl;lossy*fifo")) {
+      reload()
+    }
 
   }
 

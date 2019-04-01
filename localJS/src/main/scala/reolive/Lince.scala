@@ -21,6 +21,8 @@ object Lince extends{
   var examples: LinceExamplesBox = _
   var graphics: GraphicBox = _
   var errors: OutputArea = _
+  var descr: OutputArea = _
+
 
   @JSExportTopLevel("reolive.Lince.main")
   def main(content: html.Div): Unit = {
@@ -48,26 +50,23 @@ object Lince extends{
       .attr("id", "rightbar")
       .attr("class", "rightside")
 
+    // add description area
+    descr = new OutputArea
     errors = new OutputArea //(id="Lince")
+    inputBox = new LinceBox(reload(),"",errors)
+    examples = new LinceExamplesBox(softReload(),inputBox,descr)
+    graphics = new GraphicBox(inputBox,errors)
 
-    // add InputArea
-    inputBox = new LinceBox(reload(),"v:=5; p:=10; c:=0;\nwhile (c<4) {\n  v=-9.8, p=v & p<0 /\\ v<0;\n  v:=-0.5*v; c:=c+1\n}",errors)
     inputBox.init(leftColumn,true)
     errors.init(leftColumn)
-
-    //    typeInfo = new TypeBox(inputBox, errors)
-//    typeInfo.init(colDiv1,true)
-
-    examples = new LinceExamplesBox(reload(),inputBox)
     examples.init(leftColumn,true)
-
-//    information = new HProgBox(inputBox, errors)
-//    information.init(leftColumn,true)
-
-    graphics = new GraphicBox(inputBox,errors)
+    descr.init(leftColumn)
     graphics.init(rightColumn,visible = true)
 
-    reload()
+    // load default button
+    if (!examples.loadButton("Bounce")) {
+      reload()
+    }
 
   }
 
@@ -77,6 +76,11 @@ object Lince extends{
     * tests if they're valid and generates the output if they are.
     */
   private def reload(): Unit = {
+    descr.clear()
+    softReload()
+  }
+
+  private def softReload(): Unit = {
     errors.clear()
     inputBox.update()
 //    information.update()

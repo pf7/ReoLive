@@ -111,8 +111,12 @@ object RemoteReo extends{
     iftaAut.init(rightside,visible=false)
 
 
+    // default button
+    if (args.isEmpty && buttonsDiv.loadButton("dupl;lossy*fifo")) {
+      //println("args: " + args.mkString("-"))
+      first_reload()
+    }
 
-    first_reload()
   }
 
   /**

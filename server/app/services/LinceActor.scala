@@ -2,6 +2,9 @@ package services
 
 import akka.actor._
 import hprog.common.ParserException
+import hprog.frontend.{SageSolver, Show, Solver}
+
+import sys.process._
 
 
 
@@ -32,11 +35,24 @@ class LinceActor(out: ActorRef) extends Actor{
                       .replace("\\n","\n")
 
     try {
-      println(s"building trajectory from $cleanMsg")
+      //println(s"building trajectory from $cleanMsg")
       val syntax = hprog.DSL.parse(cleanMsg)
 //      println("a")
 //      val (traj,_) = hprog.ast.Trajectory.hprogToTraj(Map(),prog)
       val prog = hprog.frontend.Semantics.syntaxToValuation(syntax)
+
+      /////
+      // tests: to feed to Sage
+      var sages = List[String]()
+      val systems = Solver.getDiffEqs(syntax)
+      val solver = new SageSolver("/home/jose/Applications/SageMath")
+      solver.batch(systems)
+      for ((eqs,repl) <- solver.cached) {
+        sages ::= s"## Solve(${eqs.map(Show(_)).mkString(", ")})"
+        sages ::= repl
+      }
+
+
       val traj = prog.traj(Map())
 //      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
       val max: Double = traj.dur.getOrElse(10)
@@ -65,11 +81,11 @@ class LinceActor(out: ActorRef) extends Actor{
         s"\nvar layout = {};" +
         s"\nPlotly.newPlot('graphic', data, layout, {showSendToCloud: true});"
 //      println("done:\n"+js)
-      js
+      js++"§§"++sages.reverse.mkString("\n")
     }
     catch {
       case p:ParserException =>
-        println("failed parsing: "+p.toString)
+        //println("failed parsing: "+p.toString)
         "Error: "+p.toString
       case e:Throwable => "Error "+e.toString
     }
