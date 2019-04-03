@@ -35,6 +35,7 @@ object RemoteReo extends{
   private var ifta: RemoteIFTABox = _
   private var iftaAut: IFTABox =_
   private var uppaalAut:RemoteUppaalAutBox = _
+  private var uppaalNet:RemoteUppaalNetBox = _
 
   @JSExportTopLevel("reolive.RemoteReo.main")
   def main(content: html.Div): Unit = {
@@ -99,6 +100,8 @@ object RemoteReo extends{
       new RemoteIFTABox(typeInstanceInfo,iftaAut,svg,errors)
     uppaalAut =
       new RemoteUppaalAutBox(typeInstanceInfo,errors)
+    uppaalNet =
+      new RemoteUppaalNetBox(typeInstanceInfo,errors)
 
     inputBox.init(leftside,true)
     errors.init(leftside)
@@ -113,7 +116,7 @@ object RemoteReo extends{
     mcrl2Box.init(rightside,false)
     iftaAut.init(rightside,visible=false)
     uppaalAut.init(rightside,visible = false)
-
+    uppaalNet.init(rightside,visible = false)
 
     // default button
     if (args.isEmpty && buttonsDiv.loadButton("dupl;lossy*fifo")) {
@@ -154,6 +157,7 @@ object RemoteReo extends{
     ifta.update
     iftaAut.update
     uppaalAut.update
+    uppaalNet.update
   }
 
   private def export(): Unit = {

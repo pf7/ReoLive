@@ -69,7 +69,7 @@ class RemoteUppaalAutBox(connector:Box[CoreConnector], errorBox:OutputArea)
       case fe => throw new RuntimeException(s"Expected Feat(n), found: ${fe}") // should never satisfied this
     }))
 
-    uppaalAut = DSL.toUppaal(iftaAut.getRenamedIfta,renamedSolutions)
+    uppaalAut = DSL.toUppaal(iftaAut.getRenamedIfta(),renamedSolutions)
 
     box.append("textarea")
         .attr("id","uppaalAutModel")
