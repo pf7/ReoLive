@@ -54,7 +54,8 @@ class RemoteUppaalAutBox(connector:Box[CoreConnector], errorBox:OutputArea)
     deleteModel()
     iftaAut = Automata[IftaAutomata](connector.get)
 
-    var nifta:NIFTA = NIFTA(iftaAut.nifta)
+//    var nifta:NIFTA = NIFTA(iftaAut.nifta)
+    var nifta = iftaAut.getRenamedNifta
     var fmInfo =  s"""{ "fm":     "${Show(nifta.fm)}", """ +
       s"""  "feats":  "${nifta.iFTAs.flatMap(i => i.feats).mkString("(",",",")")}" }"""
 
@@ -64,12 +65,12 @@ class RemoteUppaalAutBox(connector:Box[CoreConnector], errorBox:OutputArea)
   /** show uppaal model for ifta flatten in a timed automata */
   def showModel(data:String):Unit = {
     val solutions = DSL.parseProducts(data)
-    val renamedSolutions:Set[Set[String]] = solutions.map(p => p.map(f => iftaAut.getRenamedFe(Feat(f)) match {
+    val renamedSolutions:Set[Set[String]] = solutions.map(p => p.map(f => iftaAut.getRenamedFe(Feat(f),true) match {
       case Feat(n) => n
       case fe => throw new RuntimeException(s"Expected Feat(n), found: ${fe}") // should never satisfied this
     }))
 
-    uppaalAut = DSL.toUppaal(iftaAut.getRenamedIfta(),renamedSolutions)
+    uppaalAut = DSL.toUppaal(iftaAut.getRenamedIfta(),solutions)
 
     box.append("textarea")
         .attr("id","uppaalAutModel")
