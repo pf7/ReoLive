@@ -210,7 +210,7 @@ object AutomataToJS {
                       //console.log("port "+el);
                       if (p!=null) {
                         if (p.style.backgroundColor == "")
-                          {p.style.fill = "none";}
+                          {p.style.fill = "black";}
                         else
                           {p.style.fill = p.style.backgroundColor;}
                         p.style.fontWeight = "normal";                      }
@@ -297,7 +297,7 @@ object AutomataToJS {
                           //console.log("port "+el);
                           if (p!=null) {
                             if (p.style.backgroundColor == "")
-                              {p.style.fill = "none";}
+                              {p.style.fill = "black";}
                             else
                               {p.style.fill = p.style.backgroundColor;}
                             p.style.fontWeight = "normal";
