@@ -4,7 +4,7 @@ import java.util.Base64
 
 import common.widgets.{Box, OutputArea}
 import ifta.analyse.IFTA2FTA
-import ifta.{DSL, NIFTA}
+import ifta.{DSL, FExp, Feat, NIFTA}
 import ifta.backend.{IftaAutomata, Show, Uppaal}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, XMLHttpRequest, html}
@@ -26,7 +26,7 @@ class RemoteUppaalAutBox(connector:Box[CoreConnector], errorBox:OutputArea)
 
   override def get: String = uppaalAut
 
-  //todo: convert ifta with fancy names firts (uppaal doesn't support identifiers starting with number.
+  //todo: convert ifta with fancy names first (uppaal doesn't support identifiers starting with a number).
   /**
     * Executed once at creation time, to append the content to the inside of this box
     *
@@ -64,8 +64,13 @@ class RemoteUppaalAutBox(connector:Box[CoreConnector], errorBox:OutputArea)
   /** show uppaal model for ifta flatten in a timed automata */
   def showModel(data:String):Unit = {
     val solutions = DSL.parseProducts(data)
-    uppaalAut = DSL.toUppaal(iftaAut.ifta,solutions)
-    println("uppaaal model: \n" + uppaalAut)
+    val renamedSolutions:Set[Set[String]] = solutions.map(p => p.map(f => iftaAut.getRenamedFe(Feat(f)) match {
+      case Feat(n) => n
+      case fe => throw new RuntimeException(s"Expected Feat(n), found: ${fe}") // should never satisfied this
+    }))
+
+    uppaalAut = DSL.toUppaal(iftaAut.getRenamedIfta,renamedSolutions)
+
     box.append("textarea")
         .attr("id","uppaalAutModel")
         .style("white-space","pre-wrap")
@@ -77,7 +82,7 @@ class RemoteUppaalAutBox(connector:Box[CoreConnector], errorBox:OutputArea)
       readOnly = true, theme = "default", cursorBlinkRate = -1, mode="application/xml")
     codemirrorJS.fromTextArea(dom.document.getElementById("uppaalAutModel"),lit)
   }
-  // todo: perhaps this should be a reusable method, e.g. in box, becuase many boxes use this.
+  // todo: perhaps this should be a reusable method, e.g. in Utils, becuase many boxes use this.
   private def download(): Unit = {
     val enc = Base64.getEncoder.encode(get.toString.getBytes()).map(_.toChar).mkString
     val filename = "uppaalTA.xml"
