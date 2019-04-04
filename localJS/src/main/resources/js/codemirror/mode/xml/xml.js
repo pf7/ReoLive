@@ -383,6 +383,7 @@ CodeMirror.defineMode("xml", function(editorConf, config_) {
     electricInput: /<\/[\s\w:]+>$/,
     blockCommentStart: "<!--",
     blockCommentEnd: "-->",
+    lineComment: "//",
 
     configuration: config.htmlMode ? "html" : "xml",
     helperType: config.htmlMode ? "html" : "xml",
