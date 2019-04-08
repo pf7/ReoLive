@@ -34,6 +34,7 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
 
   def draw(reply: String): Unit = {
 //    println("before eval")
+    errorBox.clear()
     reply.split("§§").toList match {
       case js::rest =>
         if (js.startsWith("Error")) errorBox.error(js)
@@ -49,6 +50,7 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
   }
 
   override def update(): Unit = {
+    errorBox.message("Waiting for SageMath...")
     RemoteBox.remoteCall("linceWS",dependency.get,draw)
   }
 

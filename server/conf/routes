@@ -12,6 +12,8 @@ GET     /                           controllers.HomeController.index
 
 GET     /onlineReo                  controllers.HomeController.onlineReo
 
+GET     /onlineReo2                  controllers.HomeController.onlineReo2
+
 GET     /onlineLince                      controllers.HomeController.onlineLince
 
 

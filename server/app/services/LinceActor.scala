@@ -43,14 +43,14 @@ class LinceActor(out: ActorRef) extends Actor{
 
       /////
       // tests: to feed to Sage
-      var sages = List[String]()
-      val systems = Solver.getDiffEqs(syntax)
-      val solver = new SageSolver("/home/jose/Applications/SageMath")
-      solver.batch(systems)
-      for ((eqs,repl) <- solver.cached) {
-        sages ::= s"## Solve(${eqs.map(Show(_)).mkString(", ")})"
-        sages ::= repl
-      }
+//      var sages = List[String]()
+//      val systems = Solver.getDiffEqs(syntax)
+//      val solver = new SageSolver("/home/jose/Applications/SageMath")
+//      solver.batch(systems)
+//      for ((eqs,repl) <- solver.cached) {
+//        sages ::= s"## Solved(${eqs.map(Show(_)).mkString(", ")})"
+////        sages ::= repl.mkString(",")
+//      }
 
 
       val traj = prog.traj(Map())
@@ -81,7 +81,8 @@ class LinceActor(out: ActorRef) extends Actor{
         s"\nvar layout = {};" +
         s"\nPlotly.newPlot('graphic', data, layout, {showSendToCloud: true});"
 //      println("done:\n"+js)
-      js++"§§"++sages.reverse.mkString("\n")
+//      js++"§§"++sages.reverse.mkString("\n")
+      js
     }
     catch {
       case p:ParserException =>

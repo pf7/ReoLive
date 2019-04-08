@@ -24,8 +24,8 @@ class LinceExamplesBox(reload: => Unit, inputBox: Setable[String], descr: Setabl
     ,"Traffic lights"->
       """// Alternate between two constant values.
         |repeat 4 {
-        |   l:=0; skip & 10 ;
-        |   l:=1; skip & 10
+        |   l:=0; wait 10 ;
+        |   l:=1; wait 10
         |}""".stripMargin ->
       descr("Traffic lights","Alternating between two constant values.")
     ,"Fireflies"->
@@ -52,9 +52,10 @@ class LinceExamplesBox(reload: => Unit, inputBox: Setable[String], descr: Setabl
         |}""".stripMargin ->
       descr("Cruise Control","Maintain a velocity of 10, updating every time unit.")
     ,"Dependent variables"->
-      """// solution not naively computed (precise solution involves sin/cos)
+      """// Solution not naively computed (precise solution involves sin/cos)
+        |// Use the online version to use the precise solution.
         |p:=1;v:=1;
-        |p=v, v=-p & 2""".stripMargin ->
+        |p=v, v=-p & 8""".stripMargin ->
       "Experiments - when involving mutually dependent variables the naive numerical analysis does not work."
   ).map(x=>List(x._1._1,x._1._2,x._2))
 

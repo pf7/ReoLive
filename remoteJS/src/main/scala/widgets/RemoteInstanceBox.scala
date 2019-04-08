@@ -50,7 +50,7 @@ class RemoteInstanceBox(reload: => Unit, dependency: Box[String], errors: Output
       typeInfo = panelBox(div, visible).append("div")
         .attr("id", "typeBox")
 
-      instanceInfo = panelBox("Concrete instance",div, true).append("div")
+      instanceInfo = panelBox("Concrete instance",div, visible).append("div")
       //      .attr("id", "instanceBox")
     }
 

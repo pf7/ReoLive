@@ -35,6 +35,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(views.html.onlineReo())
   }
 
+  def onlineReo2 = Action{
+    Ok(views.html.onlineReo2())
+  }
+
   def onlineLince = Action{
     Ok(views.html.onlineLince())
   }
