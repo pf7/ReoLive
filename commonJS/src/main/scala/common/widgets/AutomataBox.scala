@@ -15,8 +15,8 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
   private var automaton: Automata = _
 
 
-  private val widthAutRatio = 7
-  private val heightAutRatio = 3
+  protected val widthAutRatio = 7
+  protected val heightAutRatio = 3
   private val densityAut = 0.2 // nodes per 100x100 px
 
   override def get: Automata = automaton

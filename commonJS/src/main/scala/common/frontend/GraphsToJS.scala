@@ -23,11 +23,11 @@ object GraphsToJS {
     s"""
         var svg = d3.select("#circuit");
         var vbox = svg.attr('viewBox').split(" ")
-        var width = vbox[2]; //svg.attr("width");
-        var height = vbox[3];  //svg.attr("height");
+        var width  = vbox[2]; //svg.attr("width");
+        var height = vbox[3]; //svg.attr("height");
         var radius = 7.75;
-        var rectangle_width = 40;
-        var rectangle_height = 20;
+        var rectangle_width  = 40; // of component boxes
+        var rectangle_height = 20; // of component boxes
         var hubSize = 18;
 
         var graph = {"nodescircuit": $nodes, "linkscircuit": $edges};

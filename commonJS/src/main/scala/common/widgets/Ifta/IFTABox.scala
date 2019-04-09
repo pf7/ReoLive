@@ -23,8 +23,8 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
   private var box: Block = _
   private var ifta: IFTA = _
 
-  private val widthAutRatio = 7
-  private val heightAutRatio = 3
+  protected val widthAutRatio = 7
+  protected val heightAutRatio = 3
   private val densityAut = 0.2 // nodes per 100x100 px
 
   override def get: IFTA = ifta

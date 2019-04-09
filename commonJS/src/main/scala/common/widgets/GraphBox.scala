@@ -296,16 +296,16 @@ object GraphBox {
       .attr("r","5")
       .attr("fill","white")
 
-    svg.append("defs")
-      .append("pattern")
-      .attr("id", "xorpattern")
-      .attr("patternUnits", "userSpaceOnUse")
-      .attr("width", 10)
-      .attr("height", 10)
-      .append("image")
-        .attr("xlink:href", s"$path/svg/x.svg")
-        .attr("width", 10)
-        .attr("height", 10);
+//    svg.append("defs")
+//      .append("pattern")
+//      .attr("id", "xorpattern")
+//      .attr("patternUnits", "userSpaceOnUse")
+//      .attr("width", 10)
+//      .attr("height", 10)
+//      .append("image")
+//        .attr("xlink:href", s"$path/svg/x.svg")
+//        .attr("width", 10)
+//        .attr("height", 10);
 
 
     svg

@@ -81,9 +81,15 @@ object RemoteReo2 extends{
     typeInstanceInfo =
       new RemoteInstanceBox(second_reload(),inputBox, errors)
     svg =
-      new GraphBox(typeInstanceInfo, errors)
+      new GraphBox(typeInstanceInfo, errors) {
+        override protected val widthCircRatio = 7
+        override protected val heightCircRatio = 6
+      }
     svgAut =
-      new AutomataBox(typeInstanceInfo, errors)
+      new AutomataBox(typeInstanceInfo, errors) {
+        override protected val widthAutRatio = 7
+        override protected val heightAutRatio = 6
+      }
     mcrl2Box =
       new RemoteModelBox(typeInstanceInfo, errors)
     outputBox = new OutputArea()
@@ -93,7 +99,10 @@ object RemoteReo2 extends{
       new ButtonsBox(soft_reload(), List(inputBox, modalBox, descr))
 
     iftaAut =
-      new IFTABox(typeInstanceInfo, errors)
+      new IFTABox(typeInstanceInfo, errors) {
+        override protected val widthAutRatio = 7
+        override protected val heightAutRatio = 6
+      }
     ifta =
       new RemoteIFTABox(typeInstanceInfo,iftaAut,svg,errors)
     uppaalAut =
@@ -103,18 +112,18 @@ object RemoteReo2 extends{
 
 
     svg.init(leftside,true)
-    inputBox.init(leftside,true)
     errors.init(leftside)
+    inputBox.init(leftside,true)
     descr.init(leftside)
     ifta.init(leftside,visible = false)
     typeInstanceInfo.init(leftside,false)
     buttonsDiv.init(leftside,false)
-    modalBox.init(leftside,false)
-    outputBox.init(leftside)
 
     svgAut.init(rightside,true)
-    mcrl2Box.init(rightside,false)
     iftaAut.init(rightside,visible=false)
+    modalBox.init(rightside,true)
+    outputBox.init(rightside)
+    mcrl2Box.init(rightside,false)
     uppaalAut.init(rightside,visible = false)
     uppaalNet.init(rightside,visible = false)
 

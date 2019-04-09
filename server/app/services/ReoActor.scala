@@ -36,9 +36,9 @@ class ReoActor(out: ActorRef) extends Actor {
       .replace("\\n","\n")
       .replace("\\±","\\\\n")
       .replace("\\\\","\\")
-    DSL.parseWithError(msg) match {
-      case Right(result) =>
-        try {
+    try {
+      DSL.parseWithError(msg) match {
+        case Right(result) =>
           val typ = DSL.checkVerbose(result)
           var warn = ""
 
@@ -57,30 +57,33 @@ class ReoActor(out: ActorRef) extends Actor {
               warn += s"Generation of mCRL2 failed: ${e.getMessage}"
           }
 
-            JsonCreater.create(typ, reducType, coreConnector, warn).toString
-//          val id=Thread.currentThread().getId
-//          val msg = common.messages.Message.ConnectorMsg(typ,reducType,coreConnector,id)
-//          msg.asJson.toString()
-        }
-        catch {
-          // type error
-          case e: TypeCheckException =>
-            JsonCreater.createError("Type error: " + e.getMessage).toString
+          JsonCreater.create(typ, reducType, coreConnector, warn).toString
+        //          val id=Thread.currentThread().getId
+        //          val msg = common.messages.Message.ConnectorMsg(typ,reducType,coreConnector,id)
+        //          msg.asJson.toString()
 
-          case e: GenerationException =>
-            JsonCreater.createError("Generation failed: " + e.getMessage).toString
-
-          case e: java.io.IOException => // by generateLPS/LTS/storeInFile
-            JsonCreater.createError("IO exception: " + e.getMessage).toString
-          }
-//      case f@preo.lang.Parser.Failure(_,_) =>
-//        JsonCreater.createError("Parser failure: " + f.toString()).toString
-//              instanceInfo.append("p").text("-")
-//      case preo.lang.Parser.Error(msg,_) =>
-      case Left(msg) =>
-        JsonCreater.createError("Parser error: " + msg).toString
-      //        instanceInfo.append("p").text("-")
+        //      case f@preo.lang.Parser.Failure(_,_) =>
+        //        JsonCreater.createError("Parser failure: " + f.toString()).toString
+        //              instanceInfo.append("p").text("-")
+        //      case preo.lang.Parser.Error(msg,_) =>
+        case Left(msg) =>
+          JsonCreater.createError("Parser error: " + msg).toString
+        //        instanceInfo.append("p").text("-")
+      }
     }
+    catch {
+      // type error
+      case e: TypeCheckException =>
+        JsonCreater.createError("Type error: " + e.getMessage).toString
 
+      case e: GenerationException =>
+        JsonCreater.createError("Generation failed: " + e.getMessage).toString
+
+      case e: java.io.IOException => // by generateLPS/LTS/storeInFile
+        JsonCreater.createError("IO exception: " + e.getMessage).toString
+
+      case e: Throwable => // by generateLPS/LTS/storeInFile
+        JsonCreater.createError("Preo exception: " + e.getMessage).toString
+    }
   }
 }

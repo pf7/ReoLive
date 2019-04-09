@@ -181,25 +181,20 @@ unzip_ =
         |    dupl*id;
         |    id * (fifo*dupl;drain*id),
         |  [hide] gateOpen =
-        |    dupl*loopfifos;
+        |    dupl*loopfifosTreo;
         |    id*drain
         |    {
-        |      loopfifos =
-        |        loop(1)(
-        |          alternator*id;
-        |          id*swap ;
-        |          merger*id;
-        |          fifo*id;
-        |          xor*id;
-        |          fifofull*drain;
-        |          dupl
-        |        )
+        |      loopfifosTreo(in?,out!) =
+        |        alternator(in,alt1,alt2) sync(alt1,out)
+        |        fifo(alt1,f1) fifofull(f2,alt1)
+        |        xor(f1,f2,d1)
+        |        drain(d1,alt2)
         |    },
         |  [hide] gateClosed =
-        |    dupl*loopfifos;
+        |    dupl*loopfifosPreo;
         |    id*drain
         |    {
-        |      loopfifos =
+        |      loopfifosPreo =
         |        loop(1)(
         |          (alternator;swap)*id;
         |          id*swap ;
