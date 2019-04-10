@@ -1,8 +1,9 @@
 package widgets
 
 import common.widgets.{Box, OutputArea}
+import hprog.backend.{Show, TrajToJS}
 import hprog.common.ParserException
-import hprog.frontend.{Show, Solver}
+import hprog.frontend.Solver
 
 class GraphicBox(dependency: Box[String], errorBox: OutputArea)
   extends Box[Unit]("Trajectories", List(dependency)) {
@@ -58,32 +59,9 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
       //
       val traj = prog.traj(Map())
       //      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
-      val max: Double = traj.dur.getOrElse(10)
-      val x0 = traj(0)
-      var traces =  (x0.keys zip List[List[Double]]())
-        .toMap.withDefaultValue(List())
-      //(traj.vars zip List[List[Double]]()).toMap.withDefaultValue(List())
-      //      println(s"c - max=$max")
-      val samples = if (max<=0) List(0.0) else 0.0 to max by (max / 100)
-      for (t: Double <- samples)
-        for ((variable, value) <- traj(t))
-          traces += variable -> (value::traces(variable))
-      //      println("d")
-      var js = ""
-      val rangeTxt = "x: "+samples.mkString("[",",","]")
-      //      println("e")
-      for ((variable, values) <- traces)
-        js += s"""var t$variable = {
-                 |   $rangeTxt,
-                 |   y: ${values.reverse.mkString("[",",","]")},
-                 |   mode: 'lines',
-                 |   name: '$variable'
-                 |};
-             """.stripMargin
-      js += s"var data = ${traces.keys.map("t"+_).mkString("[",",","]")};" +
-        s"\nvar layout = {};" +
-        s"\nPlotly.newPlot('graphic', data, layout, {showSendToCloud: true});"
-      //println("done:\n"+js)
+
+      val js = TrajToJS(traj)
+      //errorBox.message("done:\n"+js)
       draw(js)
     }
     catch {

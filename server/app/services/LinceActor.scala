@@ -1,8 +1,9 @@
 package services
 
 import akka.actor._
+import hprog.backend.TrajToJS
 import hprog.common.ParserException
-import hprog.frontend.{SageSolver, Show, Solver}
+import hprog.frontend.{SageSolver, Solver}
 
 import sys.process._
 
@@ -54,35 +55,39 @@ class LinceActor(out: ActorRef) extends Actor{
 
 
       val traj = prog.traj(Map())
-//      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
-      val max: Double = traj.dur.getOrElse(10)
-      val x0 = traj(0)
-      var traces =  (x0.keys zip List[List[Double]]())
-                   .toMap.withDefaultValue(List())
-        //(traj.vars zip List[List[Double]]()).toMap.withDefaultValue(List())
-//      println(s"c - max=$max")
-      val samples = 0.0 to max by (max / 100)
-      for (t: Double <- samples)
-        for ((variable, value) <- traj(t))
-          traces += variable -> (value::traces(variable))
-//      println("d")
-      var js = ""
-      val rangeTxt = "x: "+samples.mkString("[",",","]")
-//      println("e")
-      for ((variable, values) <- traces)
-        js += s"""var t$variable = {
-                 |   $rangeTxt,
-                 |   y: ${values.reverse.mkString("[",",","]")},
-                 |   mode: 'lines',
-                 |   name: '$variable'
-                 |};
-             """.stripMargin
-      js += s"var data = ${traces.keys.map("t"+_).mkString("[",",","]")};" +
-        s"\nvar layout = {};" +
-        s"\nPlotly.newPlot('graphic', data, layout, {showSendToCloud: true});"
-//      println("done:\n"+js)
-//      js++"§§"++sages.reverse.mkString("\n")
-      js
+
+      TrajToJS(traj)
+
+////      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
+//      val max: Double = traj.dur.getOrElse(10)
+//      val x0 = traj(0)
+//      var traces =  (x0.keys zip List[List[Double]]())
+//                   .toMap.withDefaultValue(List())
+//        //(traj.vars zip List[List[Double]]()).toMap.withDefaultValue(List())
+////      println(s"c - max=$max")
+//      val samples = 0.0 to max by (max / 100)
+//      for (t: Double <- samples)
+//        for ((variable, value) <- traj(t))
+//          traces += variable -> (value::traces(variable))
+////      println("d")
+//      var js = ""
+//      val rangeTxt = "x: "+samples.mkString("[",",","]")
+////      println("e")
+//      for ((variable, values) <- traces)
+//        js += s"""var t$variable = {
+//                 |   $rangeTxt,
+//                 |   y: ${values.reverse.mkString("[",",","]")},
+//                 |   mode: 'lines',
+//                 |   name: '$variable'
+//                 |};
+//             """.stripMargin
+//      js += s"var data = ${traces.keys.map("t"+_).mkString("[",",","]")};" +
+//        s"\nvar layout = {};" +
+//        s"\nPlotly.newPlot('graphic', data, layout, {showSendToCloud: true});"
+////      println("done:\n"+js)
+////      js++"§§"++sages.reverse.mkString("\n")
+//      js
+
     }
     catch {
       case p:ParserException =>
