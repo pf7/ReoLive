@@ -33,10 +33,10 @@ class LinceExamplesBox(reload: => Unit, inputBox: Setable[String], descr: Setabl
         |repeat 4 {
         |  f1=1, f2=1 & f1 > 10 \/ f2 > 10;
         |  if f1>=10 /\ f2<10
-        |    then f1:=0; f2:=f2+1
+        |    then { f1:=0; f2:=f2+1 }
         |    else if f2>=10 /\ f1<10
-        |         then f2:=0;f1 :=f1 +1
-        |         else f1:=0;f2 :=0
+        |         then { f2:=0;f1 :=f1 +1 }
+        |         else { f1:=0;f2 :=0 }
         |}""".stripMargin ->
       descr("Fireflies","Every firefly has an internal clock which helps " +
         "it to know when to flash: when the clock reaches a threshold the firefly " +
