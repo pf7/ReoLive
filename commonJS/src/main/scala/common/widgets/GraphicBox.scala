@@ -22,7 +22,7 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
       buttons = List(
 //        Right("glyphicon glyphicon-refresh")-> (()=>update(),"Load the program (shift-enter)"),
           Right("glyphicon glyphicon-refresh") -> (() => draw(None), "Draw again the image"),
-          Left("resample") -> (() => redraw(), "Draw again the image, using the current zooming window")
+          Left("resample") -> (() => redraw(), "Resample: draw again the image, using the current zooming window")
         //        Left("&dArr;")-> (() => saveSvg(),"Download image as SVG")
       ))
     box.append("div")
@@ -64,7 +64,7 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
       val eqs = Solver.getDiffEqs(syntax)
       for (e <- eqs) if (e.nonEmpty)
         errorBox.message(s"- ${e.map(Show(_)).mkString(", ")}")
-         //\n${hprog.frontend.SageSolver.genSage(e)}")
+          //\n${hprog.frontend.SageSolver.genSage(e)}")
       //
       trajectory = Some(prog.traj(Map()))
       //      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")

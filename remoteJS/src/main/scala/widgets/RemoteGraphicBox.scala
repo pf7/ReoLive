@@ -16,7 +16,7 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
     box = super.panelBox(div,visible,
       buttons = List(
         Right("glyphicon glyphicon-refresh")-> (()=>update(),"Load the program (shift-enter)"),
-        Left("resample")-> (() => resample(),"Resample the figure")
+        Left("resample")-> (() => resample(),"Resample: draw again the image, using the current zooming window")
 //        Left("&dArr;")-> (() => saveSvg(),"Download image as SVG")
       ))
     box.append("div")
