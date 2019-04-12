@@ -1,13 +1,11 @@
 package common.widgets
 
-import java.io.{PrintWriter, StringWriter}
-
 import hub.common.ParseException
+import ifta.common.FExpOverflowException
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
-import org.singlespaced.d3js.{Selection, d3}
-import preo.common.{GenerationException, TimeoutException, TypeCheckException}
-import ifta.common.{FExpOverflowException, TimeoutException}
+import org.singlespaced.d3js.Selection
+import preo.common.TypeCheckException
 
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 
@@ -138,7 +136,9 @@ object Box {
       case e: TypeCheckException =>
         errorBox.error(/*Show(result)+ */ s"Type error$by: " + e.getMessage)
       //            instanceInfo.append("p").text("-")
-      case e: GenerationException =>
+      case e: preo.common.GenerationException =>
+        errorBox.error(/*Show(result)+ */ s"Generation failed$by: " + e.getMessage)
+      case e: hub.common.GenerationException =>
         errorBox.error(/*Show(result)+ */ s"Generation failed$by: " + e.getMessage)
       case e: preo.common.TimeoutException =>
         errorBox.error(s"Timeout$by: " + e.getMessage)

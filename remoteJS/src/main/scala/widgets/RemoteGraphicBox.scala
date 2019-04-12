@@ -15,7 +15,8 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
   override def init(div: Block, visible: Boolean): Unit = {
     box = super.panelBox(div,visible,
       buttons = List(
-        Right("glyphicon glyphicon-refresh")-> (()=>update(),"Load the program (shift-enter)")
+        Right("glyphicon glyphicon-refresh")-> (()=>update(),"Load the program (shift-enter)"),
+        Left("resample")-> (() => resample(),"Resample the figure")
 //        Left("&dArr;")-> (() => saveSvg(),"Download image as SVG")
       ))
     box.append("div")
@@ -45,13 +46,22 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
         }
       //    println("after eval")
       case x =>
-        errorBox.error(s"unexpexted reply from LinceWS: $x")
+        errorBox.error(s"unexpected reply from LinceWS: $x")
     }
   }
 
   override def update(): Unit = {
     errorBox.message("Waiting for SageMath...")
     RemoteBox.remoteCall("linceWS",dependency.get,draw)
+  }
+
+  def resample(): Unit = {
+    var range:String = ""
+    try range = scalajs.js.Dynamic.global.layout.xaxis.range.toString
+    catch Box.checkExceptions(errorBox, "Graphic")
+
+    errorBox.message("Redrawing. Waiting for SageMath...")
+    RemoteBox.remoteCall("linceWS",s"§redraw $range, ${dependency.get}",draw)
   }
 
 }

@@ -16,7 +16,7 @@ import preo.frontend.Show
 
 
 class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
-  extends Box[Automata]("Automaton of the instance", List(dependency)) {
+  extends Box[Automata]("Hub Automaton of the instance", List(dependency)) {
   private var svg: Block = _
   private var automaton: Automata = _
 
@@ -32,7 +32,7 @@ class VirtuosoAutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
       Left("port names")      -> (()=> if (isVisible) drawAutomata(true) else (),"See port names"),
       Left("hub names")      -> (()=> if (isVisible) drawAutomata(false) else (),"See hub names")
     )),"virtuosoAutomata")
-    dom.document.getElementById("Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById("Hub Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {e: MouseEvent => if(!isVisible) drawAutomata() else deleteAutomaton()}
 
   }

@@ -10,7 +10,7 @@ import preo.common.TimeoutException
 
 
 class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
-    extends Box[Automata]("Automaton of the instance", List(dependency)) {
+    extends Box[Automata]("Port Automaton of the instance", List(dependency)) {
   private var svg: Block = _
   private var automaton: Automata = _
 
@@ -23,7 +23,7 @@ class AutomataBox(dependency: Box[CoreConnector], errorBox: OutputArea)
 
   override def init(div: Block, visible: Boolean): Unit = {
     svg= GraphBox.appendSvg(panelBox(div, visible),"automata")
-    dom.document.getElementById("Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById("Port Automaton of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {e: MouseEvent => if(!isVisible) drawAutomata() else deleteAutomaton()}
 
   }

@@ -3,12 +3,14 @@ package widgets
 import common.widgets.{Box, OutputArea}
 import hprog.backend.{Show, TrajToJS}
 import hprog.common.ParserException
-import hprog.frontend.Solver
+import hprog.frontend.Semantics.Valuation
+import hprog.frontend.{Solver, Traj}
 
 class GraphicBox(dependency: Box[String], errorBox: OutputArea)
   extends Box[Unit]("Trajectories", List(dependency)) {
   var box : Block = _
   override def get: Unit = {}
+  private var trajectory: Option[Traj[Valuation]] = None
 
   //  private val widthCircRatio = 7
   //  private val heightCircRatio = 3
@@ -18,7 +20,9 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
   override def init(div: Block, visible: Boolean): Unit = {
     box = super.panelBox(div,visible,
       buttons = List(
-        Right("glyphicon glyphicon-refresh")-> (()=>update(),"Load the program (shift-enter)")
+//        Right("glyphicon glyphicon-refresh")-> (()=>update(),"Load the program (shift-enter)"),
+          Right("glyphicon glyphicon-refresh") -> (() => draw(None), "Draw again the image"),
+          Left("resample") -> (() => redraw(), "Draw again the image, using the current zooming window")
         //        Left("&dArr;")-> (() => saveSvg(),"Download image as SVG")
       ))
     box.append("div")
@@ -35,11 +39,16 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
   //    drawGraph()
   //  }
 
-  def draw(js: String): Unit = {
-//        println("before eval")
-    if (js.startsWith("Error")) errorBox.error(js)
-    else scala.scalajs.js.eval(js)
-//        println("after eval")
+  def draw(range:Option[(Double,Double)]): Unit = {
+    trajectory match {
+      case Some(traj) =>
+        val js = TrajToJS(traj,range)
+        //        println("before eval")
+        if (js.startsWith("Error")) errorBox.error(js)
+        else scala.scalajs.js.eval(js)
+       //        println("after eval")
+      case None =>
+    }
   }
 
   override def update(): Unit = {
@@ -57,12 +66,11 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
         errorBox.message(s"- ${e.map(Show(_)).mkString(", ")}")
          //\n${hprog.frontend.SageSolver.genSage(e)}")
       //
-      val traj = prog.traj(Map())
+      trajectory = Some(prog.traj(Map()))
       //      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
 
-      val js = TrajToJS(traj)
       //errorBox.message("done:\n"+js)
-      draw(js)
+      draw(None)
     }
     catch {
       case p:ParserException =>
@@ -71,6 +79,20 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
         errorBox.error(e.toString)
 
     }
+  }
+
+  def redraw(): Unit = {
+    var range:Option[(Double,Double)] = None
+    try {
+      val reply = scalajs.js.Dynamic.global.layout.xaxis.range.toString
+      reply.split(',') match {
+        case Array(s1, s2) => range = Some(s1.toDouble, s2.toDouble)
+        case _ => errorBox.error(s"Unexpected layout: $reply")
+      }
+    }
+    catch Box.checkExceptions(errorBox,"Graphic")
+
+    draw(range)
   }
 
 }

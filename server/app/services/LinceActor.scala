@@ -3,7 +3,8 @@ package services
 import akka.actor._
 import hprog.backend.TrajToJS
 import hprog.common.ParserException
-import hprog.frontend.{SageSolver, Solver}
+import hprog.frontend.Semantics.Valuation
+import hprog.frontend.{SageSolver, Solver, Traj}
 
 import sys.process._
 
@@ -33,61 +34,42 @@ class LinceActor(out: ActorRef) extends Actor{
     */
   private def process(msg: String): String = {
     val cleanMsg = msg.replace("\\\\", "\\")
-                      .replace("\\n","\n")
+      .replace("\\n", "\n")
 
+    if (cleanMsg.startsWith("§redraw ")) {
+      cleanMsg.drop(8).split(",", 3) match {
+        case Array(v1, v2, rest) =>
+          draw(rest, Some(v1.toDouble, v2.toDouble))
+        case _ => s"Error: Unexpected message: ${msg.drop(8)}."
+      }
+    }
+    else {
+      draw(cleanMsg, None)
+    }
+  }
+
+  private def draw(msg: String, range: Option[(Double,Double)]): String =
     try {
-      //println(s"building trajectory from $cleanMsg")
-      val syntax = hprog.DSL.parse(cleanMsg)
-//      println("a")
-//      val (traj,_) = hprog.ast.Trajectory.hprogToTraj(Map(),prog)
-      val prog = hprog.frontend.Semantics.syntaxToValuation(syntax)
+        //println(s"building trajectory with range $range from $msg")
+        val syntax = hprog.DSL.parse(msg)
+        //      println("a")
+        //      val (traj,_) = hprog.ast.Trajectory.hprogToTraj(Map(),prog)
+        val prog = hprog.frontend.Semantics.syntaxToValuation(syntax)
 
-      /////
-      // tests: to feed to Sage
-//      var sages = List[String]()
-//      val systems = Solver.getDiffEqs(syntax)
-//      val solver = new SageSolver("/home/jose/Applications/SageMath")
-//      solver.batch(systems)
-//      for ((eqs,repl) <- solver.cached) {
-//        sages ::= s"## Solved(${eqs.map(Show(_)).mkString(", ")})"
-////        sages ::= repl.mkString(",")
-//      }
+        /////
+        // tests: to feed to Sage
+        //      var sages = List[String]()
+        //      val systems = Solver.getDiffEqs(syntax)
+        //      val solver = new SageSolver("/home/jose/Applications/SageMath")
+        //      solver.batch(systems)
+        //      for ((eqs,repl) <- solver.cached) {
+        //        sages ::= s"## Solved(${eqs.map(Show(_)).mkString(", ")})"
+        ////        sages ::= repl.mkString(",")
+        //      }
 
+        val traj = prog.traj(Map())
 
-      val traj = prog.traj(Map())
-
-      TrajToJS(traj)
-
-////      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
-//      val max: Double = traj.dur.getOrElse(10)
-//      val x0 = traj(0)
-//      var traces =  (x0.keys zip List[List[Double]]())
-//                   .toMap.withDefaultValue(List())
-//        //(traj.vars zip List[List[Double]]()).toMap.withDefaultValue(List())
-////      println(s"c - max=$max")
-//      val samples = 0.0 to max by (max / 100)
-//      for (t: Double <- samples)
-//        for ((variable, value) <- traj(t))
-//          traces += variable -> (value::traces(variable))
-////      println("d")
-//      var js = ""
-//      val rangeTxt = "x: "+samples.mkString("[",",","]")
-////      println("e")
-//      for ((variable, values) <- traces)
-//        js += s"""var t$variable = {
-//                 |   $rangeTxt,
-//                 |   y: ${values.reverse.mkString("[",",","]")},
-//                 |   mode: 'lines',
-//                 |   name: '$variable'
-//                 |};
-//             """.stripMargin
-//      js += s"var data = ${traces.keys.map("t"+_).mkString("[",",","]")};" +
-//        s"\nvar layout = {};" +
-//        s"\nPlotly.newPlot('graphic', data, layout, {showSendToCloud: true});"
-////      println("done:\n"+js)
-////      js++"§§"++sages.reverse.mkString("\n")
-//      js
-
+        TrajToJS(traj,range)
     }
     catch {
       case p:ParserException =>
@@ -95,10 +77,6 @@ class LinceActor(out: ActorRef) extends Actor{
         "Error: "+p.toString
       case e:Throwable => "Error "+e.toString
     }
-
-  }
-
-
 
 
 }

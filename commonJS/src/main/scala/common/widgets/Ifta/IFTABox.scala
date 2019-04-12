@@ -18,7 +18,7 @@ import preo.backend.{Automata, Circuit}
   * @param errorBox
   */
 class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
-    extends Box[IFTA]("IFTA automaton of the instance",List(dependency)){
+    extends Box[IFTA]("IFTA Automaton of the instance",List(dependency)){
 
   private var box: Block = _
   private var ifta: IFTA = _
@@ -40,7 +40,7 @@ class IFTABox(dependency:Box[CoreConnector], errorBox:OutputArea)
 //      List(Left("all ports")      -> (()=> draw(false,false),"Show internal and interface ports"),
 //          Left("interface ports") -> (()=> draw(false,true),"Show interface ports only"),
 //          Left("full names")       -> (()=> draw(true,false),"Identify all port names by connector index"))),name="iftaAutomata")
-    dom.document.getElementById("IFTA automaton of the instance")
+    dom.document.getElementById("IFTA Automaton of the instance")
       .firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {e: MouseEvent => if (!isVisible) drawAutomata() else deleteAutomaton()}
 
