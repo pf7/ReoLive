@@ -27,27 +27,17 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
       ))
     box.append("div")
       .attr("id", "graphic")
-
-    //    traj = Trajectory.hprogToTraj(Map(),dependency.get)._1
-
-    //    dom.document.getElementById("Circuit of the instance").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-    //      .onclick = {e: MouseEvent => if(!isVisible) drawGraph() else deleteDrawing()}
   }
 
-  //  override def update(): Unit = if(isVisible) {
-  //    deleteDrawing()
-  //    drawGraph()
-  //  }
 
   def draw(range:Option[(Double,Double)]): Unit = {
     trajectory match {
       case Some(traj) =>
         val js = TrajToJS(traj,range)
-        //        println("before eval")
-        if (js.startsWith("Error")) errorBox.error(js)
-        else scala.scalajs.js.eval(js)
-       //        println("after eval")
+        //println(s"done\n${js}")
+        scala.scalajs.js.eval(js)
       case None =>
+        errorBox.warning("No trajectory found to draw.")
     }
   }
 
@@ -59,17 +49,16 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
       //      println("a")
       //      val (traj,_) = hprog.ast.Trajectory.hprogToTraj(Map(),prog)
       val prog = hprog.frontend.Semantics.syntaxToValuationTaylor(syntax)
-      //
+
       // tests: to feed to Sage
       val eqs = Solver.getDiffEqs(syntax)
       for (e <- eqs) if (e.nonEmpty)
         errorBox.message(s"- ${e.map(Show(_)).mkString(", ")}")
-          //\n${hprog.frontend.SageSolver.genSage(e)}")
-      //
+          //s"\n${hprog.frontend.SageSolver.genSage(e)}")
+
       trajectory = Some(prog.traj(Map()))
       //      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
 
-      //errorBox.message("done:\n"+js)
       draw(None)
     }
     catch {

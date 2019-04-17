@@ -145,9 +145,13 @@ object Box {
       case e: ifta.common.TimeoutException =>
         errorBox.error(s"Timeout$by: " + e.getMessage)
       case e: FExpOverflowException =>
-        errorBox.error(s"Overflow$by:" + e.getMessage)
-      case e: ParseException =>
-        errorBox.error(s"ParseException$by:" + e.getMessage)
+        errorBox.error(s"Overflow$by: " + e.getMessage)
+      case e: hub.common.ParseException =>
+        errorBox.error(s"ParseException$by: " + e.getMessage)
+      case e: hprog.common.ParserException =>
+        errorBox.error(s"ParserException$by: " + e.getMessage)
+      case e: hprog.frontend.SageSolver.SolvingException =>
+        errorBox.error(s"Failed to solve expression$by:" + e.getMessage)
       case e: JavaScriptException => {
         //      val sw = new StringWriter
         //      e.printStackTrace(new PrintWriter(sw))
@@ -156,7 +160,7 @@ object Box {
       }
       //            instanceInfo.append("p").text("-")
       case e: java.lang.AssertionError => errorBox.error(e.getMessage)
-      case e: Throwable => errorBox.error(s"unknown error$by:" + e + " - " + e.getClass) //+"/n - "+e.getStackTrace.mkString("\n - "))
+      case e: Throwable => errorBox.error(s"unknown error$by: " + e + " - " + e.getClass) //+"/n - "+e.getStackTrace.mkString("\n - "))
     }
     f
   }
