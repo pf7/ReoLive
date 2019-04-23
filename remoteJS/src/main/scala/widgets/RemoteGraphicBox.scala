@@ -21,8 +21,9 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
   override def init(div: Block, visible: Boolean): Unit = {
     box = super.panelBox(div,visible,
       buttons = List(
-        Right("glyphicon glyphicon-refresh")-> (()=>redraw(None),"Reset zoom and redraw (shift-enter)"),
-        Left("resample")-> (() => resample(),"Resample: draw again the image, using the current zooming window")
+        Right("glyphicon glyphicon-refresh")-> (()=>redraw(None,hideCont = true),"Reset zoom and redraw (shift-enter)"),
+        Left("resample")  -> (() => resample(hideCont = true), "Resample: draw again the image, using the current zooming window"),
+        Left("all jumps") -> (() => resample(hideCont = false),"Resample and include all boundary nodes")
 //        Left("&dArr;")-> (() => saveSvg(),"Download image as SVG")
       ))
     box.append("div")
@@ -42,6 +43,7 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
   def draw(sageReply: String): Unit = {
 //    println("before eval")
     errorBox.clear()
+    errorBox.message(s"got reply: ${sageReply}")
     if (sageReply startsWith "Error")
       errorBox.error(sageReply)
     else try {
@@ -55,7 +57,7 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
       val solver = new hprog.frontend.SageSolverStatic(eqs,sageReply.split('§'))
       //println("got static solver")
       lastSolver = Some(solver)
-      redraw(None)
+      redraw(None,hideCont = true)
 //      val prog = hprog.frontend.Semantics.syntaxToValuation(syntax,solver)
 //      val traj = prog.traj(Map())
 //      val js = TrajToJS(traj)
@@ -77,12 +79,12 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
 //    }
   }
 
-  private def redraw(range: Option[(Double,Double)]): Unit = try {
+  private def redraw(range: Option[(Double,Double)],hideCont:Boolean): Unit = try {
     (lastSyntax,lastSolver) match {
       case (Some(syntax),Some(solver)) =>
         val prog = hprog.frontend.Semantics.syntaxToValuation(syntax,solver)
         val traj = prog.traj(Map())
-        val js = TrajToJS(traj,range)
+        val js = TrajToJS(traj,range,hideCont)
         scalajs.js.eval(js)
       case _ => errorBox.error("Nothing to redraw.")
     }
@@ -94,15 +96,15 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
     RemoteBox.remoteCall("linceWS",dependency.get,draw)
   }
 
-  def resample(): Unit = {
+  def resample(hideCont:Boolean): Unit = {
     var range:String = ""
     try range = scalajs.js.Dynamic.global.layout.xaxis.range.toString
     catch Box.checkExceptions(errorBox, "Graphic")
 
     range.split(",", 2) match {
       case Array(v1, v2) =>
-          redraw(Some(v1.toDouble, v2.toDouble))
-      case Array() => redraw(None)
+          redraw(Some(v1.toDouble, v2.toDouble),hideCont)
+      case Array() => redraw(None,hideCont)
       case _ => errorBox.error(s"Error: Unexpected range: $range.")
     }
 

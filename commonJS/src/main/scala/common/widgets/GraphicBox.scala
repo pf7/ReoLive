@@ -21,8 +21,9 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
     box = super.panelBox(div,visible,
       buttons = List(
 //        Right("glyphicon glyphicon-refresh")-> (()=>update(),"Load the program (shift-enter)"),
-          Right("glyphicon glyphicon-refresh") -> (() => draw(None), "Draw again the image"),
-          Left("resample") -> (() => redraw(), "Resample: draw again the image, using the current zooming window")
+          Right("glyphicon glyphicon-refresh") -> (() => draw(None,true), "Draw again the image"),
+          Left("resample") -> (() => redraw(true), "Resample: draw again the image, using the current zooming window"),
+          Left("all jumps") -> (() => redraw(false), "Resample and include all boundary nodes")
         //        Left("&dArr;")-> (() => saveSvg(),"Download image as SVG")
       ))
     box.append("div")
@@ -30,10 +31,10 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
   }
 
 
-  def draw(range:Option[(Double,Double)]): Unit = {
+  def draw(range:Option[(Double,Double)],hideCont:Boolean): Unit = {
     trajectory match {
       case Some(traj) =>
-        val js = TrajToJS(traj,range)
+        val js = TrajToJS(traj,range,hideCont)
         //println(s"done\n${js}")
         scala.scalajs.js.eval(js)
       case None =>
@@ -53,13 +54,13 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
       // tests: to feed to Sage
       val eqs = Solver.getDiffEqs(syntax)
       for (e <- eqs) if (e.nonEmpty)
-        errorBox.message(s"- ${e.map(Show(_)).mkString(", ")}")
+        errorBox.message(s"- ${e.map(Show(_)).mkString(", ")}" )
           //s"\n${hprog.frontend.SageSolver.genSage(e)}")
 
       trajectory = Some(prog.traj(Map()))
       //      println(s"b - traj(0)=${traj(0)} - traj(1)=${traj(1)}")
 
-      draw(None)
+      draw(None,true)
     }
     catch {
       case p:ParserException =>
@@ -70,7 +71,7 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
     }
   }
 
-  def redraw(): Unit = {
+  def redraw(hideCont:Boolean): Unit = {
     var range:Option[(Double,Double)] = None
     try {
       val reply = scalajs.js.Dynamic.global.layout.xaxis.range.toString
@@ -81,7 +82,7 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
     }
     catch Box.checkExceptions(errorBox,"Graphic")
 
-    draw(range)
+    draw(range,hideCont:Boolean)
   }
 
 }
