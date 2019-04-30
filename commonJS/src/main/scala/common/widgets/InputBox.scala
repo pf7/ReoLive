@@ -14,8 +14,10 @@ import scala.scalajs.js.UndefOr
   * @param id
   * @param rows
   */
-class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
-  extends Box[String]("Input", Nil) with Setable[String]{
+class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10,
+               title: String,
+               refreshLabel: String =  "Load the connector (shift-enter)")
+  extends Box[String](title, Nil) with Setable[String]{
 
   var input: String = default
   private var inputAreaDom: html.TextArea = _
@@ -26,7 +28,7 @@ class InputBox(reload: => Unit, default:String="", id:String="", rows:Int = 10)
 
   override def init(div: Block, visible: Boolean): Unit = {
     val inputDiv = super.panelBox(div,visible /*, 80*/ ,
-      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload, "Load the connector (shift-enter)")))
+      buttons=List(Right("glyphicon glyphicon-refresh")-> (()=>reload, refreshLabel)))
       .append("div")
       .attr("id", "textBox_"+id)
 

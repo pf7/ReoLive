@@ -5,8 +5,8 @@ import hprog.ast.Syntax
 import hprog.backend.TrajToJS
 import hprog.frontend.Solver
 
-class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
-    extends Box[Unit]("Trajectories", List(dependency)) {
+class RemoteGraphicBox(program: Box[String], eps: Box[String], errorBox: OutputArea)
+    extends Box[Unit]("Trajectories", List(program)) {
   var box : Block = _
   private var lastSolver:Option[Solver] = None
   private var lastSyntax:Option[Syntax] = None
@@ -41,7 +41,7 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
 //  }
 
   def draw(sageReply: String): Unit = {
-//    println("before eval")
+    println("before eval")
     errorBox.clear()
     errorBox.message(s"got reply: ${sageReply}")
     if (sageReply startsWith "Error")
@@ -49,7 +49,7 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
     else try {
       //println(s"got reply from sage: ${sageReply}. About to parse ${dependency.get}.")
       // repeating parsing work done at the server
-      val syntax = hprog.DSL.parse(dependency.get)
+      val syntax = hprog.DSL.parse(program.get)
       //println("parsed...")
       lastSyntax = Some(syntax)
       val eqs = hprog.frontend.Utils.getDiffEqs(syntax)
@@ -82,7 +82,10 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
   private def redraw(range: Option[(Double,Double)],hideCont:Boolean): Unit = try {
     (lastSyntax,lastSolver) match {
       case (Some(syntax),Some(solver)) =>
-        val prog = hprog.frontend.Semantics.syntaxToValuation(syntax,solver)
+        println("redrawing...")
+        val e = getEps
+        println(s"got eps = ${e}")
+        val prog = hprog.frontend.Semantics.syntaxToValuation(syntax,solver,getEps)
         val traj = prog.traj(Map())
         val js = TrajToJS(traj,range,hideCont)
         scalajs.js.eval(js)
@@ -93,7 +96,7 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
 
   override def update(): Unit = {
     errorBox.message("Waiting for SageMath...")
-    RemoteBox.remoteCall("linceWS",dependency.get,draw)
+    RemoteBox.remoteCall("linceWS",program.get,draw)
   }
 
   def resample(hideCont:Boolean): Unit = {
@@ -107,10 +110,17 @@ class RemoteGraphicBox(dependency: Box[String], errorBox: OutputArea)
       case Array() => redraw(None,hideCont)
       case _ => errorBox.error(s"Error: Unexpected range: $range.")
     }
-
-
 //    errorBox.message("Redrawing. Waiting for SageMath...")
 //    RemoteBox.remoteCall("linceWS",s"§redraw $range, ${dependency.get}",draw)
+  }
+
+  private def getEps: Double = try {
+    eps.get.toDouble
+  }
+  catch {
+    case e: Throwable =>
+      errorBox.error(e.getMessage)
+      0.0
   }
 
 }

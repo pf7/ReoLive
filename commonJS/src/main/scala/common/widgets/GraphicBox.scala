@@ -6,8 +6,8 @@ import hprog.common.ParserException
 import hprog.frontend.Semantics.Valuation
 import hprog.frontend.{Solver, Traj}
 
-class GraphicBox(dependency: Box[String], errorBox: OutputArea)
-  extends Box[Unit]("Trajectories", List(dependency)) {
+class GraphicBox(program: Box[String], eps: Box[String], errorBox: OutputArea)
+  extends Box[Unit]("Trajectories", List(program)) {
   var box : Block = _
   override def get: Unit = {}
   private var trajectory: Option[Traj[Valuation]] = None
@@ -45,11 +45,18 @@ class GraphicBox(dependency: Box[String], errorBox: OutputArea)
   override def update(): Unit = {
     //RemoteBox.remoteCall("linceWS",dependency.get,draw)
     try {
-//      println(s"building trajectory from $cleanMsg")
-      val syntax = hprog.DSL.parse(dependency.get)
+      //println(s"building trajectory from  ${program.get}")
+      //println(s"building trajectory using ${eps.get}")
+      val syntax = hprog.DSL.parse(program.get)
+      val epsVal: Double = try {eps.get.toDouble}
+        catch {
+          case e:Throwable =>
+            errorBox.error(e.getMessage)
+            0
+        }
       //      println("a")
       //      val (traj,_) = hprog.ast.Trajectory.hprogToTraj(Map(),prog)
-      val prog = hprog.frontend.Semantics.syntaxToValuationTaylor(syntax)
+      val prog = hprog.frontend.Semantics.syntaxToValuationTaylor(syntax,eps=epsVal)
 
       // tests: to feed to Sage
       val eqs = Solver.getDiffEqs(syntax)
