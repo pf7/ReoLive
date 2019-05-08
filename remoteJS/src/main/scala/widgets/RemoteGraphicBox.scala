@@ -41,9 +41,9 @@ class RemoteGraphicBox(program: Box[String], eps: Box[String], errorBox: OutputA
 //  }
 
   def draw(sageReply: String): Unit = {
-    println("before eval")
+    //println("before eval")
     errorBox.clear()
-    errorBox.message(s"got reply: ${sageReply}")
+    //errorBox.message(s"got reply: ${sageReply}")
     if (sageReply startsWith "Error")
       errorBox.error(sageReply)
     else try {
@@ -82,9 +82,7 @@ class RemoteGraphicBox(program: Box[String], eps: Box[String], errorBox: OutputA
   private def redraw(range: Option[(Double,Double)],hideCont:Boolean): Unit = try {
     (lastSyntax,lastSolver) match {
       case (Some(syntax),Some(solver)) =>
-        println("redrawing...")
         val e = getEps
-        println(s"got eps = ${e}")
         val prog = hprog.frontend.Semantics.syntaxToValuation(syntax,solver,getEps)
         val traj = prog.traj(Map())
         val js = TrajToJS(traj,range,hideCont)

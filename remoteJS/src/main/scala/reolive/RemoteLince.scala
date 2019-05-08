@@ -56,7 +56,7 @@ object RemoteLince {
       inputBox = new LinceBox(reload(), "",errors)
       examples = new LinceExamplesBox(softReload(),inputBox,descr)
       //information = new LinceInfoBox(inputBox, errors)
-      deviation = new InputBox(reloadGraphics(),"0","deviation",1,
+      deviation = new InputBox(reloadGraphics(),"0.1","deviation",1,
         title = "Deviation warnings",
         refreshLabel = "Add warnings when conditions would differ when deviating the variables by some epsilon > 0. Set to 0 to ignore these warnings.")
       graphic= new RemoteGraphicBox(inputBox, deviation, errors)
