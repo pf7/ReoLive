@@ -53,7 +53,7 @@ class LinceActor(out: ActorRef) extends Actor{
   private def callSage(prog: String, sagePath:String): String = try {
     val syntax = hprog.DSL.parse(prog)
     val eqs = hprog.frontend.Utils.getDiffEqs(syntax)
-    val replySage = hprog.frontend.SageSolver.callSageSolver(eqs,sagePath)
+    val replySage = hprog.frontend.SageSolver.callSageSolver(eqs,sagePath,timeout=10)
     replySage.mkString("§")
   }
   catch {
