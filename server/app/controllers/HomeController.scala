@@ -43,6 +43,10 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(views.html.onlineLince())
   }
 
+  def onlineReoAlloy = Action{
+    Ok(views.html.onlineReoAlloy())
+  }
+
   def model(id: Long) = Action{
     val file = new File(s"/tmp/model_$id.mcrl2")
     if(file.exists())

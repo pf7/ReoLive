@@ -16,6 +16,8 @@ GET     /onlineReo2                  controllers.HomeController.onlineReo2
 
 GET     /onlineLince                      controllers.HomeController.onlineLince
 
+GET     /reoAlloy                   controllers.HomeController.onlineReoAlloy
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
@@ -31,5 +33,7 @@ GET     /lps/:id                    controllers.HomeController.lps(id:Long)
 GET     /modal                      controllers.ModalController.socket
 
 GET     /linceWS                    controllers.LinceController.socket
+
+GET     /alloyWS                    controllers.AlloyController.socket
 
 GET     /ifta                       controllers.IFTAController.socket
