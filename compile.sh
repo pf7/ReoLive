@@ -4,7 +4,9 @@
 cd localJS/src/main/resources/js/
 rm local_js-fastopt.js local_js-fastopt.js.map local_js-opt.js \
    local_js-opt.js.map remote_js-opt.js remote_js-opt.js.map
-cd ../../../../../server/public
+cd ../../../../../
+mkdir -p server/public
+cd server/public
 rm -rf *
 cd ../../
 
