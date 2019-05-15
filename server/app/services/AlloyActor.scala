@@ -5,19 +5,18 @@ import preo.backend.Network
 import preo.frontend.Eval
 
 import scala.collection.mutable.ListBuffer
-
-import main.scala.reoalloy.AlloyGenerator
+import main.scala.reoalloy.{AlloyGenerator, Nodo}
 
 
 object AlloyActor {
   def props(out:ActorRef) = Props(new AlloyActor(out))
 }
 
-class Nodo(var id : String, var entradas : List[Int], var saidas : List[Int] ) {}
 
 class AlloyActor(out: ActorRef) extends Actor{
 
-  private val baseModel =
+  private val generator = new AlloyGenerator()
+  private val baseModel = prettyPrint(
     """
       |open util/ordering[State] as S
       |
@@ -185,13 +184,7 @@ class AlloyActor(out: ActorRef) extends Actor{
       |}
       |
       |
-    """.stripMargin.replaceAll("\n", "<br>")
-      .replaceAll(" ", "&nbsp;")
-      .replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
-      .replaceAll("(sig|disj|open|lone|none|one|&nbsp;as&nbsp;|" +
-        "set|pred|abstract|all|some|extends|iff|&nbsp;in&nbsp;|" +
-        "and|&nbsp;or&nbsp;|implies|let|not|&nbsp;no&nbsp;|else|fact)",
-        "<b><font color=\"#1E1EA8\">$1</font></b>")
+    """.stripMargin)
   
   /**
     * Reacts to messages containing a JSON with a connector (string) and a modal formula (string),
@@ -218,7 +211,7 @@ class AlloyActor(out: ActorRef) extends Actor{
       val genConn = preo.DSL.parse(cleanMsg)
       val conn = Eval.reduce(genConn)
       val netw: Network = preo.backend.Network.apply(conn,hideClosed = false)
-      val nodos = NetworkToLNodo(netw)
+      val reo = NetworkToLNodo(netw)
 
       /*print da lista de nodos
       var  s : String = ""
@@ -238,7 +231,9 @@ class AlloyActor(out: ActorRef) extends Actor{
 
       //"Resulting Alloy Program"
 
-      baseModel
+      val sol = generator.getAlloy(reo)
+
+      baseModel + prettyPrint(generator.instanceToString)
 
    }
     catch {
@@ -268,6 +263,20 @@ class AlloyActor(out: ActorRef) extends Actor{
       }
     )
     lnodo.toList
+  }
+
+  /**
+    * PrettyPrint de código Alloy.
+    * @param alloy
+    */
+  def prettyPrint(alloy : String): String = {
+      alloy.replaceAll("\n", "<br>")
+           .replaceAll(" ", "&nbsp;")
+           .replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
+           .replaceAll("(sig|disj|open|lone|none|one|&nbsp;as&nbsp;|" +
+            "set|pred|abstract|all|some|extends|iff|&nbsp;in&nbsp;|" +
+            "and|&nbsp;or&nbsp;|implies|let|not|&nbsp;no&nbsp;|else|fact|fun)",
+            "<b><font color=\"#1E1EA8\">$1</font></b>")
   }
 
 
