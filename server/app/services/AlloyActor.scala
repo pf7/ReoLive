@@ -213,10 +213,10 @@ class AlloyActor(out: ActorRef) extends Actor{
       val netw: Network = preo.backend.Network.apply(conn,hideClosed = false)
       val reo = NetworkToLNodo(netw)
 
-      /*print da lista de nodos
-      var  s : String = ""
+      //print da lista de nodos
+      /*var  s : String = ""
 
-      for (elem <- nodos) {
+      for (elem <- reo) {
         s = s + elem.id + "<br>ins "
         for(ins <- elem.entradas){
           s = s + ins + "<br>"
@@ -234,7 +234,7 @@ class AlloyActor(out: ActorRef) extends Actor{
       val sol = generator.getAlloy(reo)
 
       baseModel + prettyPrint(generator.instanceToString)
-
+      
    }
     catch {
       case e: Throwable => "Error: "+e.getMessage
@@ -254,9 +254,20 @@ class AlloyActor(out: ActorRef) extends Actor{
 
     prms.foreach( p =>
       {
-        val name = p.prim.name
+        var name = ""
+        if(p.prim.extra.isEmpty) {
+          name = p.prim.name
+        }
+        else{
+          name = p.prim.extra.head.toString
+          if(name == "vmrg"){
+            name = "vmerger"
+          }
+        }
+
         val ins = p.ins
         val outs = p.outs
+
 
         val n = new Nodo(name,ins,outs)
         lnodo += n
