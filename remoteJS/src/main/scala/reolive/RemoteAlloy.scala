@@ -19,6 +19,7 @@ object RemoteAlloy extends{
   private var descr: OutputArea = _
 
   private var alloyBox: AlloyBox = _
+  private var propertyBox: AlloyPropertyBox = _
 
 
   @JSExportTopLevel("reolive.RemoteAlloy.main")
@@ -64,8 +65,10 @@ object RemoteAlloy extends{
     }
     inputBox =
       new PreoBox(first_reload(), export, conn, errors)
+    propertyBox =
+      new AlloyPropertyBox(first_reload(), check_reload(), next_reload(), export, "", errors)
     // must be after inputbox and mcrl2box
-    alloyBox = new AlloyBox(inputBox, errors)
+    alloyBox = new AlloyBox(inputBox, propertyBox, errors)
     val buttonsDiv =
       new ButtonsBox(soft_reload(), List(inputBox, new OutputArea, descr))
 
@@ -73,6 +76,7 @@ object RemoteAlloy extends{
     // place boxes
 
     inputBox.init(leftside,true)
+    propertyBox.init(leftside, true)
     errors.init(leftside)
     buttonsDiv.init(leftside,false)
     descr.init(leftside)
@@ -95,13 +99,23 @@ object RemoteAlloy extends{
     descr.clear()
     errors.clear()
     inputBox.update()
+    propertyBox.update()
     alloyBox.update()
   }
 
   private def soft_reload(): Unit= {
     errors.clear()
     inputBox.update()
+    propertyBox.update()
     alloyBox.update()
+  }
+
+  private def check_reload(): Unit ={
+    alloyBox.check()
+  }
+
+  private def next_reload(): Unit ={
+    alloyBox.next_ce()
   }
 
 //  /**

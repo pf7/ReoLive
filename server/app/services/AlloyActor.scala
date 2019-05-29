@@ -35,41 +35,63 @@ class AlloyActor(out: ActorRef) extends Actor{
     * @return
     */
   private def process(msg: String): String = {
-    val cleanMsg = msg.replace("\\\\", "\\")
-      .replace("\\n", "\n")
+
+    var msgContent : Array[String] = Array(msg)
+
+    //Se a mensagem começa por um número N
+    //N representa o #instância que queremos mostrar
+    if(msg.matches("""^\d+.*""")){
+      //0 -> Representa o Circuito
+      //1 -> N
+      msgContent = msg.split("""(?<=\d+)""", 2).reverse
+    }
+    else if(msg.matches("""^CHECK__.+?__\d+__.*""")){
+      //Verificação de Propriedades
+      //0 -> Circuito
+      //1 -> N
+      //2 -> Propriedade
+      msgContent = msg.split("__", 4).reverse
+    }
+
+    val cleanMsg = msgContent(0).replace("\\\\", "\\")
+        .replace("\\n", "\n")
 
     try {
       val genConn = preo.DSL.parse(cleanMsg)
       val conn = Eval.reduce(genConn)
-      val netw: Network = preo.backend.Network.apply(conn,hideClosed = false)
+      val netw: Network = preo.backend.Network.apply(conn, hideClosed = false)
       val reo = NetworkToLNodo(netw)
 
-      //print da lista de nodos
-      /*var  s : String = ""
+      var sol = generator.getSolutions(reo)
 
-      for (elem <- reo) {
-        s = s + elem.id + "<br>ins "
-        for(ins <- elem.entradas){
-          s = s + ins + "<br>"
-        }
-        s = s + "outs "
-        for(outs <- elem.saidas){
-          s = s + outs + "<br>"
+      if(msgContent.length > 1){
+        var unsat = "UNSAT"
+
+        //CHECK
+        if(msgContent.length == 4) {
+          sol = generator.checkProperty(reo, msgContent(2))
+          unsat = "CHECK_UNSAT"
         }
 
-      }*/
-      // Create ReoAlloy magic here
+        val n_sol = msgContent(1).toInt
 
-      //"Resulting Alloy Program"
+        for(i <- 0 to n_sol){
+          sol = sol.next
+        }
 
-      val sol = generator.getAlloy(reo)
+        if(sol.satisfiable()){
+          reoalloy.Main.showViz(sol)
+          "SAT"
+        }
+        else unsat
 
-      prettyPrint(generator.modelToString)
-      
-   }
-    catch {
-      case e: Throwable => "Error: "+e.getMessage
-    }
+      }
+      else prettyPrint(generator.modelToString)
+
+      }
+      catch {
+        case e: Throwable => "Error: " + e.getMessage
+      }
 
   }
 
@@ -102,7 +124,9 @@ class AlloyActor(out: ActorRef) extends Actor{
           name match {
             case "vmrg" => name = "vmerger"
 
-            case "mrg" => name = "merger"
+            case "mrg" => name = "node"
+
+            case "dupl" => name = "node"
 
             case _ => ;
           }
@@ -133,7 +157,6 @@ class AlloyActor(out: ActorRef) extends Actor{
             "and|&nbsp;or&nbsp;|implies|let|not|&nbsp;no&nbsp;|else|fact|fun)",
             "<b><font color=\"#1E1EA8\">$1</font></b>")
   }
-
 
 //  private def callSage(prog: String, sagePath:String): String = try {
 //    val syntax = hprog.DSL.parse(prog)

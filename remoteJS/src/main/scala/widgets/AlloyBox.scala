@@ -18,13 +18,20 @@ import scala.scalajs.js.UndefOr
   */
 
 
-class AlloyBox(progr:Box[String], errorBox:OutputArea)
+class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
   extends Box[String]("Reo Alloy",List(progr)){
 
   private var box:Block = _
   private var content:String = ""
   private var mirrors:Mirrors = _
   override def get: String = content
+
+  //Indica o número da instância que se pretende visualizar
+  private var n_sol = -1
+  //#Contra-exemplos
+  private var n_ce = -1
+  //Propriedade a ser verificada
+  private var current_prop = ""
 
   /**
     * Executed once at creation time, to append the content to the inside of this box
@@ -33,7 +40,10 @@ class AlloyBox(progr:Box[String], errorBox:OutputArea)
     * @param visible is true when this box is initially visible (i.e., expanded).
     */
   override def init(div: Block, visible: Boolean): Unit = {
-    box = panelBox(div,visible)
+    box = panelBox(div,visible, buttons=List(
+      Left("solve")      -> (()=> solve ,"Obtain Instances"),
+      Left("next")      -> (()=> next ,"See next instance")
+    ))
       .append("div")
       .attr("id","reoAlloy")
 
@@ -47,15 +57,100 @@ class AlloyBox(progr:Box[String], errorBox:OutputArea)
     *  - produce side-effects (e.g., redraw a diagram)
     */
   override def update(): Unit = {
+    //Reset ao estado das instâncias obtidas / contra-exemplos
+    n_sol = -1
+    n_ce = -1
+    current_prop = ""
+
     println("sending request for Alloy servive")
     RemoteBox.remoteCall("alloyWS", progr.get, process)
   }
 
   private def process(reply:String): Block = {
     println("got reply: "+reply)
-    box.html(reply)
+
+    reply match{
+
+      case "SAT" => box
+
+      case "UNSAT" =>
+        if(n_sol == 0)
+          errorBox.message("The model is unsatisfiable, it might be inconsistent.")
+        else
+          errorBox.message("There are no more instances that satisfy this model.")
+
+        box
+
+      case "CHECK_UNSAT" =>
+        if(n_ce == 0)
+          errorBox.message("No counterexamples found for the current scope.")
+        else
+          errorBox.message("There are no more counterexamples for the given scope.")
+
+        box
+
+      case _ => box.html(reply)
+    }
+
+
   }
 
+
+  /**
+    * Produzir instâncias para o circuito atual.
+    */
+  private def solve(){
+    n_sol = 0
+    errorBox.clear
+
+    RemoteBox.remoteCall("alloyWS", "0" + progr.get, process)
+  }
+
+  /**
+    * Visualizar instância seguinte, a existir.
+    */
+  private def next: Unit ={
+
+    if(n_sol < 0){
+      errorBox.message("Please press 'solve' before attempting to visualize further instances.")
+    }
+    else{
+      n_sol += 1
+      RemoteBox.remoteCall("alloyWS", n_sol.toString + progr.get, process)
+    }
+
+  }
+
+  /**
+    * Verificar propriedade, e visualizar um contra-exemplo, se for o caso.
+    */
+  def check(): Unit ={
+    n_ce = 0
+    errorBox.clear
+
+    if(prop.get.nonEmpty) {
+      current_prop = prop.get
+      RemoteBox.remoteCall("alloyWS", "CHECK__" + current_prop + "__0__" + progr.get, process)
+    }
+    else{
+      errorBox.message("Write the property to be verified.")
+    }
+  }
+
+  /**
+    * Se existir, apresenta o contra-exemplo seguinte.
+    */
+  def next_ce(): Unit ={
+
+    if(n_ce < 0 || prop.get != current_prop){
+      errorBox.message("Please press 'check' before attempting to visualize further counterexamples.")
+    }
+    else {
+      n_ce += 1
+      RemoteBox.remoteCall("alloyWS", "CHECK__" +  current_prop + "__" + n_ce + "__" + progr.get, process)
+    }
+
+  }
 
 //  try {
 //
