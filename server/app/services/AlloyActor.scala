@@ -8,6 +8,8 @@ import scala.collection.mutable.ListBuffer
 import reoalloy.{AlloyGenerator, Nodo}
 
 
+import play.api.libs.json._
+
 object AlloyActor {
   def props(out:ActorRef) = Props(new AlloyActor(out))
 }
@@ -36,11 +38,11 @@ class AlloyActor(out: ActorRef) extends Actor{
     */
   private def process(msg: String): String = {
 
-    var msgContent : Array[String] = Array(msg)
+    //var msgContent : Array[String] = Array(msg)
 
     //Se a mensagem começa por um número N
     //N representa o #instância que queremos mostrar
-    if(msg.matches("""^\d+.*""")){
+    /*if(msg.matches("""^\d+.*""")){
       //0 -> Representa o Circuito
       //1 -> N
       msgContent = msg.split("""(?<=\d+)""", 2).reverse
@@ -51,29 +53,40 @@ class AlloyActor(out: ActorRef) extends Actor{
       //1 -> N
       //2 -> Propriedade
       msgContent = msg.split("__", 4).reverse
-    }
+    }*/
 
-    val cleanMsg = msgContent(0).replace("\\\\", "\\")
+    //val cleanMsg = msgContent(0).as[String].replace("\\\\", "\\")
+    //        .replace("\\n", "\n")
+
+    val cleanMsg = msg.replace("\\\\", "\\")
         .replace("\\n", "\n")
 
+    val msgContent : JsValue = Json.parse(cleanMsg)
+
+
     try {
-      val genConn = preo.DSL.parse(cleanMsg)
+      //val genConn = preo.DSL.parse(cleanMsg)
+      val genConn = preo.DSL.parse(msgContent("reo").as[String])
       val conn = Eval.reduce(genConn)
       val netw: Network = preo.backend.Network.apply(conn, hideClosed = false)
       val reo = NetworkToLNodo(netw)
 
       var sol = generator.getSolutions(reo)
 
-      if(msgContent.length > 1){
+      //if(msgContent.length > 1){
+      if(msgContent("solve").as[Boolean] || msgContent("check").as[Boolean]){
         var unsat = "UNSAT"
 
         //CHECK
-        if(msgContent.length == 4) {
-          sol = generator.checkProperty(reo, msgContent(2))
+        //if(msgContent.length == 4) {
+        if(msgContent("check").as[Boolean]){
+          //sol = generator.checkProperty(reo, msgContent(2))
+          sol = generator.checkProperty(reo, msgContent("prop").as[String])
           unsat = "CHECK_UNSAT"
         }
 
-        val n_sol = msgContent(1).toInt
+        //val n_sol = msgContent(1).toInt
+        val n_sol = msgContent("num").as[Int]
 
         for(i <- 0 to n_sol){
           sol = sol.next

@@ -63,7 +63,20 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
     current_prop = ""
 
     println("sending request for Alloy servive")
-    RemoteBox.remoteCall("alloyWS", progr.get, process)
+    //RemoteBox.remoteCall("alloyWS", progr.get, process)
+
+    val reo = progr.get
+
+    val msg =
+      s"""
+         |{
+         |  "reo" : "$reo",
+         |  "solve" : false,
+         |  "check" : false
+         |}
+        """.stripMargin
+
+    send(msg)
   }
 
   private def process(reply:String): Block = {
@@ -103,7 +116,20 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
     n_sol = 0
     errorBox.clear
 
-    RemoteBox.remoteCall("alloyWS", "0" + progr.get, process)
+    //RemoteBox.remoteCall("alloyWS", "0" + progr.get, process)
+    val reo = progr.get
+
+    val msg =
+      s"""
+         |{
+         |  "reo" : "$reo",
+         |  "num" : 0,
+         |  "solve" : true,
+         |  "check" : false
+         |}
+        """.stripMargin
+
+    send(msg)
   }
 
   /**
@@ -116,7 +142,20 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
     }
     else{
       n_sol += 1
-      RemoteBox.remoteCall("alloyWS", n_sol.toString + progr.get, process)
+      //RemoteBox.remoteCall("alloyWS", n_sol.toString + progr.get, process)
+      val reo = progr.get
+
+      val msg =
+        s"""
+           |{
+           |  "reo" : "$reo",
+           |  "num" : $n_sol,
+           |  "solve" : true,
+           |  "check" : false
+           |}
+        """.stripMargin
+
+      send(msg)
     }
 
   }
@@ -130,7 +169,21 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
 
     if(prop.get.nonEmpty) {
       current_prop = prop.get
-      RemoteBox.remoteCall("alloyWS", "CHECK__" + current_prop + "__0__" + progr.get, process)
+      //RemoteBox.remoteCall("alloyWS", "CHECK__" + current_prop + "__0__" + progr.get, process)
+      val reo = progr.get
+
+      val msg =
+        s"""
+          |{
+          |  "reo" : "$reo",
+          |  "prop" : "$current_prop",
+          |  "num" : 0,
+          |  "solve" : false,
+          |  "check" : true
+          |}
+        """.stripMargin
+
+      send(msg)
     }
     else{
       errorBox.message("Write the property to be verified.")
@@ -147,9 +200,31 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
     }
     else {
       n_ce += 1
-      RemoteBox.remoteCall("alloyWS", "CHECK__" +  current_prop + "__" + n_ce + "__" + progr.get, process)
+      //RemoteBox.remoteCall("alloyWS", "CHECK__" +  current_prop + "__" + n_ce + "__" + progr.get, process)
+      val reo = progr.get
+
+      val msg =
+        s"""
+           |{
+           |  "reo" : "$reo",
+           |  "prop" : "$current_prop",
+           |  "num" : $n_ce,
+           |  "solve" : false,
+           |  "check" : true
+           |}
+        """.stripMargin
+
+      send(msg)
     }
 
+  }
+
+  /**
+    * Envia pedido para o web service do ReoAlloy
+    * @param msg mensagem
+    */
+  private def send(msg : String): Unit ={
+    RemoteBox.remoteCall("alloyWS", msg, process)
   }
 
 //  try {

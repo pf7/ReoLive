@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<projection> <type name="State"/> </projection>
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="Channel"/>
+   <type name="Connector"/>
+   <type name="Fifo"/>
+   <type name="FifoRepl"/>
+   <type name="Int"/>
+   <type name="State"/>
+   <type name="String"/>
+   <type name="univ"/>
+   <type name="S/Ord"/>
+   <type name="seq/Int"/>
+   <set name="fire" type="Node"/>
+   <set name="First" type="S/Ord"/>
+   <set name="Next" type="S/Ord"/>
+</node>
+
+<node color="White">
+   <type name="Fifo"/>
+</node>
+
+<edge attribute="yes">
+   <relation name="buffer"> <type name="Fifo"/> <type name="Value"/> </relation>
+</edge>
+
+<node hideunconnected="yes" style="Dashed" shape="Hexagon" color="Gray">
+   <type name="Lossy"/>
+</node>
+
+<node shape="Circle" color="Blue">
+   <type name="Node"/>
+</node>
+
+<node shape="Diamond" color="White">
+   <type name="Replicator"/>
+</node>
+
+<node shape="Hexagon" color="Green">
+   <type name="Sync"/>
+</node>
+
+<node shape="Inv Trapezoid" color="Gray">
+   <type name="Drain"/>
+</node>
+
+<node shape="Lined Diamond" color="White">
+   <type name="Merger"/>
+</node>
+
+<node showlabel="no">
+   <set name="fire" type="Node"/>
+</node>
+
+<node showlabel="no" color="Black">
+   <set name="$FullFifo" type="Fifo"/>
+</node>
+
+<node showlabel="no" color="Red">
+   <set name="$FireNodes" type="Node"/>
+</node>
+
+<node showlabel="no" color="White">
+   <set name="$EmptyFifo" type="Fifo"/>
+</node>
+
+<node style="Dashed" shape="Diamond" color="White">
+   <type name="VDupl"/>
+</node>
+
+<node style="Dashed" shape="Lined Diamond" color="White">
+   <type name="VMerger"/>
+</node>
+
+<node visible="no">
+   <type name="Alternator"/>
+   <type name="Circuit"/>
+   <type name="FFMergerF"/>
+   <type name="FifoFifoDrain"/>
+   <type name="Instance"/>
+   <type name="LossySyncMerge"/>
+   <type name="ReplLossySync"/>
+   <type name="SyncFifo"/>
+   <type name="SyncLossy"/>
+   <type name="SyncSync"/>
+   <type name="Value"/>
+</node>
+
+<edge visible="no">
+   <relation name="conns"> <type name="Connector"/> <type name="Connector"/> </relation>
+   <relation name="ports"> <type name="Connector"/> <type name="Node"/> </relation>
+</edge>
+
+</view>
+
+</alloy>

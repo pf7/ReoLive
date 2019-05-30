@@ -18,7 +18,8 @@ lazy val common_settings = Seq(
     "org.scalanlp" %% "breeze-natives" % "0.13.2",
     // The visualization library is distributed separately as well.
     // It depends on LGPL code
-    "org.scalanlp" %% "breeze-viz" % "0.13.2"
+    "org.scalanlp" %% "breeze-viz" % "0.13.2",
+    "edu.mit.csail.sdg" % "alloy" % "4.2" from "file:./lib/alloy4.2_2015-02-22.jar"
   )
 )
 
@@ -49,7 +50,8 @@ lazy val server = (project in file("server"))
       baseDirectory.value / "../lib/preo/src/main/scala",
       baseDirectory.value / "../lib/hprog/src/main/scala",
       baseDirectory.value / "../lib/ifta/src/main/scala",
-      baseDirectory.value / "../lib/virtuoso/src/main/scala"
+      baseDirectory.value / "../lib/virtuoso/src/main/scala",
+      baseDirectory.value / "../lib/reoalloy/src/main/scala"
     )
   )
 
@@ -73,7 +75,8 @@ lazy val javascript_settings = Seq(
     baseDirectory.value / "../lib/preo/src/main/scala",
     baseDirectory.value / "../lib/hprog/src/main/scala",
     baseDirectory.value / "../lib/ifta/src/main/scala",
-    baseDirectory.value / "../lib/virtuoso/src/main/scala"
+    baseDirectory.value / "../lib/virtuoso/src/main/scala",
+    baseDirectory.value / "../lib/reoalloy/src/main/scala"
   )
 )
 
