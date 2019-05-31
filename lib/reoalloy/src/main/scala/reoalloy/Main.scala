@@ -12,7 +12,7 @@ object Main {
   def showViz(sol : A4Solution): Unit = {
     try {
       sol.writeXML("instance.xml")
-      val viz = new VizGUI(true, "instance.xml", null)
+      val viz = new VizGUI(false, "instance.xml", null)
       //load do tema
       //viz.loadThemeFile("./model/Reo.thm")
       viz.loadThemeFile("./lib/reoalloy/model/Reo.thm")

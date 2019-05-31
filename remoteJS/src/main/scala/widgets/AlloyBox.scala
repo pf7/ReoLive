@@ -65,15 +65,11 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
     println("sending request for Alloy servive")
     //RemoteBox.remoteCall("alloyWS", progr.get, process)
 
-    val reo = progr.get
-
     val msg =
       s"""
          |{
-         |  "reo" : "$reo",
          |  "solve" : false,
-         |  "check" : false
-         |}
+         |  "check" : false,
         """.stripMargin
 
     send(msg)
@@ -117,16 +113,13 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
     errorBox.clear
 
     //RemoteBox.remoteCall("alloyWS", "0" + progr.get, process)
-    val reo = progr.get
 
     val msg =
       s"""
          |{
-         |  "reo" : "$reo",
          |  "num" : 0,
          |  "solve" : true,
-         |  "check" : false
-         |}
+         |  "check" : false,
         """.stripMargin
 
     send(msg)
@@ -143,16 +136,13 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
     else{
       n_sol += 1
       //RemoteBox.remoteCall("alloyWS", n_sol.toString + progr.get, process)
-      val reo = progr.get
 
       val msg =
         s"""
            |{
-           |  "reo" : "$reo",
            |  "num" : $n_sol,
            |  "solve" : true,
-           |  "check" : false
-           |}
+           |  "check" : false,
         """.stripMargin
 
       send(msg)
@@ -168,19 +158,16 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
     errorBox.clear
 
     if(prop.get.nonEmpty) {
-      current_prop = prop.get
+      current_prop = prop.get.replaceAll("\\s+", " ")
       //RemoteBox.remoteCall("alloyWS", "CHECK__" + current_prop + "__0__" + progr.get, process)
-      val reo = progr.get
 
       val msg =
         s"""
           |{
-          |  "reo" : "$reo",
           |  "prop" : "$current_prop",
           |  "num" : 0,
           |  "solve" : false,
-          |  "check" : true
-          |}
+          |  "check" : true,
         """.stripMargin
 
       send(msg)
@@ -206,12 +193,10 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
       val msg =
         s"""
            |{
-           |  "reo" : "$reo",
            |  "prop" : "$current_prop",
            |  "num" : $n_ce,
            |  "solve" : false,
-           |  "check" : true
-           |}
+           |  "check" : true,
         """.stripMargin
 
       send(msg)
@@ -224,7 +209,9 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
     * @param msg mensagem
     */
   private def send(msg : String): Unit ={
-    RemoteBox.remoteCall("alloyWS", msg, process)
+    val reo = progr.get.replaceAll("\\s+", " ")
+
+    RemoteBox.remoteCall("alloyWS", msg + s"""\"reo\" : \"$reo\" }""", process)
   }
 
 //  try {

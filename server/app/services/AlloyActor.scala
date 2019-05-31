@@ -58,15 +58,20 @@ class AlloyActor(out: ActorRef) extends Actor{
     //val cleanMsg = msgContent(0).as[String].replace("\\\\", "\\")
     //        .replace("\\n", "\n")
 
-    val cleanMsg = msg.replace("\\\\", "\\")
-        .replace("\\n", "\n")
+    //val cleanMsg = msg.replace("\\\\", "\\")
+     //   .replace("\\n", "\n")
 
-    val msgContent : JsValue = Json.parse(cleanMsg)
+    /*val msgContent : JsValue = Json.parse(msg.replace("\\\\n", "TMPn")
+                                             .replace("\\n", "\n")
+                                             .replace("TMP", "\\\\"))*/
+
+    val msgContent : JsValue = Json.parse(msg.replace("\\n", "\n"))
 
 
     try {
       //val genConn = preo.DSL.parse(cleanMsg)
-      val genConn = preo.DSL.parse(msgContent("reo").as[String])
+      //val genConn = preo.DSL.parse(msgContent("reo").as[String])
+      val genConn = preo.DSL.parse(msgContent("reo").as[String].replace("\\\\", "\\"))
       val conn = Eval.reduce(genConn)
       val netw: Network = preo.backend.Network.apply(conn, hideClosed = false)
       val reo = NetworkToLNodo(netw)
