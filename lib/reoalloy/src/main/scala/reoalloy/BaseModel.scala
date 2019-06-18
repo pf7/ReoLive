@@ -115,6 +115,13 @@ class BaseModel {
   UNIV.addFact(n.get().in(nodes.call(circuit.join(root))).forAll(n))*/
 
   /**
+    * Theme Functions
+    */
+  private val fireNodes = new Func(null, "FireNodes", null, state.product(node), n_node.get().in(s.get().join(fire)).comprehensionOver(s, n_node))
+  private val emptyFifo = new Func(null, "EmptyFifo", null, state.product(connectors("fifo")), f_buffer.join(s.get()).no().comprehensionOver(s, f_fifo))
+  private val fullFifo = new Func(null, "FullFifo", null, state.product(connectors("fifo")), f_buffer.join(s.get()).some().comprehensionOver(s, f_fifo))
+
+  /**
     * sig @sig ...{
     *   args
     *   ...
@@ -248,12 +255,20 @@ class BaseModel {
             received.not().and(sent.not()).implies(fifo.join(buffer).join(ant).equal(fifo.join(buffer).join(s.get())))
           ))).forAll(s)))))))))*/
 
-    fifo.addFact(
+    /* ???
+      fifo.addFact(
       s.get().equal(first).not().implies(
         fifo.join(e1).in(s.get().join(next.transpose()).join(fire)).implies(fifo.join(buffer).join(s.get().join(next.transpose())).no().and(fifo.join(buffer).join(s.get()).some()).and(fifo.join(e2).in(s.get().join(next.transpose()).join(fire).not()).and(
           fifo.join(e2).in(s.get().join(next.transpose()).join(fire).implies(fifo.join(buffer).join(s.get().join(next.transpose())).some().and(fifo.join(buffer).join(s.get()).no()).and(fifo.join(e1).in(s.get().join(next.transpose()).join(fire)).not()))).and(
             fifo.join(e1).in(s.get().join(next.transpose()).join(fire)).not().and(fifo.join(e2).in(s.get().join(next.transpose()).join(fire).not()).implies(fifo.join(buffer).join(s.get().join(next.transpose())).equal(fifo.join(buffer).join(s.get())))
-            )))))).forAll(s))
+            )))))).forAll(s))*/
+
+    fifo.addFact(
+      s.get().equal(first).not().implies(
+        fifo.join(e1).in(s.get().join(next.transpose()).join(fire)).implies(fifo.join(buffer).join(s.get().join(next.transpose())).no().and(fifo.join(buffer).join(s.get().join(next.transpose())).some()).and(fifo.join(e2).in(s.get().join(next.transpose()).join(fire)).not()).and(
+        fifo.join(e2).in(s.get().join(next.transpose()).join(fire)).implies(fifo.join(buffer).join(s.get().join(next.transpose())).some().and(fifo.join(buffer).join(s.get()).no()).and(fifo.join(e1).in(s.get().join(next.transpose()).join(fire)).not()))).and(
+        fifo.join(e1).in(s.get().join(next.transpose()).join(fire)).not().and(fifo.join(e2).in(s.get().join(next.transpose()).join(fire)).not()).implies(fifo.join(buffer).join(s.get().join(next.transpose())).equal(fifo.join(buffer).join(s.get())))
+      ))).forAll(s))
 
 
     /* Predicado p/ FIFO */
@@ -491,4 +506,9 @@ class BaseModel {
     */
   //def getRoot : Expr = circuit.join(root)
 
+  /**
+    * Retorna as funções auxiliares para o tema
+    * @return
+    */
+  def getThemeFunc : Iterable[Func] = List(fireNodes, emptyFifo, fullFifo)
 }

@@ -2,10 +2,11 @@ package reoalloy
 
 import edu.mit.csail.sdg.alloy4compiler.ast._
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig._
-import edu.mit.csail.sdg.alloy4.{A4Reporter, ConstList, Util}
+import edu.mit.csail.sdg.alloy4.{A4Reporter, ConstList, Err, Util}
 import edu.mit.csail.sdg.alloy4.A4Reporter.NOP
 import edu.mit.csail.sdg.alloy4compiler.parser.{CompModule, CompUtil}
 import edu.mit.csail.sdg.alloy4compiler.translator.{A4Options, A4Solution, TranslateAlloyToKodkod}
+import edu.mit.csail.sdg.alloy4viz.VizGUI
 
 import scala.collection.mutable
 import scala.collection.JavaConverters._
@@ -75,11 +76,12 @@ class AlloyGenerator() {
     * @param reo Circuito
     * @return
     */
-  private def unfoldNode(reo: List[Nodo]) : List[Nodo] = {
+  private def unfoldNode(reo: List[Connector]) : List[Connector] = {
     var newReo = reo
     var maxId = 0
 
     //Reset ao conjunto
+    varNodes = Set()
     connInCircuit = Set()
 
     //TO DO: melhor forma de encontrar ID para nodo intermédio
@@ -111,7 +113,7 @@ class AlloyGenerator() {
         nOut + nIn match {
           case 4 =>
             //Dividimos o nodo em dois
-            val n2 = new Nodo("dupl", List(maxId), n.saidas)
+            val n2 = new Connector("dupl", List(maxId), n.saidas)
             newReo = n2 :: newReo
             //Atualizamos informação do nodo ja existente
             n.id = "merger"
@@ -143,11 +145,23 @@ class AlloyGenerator() {
       }
       else connInCircuit += n.id
 
+      //Atualizar os nodos associados aos conetores variáveis
+      //Merger variável
+      if(n.id == "vmerger")
+        varNodes ++= n.entradas
+      //Replicator variável
+      if(n.id == "vdupl")
+        varNodes ++= n.saidas
+
     }
 
     newReo
   }
 
+  /**
+    * Nodos variáveis do último circuito especificado
+    */
+  private var varNodes : Set[Int] = _
   /**
     * Propriedades de Instance
     */
@@ -162,6 +176,7 @@ class AlloyGenerator() {
   private var currentOneNode : Set[String] = Set()
   private var currentLoneNode : Set[String] = Set()
   private var currentConn : mutable.Map[String, Set[String]] = mutable.Map[String, Set[String]]()
+  private var currentLoneConn : mutable.Map[String, Set[String]] = mutable.Map[String, Set[String]]()
   //Declarações dos conetores básicos
   private val connDecl: mutable.Map[String,String] = mutable.Map[String, String]()
   initConnDecl()
@@ -174,7 +189,7 @@ class AlloyGenerator() {
     * @param reo Circuito Reo
     * @return
     */
-  def getInstance(reo : List[Nodo]) : Sig = {
+  def getInstance(reo : List[Connector]) : Sig = {
     //val inst = new PrimSig("Instance", baseSigs("Connector").asInstanceOf[PrimSig], Attr.ONE)
     val inst = new PrimSig("Instance", Attr.ONE)
     val node_sig =  baseSigs("Node").oneOf()
@@ -205,6 +220,7 @@ class AlloyGenerator() {
     currentOneNode = Set()
     currentLoneNode  = Set()
     currentConn  = mutable.Map[String, Set[String]]()
+    currentLoneConn  = mutable.Map[String, Set[String]]()
 
     //val reo = unfoldNode(n_reo)
 
@@ -212,6 +228,10 @@ class AlloyGenerator() {
       //Identifica os argumentos do predicado que define o conetor 'nodo'
       //Ex: sync[src, s, sink] => args = [src, s, sink]
       var args : Array[Expr] = Array()
+
+      //Verificamos se este conetor não é variável, mas está conectado a conetores variáveis
+      val varConn : Boolean = nodo.id != "vmerger" && nodo.id != "vdupl" &&
+                              varNodes.exists(vn => (nodo.entradas ++ nodo.entradas) contains vn)
 
       /*============================================ */
       //Nodos de entrada
@@ -221,7 +241,7 @@ class AlloyGenerator() {
         //Verificar se o nodo já é um field da sig
         if(!fields.contains(label)){
           //Se não for, adicionamos e armazenamos em fields
-          if(nodo.id == "vmerger") {
+          if(varNodes contains e) {
             fields(label) = inst.addField(label, node_lone)
             currentLoneNode += label
           }
@@ -248,12 +268,26 @@ class AlloyGenerator() {
 
       //Adicionar aos fields de Instance
       val conLabel = nodo.id + baseConnNr(nodo.id)
-      fields(conLabel) = inst.addField(conLabel, connSigs(nodo.id))
 
-      if(currentConn.exists(_._1 == nodo.id)){
-        currentConn(nodo.id) += conLabel
-      } else{
-        currentConn(nodo.id) = Set(conLabel)
+      //Se o conetor não variável está associado a um conetor variável
+      if(varConn){
+        fields(conLabel) = inst.addField(conLabel, connSigs(nodo.id).loneOf())
+
+        if(currentLoneConn.exists(_._1 == nodo.id)){
+          currentLoneConn(nodo.id) += conLabel
+        } else{
+          currentLoneConn(nodo.id) = Set(conLabel)
+        }
+
+      }
+      else{
+        fields(conLabel) = inst.addField(conLabel, connSigs(nodo.id).oneOf())
+
+        if(currentConn.exists(_._1 == nodo.id)){
+          currentConn(nodo.id) += conLabel
+        } else{
+          currentConn(nodo.id) = Set(conLabel)
+        }
       }
 
 
@@ -271,7 +305,7 @@ class AlloyGenerator() {
         //Verificar se o nodo já é um field da sig
         if(!fields.contains(label)){
           //Se não for, adicionamos e armazenamos em fields
-          if(nodo.id == "vdupl") {
+          if(varNodes contains e) {
             fields(label) = inst.addField(label, node_lone)
             currentLoneNode += label
           }
@@ -290,8 +324,26 @@ class AlloyGenerator() {
         out += label
       })
 
+      /*============================================ */
+      //Propriedades do Connector
+      /*============================================ */
       //Estamos em condições de especificar este conetor do circuito
-      inst.addFact(connPred(nodo.id).call(args:_*))
+      if(!varConn) inst.addFact(connPred(nodo.id).call(args:_*))
+      else{
+        //Lidar com variabilidade
+        val conn = fields(conLabel)
+
+        inst.addFact(conn.some().implies(connPred(nodo.id).call(args:_*)))
+
+        //Existência dos nodos associados a estes conetores
+        (nodo.entradas ++ nodo.saidas).foreach(
+          vn => if(varNodes contains vn){
+            inst.addFact(fields("x" + vn).some().iff(conn.some()))
+          }
+        )
+
+      }
+
     }
 
     /*============================================ */
@@ -354,7 +406,7 @@ class AlloyGenerator() {
     * @param reo Reo
     * @return
     */
-  def getAlloy(reo : List[Nodo]) : (ConstList[Sig], Command) = {
+  def getAlloy(reo : List[Connector]) : (ConstList[Sig], Command) = {
     val expl_reo = unfoldNode(reo)
 
     /* #Mínimo para o Scope (c/ min default = 10)*/
@@ -379,7 +431,7 @@ class AlloyGenerator() {
     * @param reo Reo
     * @return
     */
-  def getSolutions(reo : List[Nodo]) : A4Solution = {
+  def getSolutions(reo : List[Connector]) : A4Solution = {
     val opt = new A4Options()
     opt.solver = A4Options.SatSolver.SAT4J
 
@@ -395,7 +447,7 @@ class AlloyGenerator() {
     * @param cmd comando a satisfazer, fornecido pelo utilizador
     * @return
     */
-  def getSolutions(reo : List[Nodo], cmd : Command) : A4Solution = {
+  def getSolutions(reo : List[Connector], cmd : Command) : A4Solution = {
     val opt = new A4Options()
     opt.solver = A4Options.SatSolver.SAT4J
 
@@ -419,7 +471,7 @@ class AlloyGenerator() {
     * @param prop propriedade
     * @return
     */
-  def checkProperty(reo : List[Nodo], prop : String) : A4Solution = {
+  def checkProperty(reo : List[Connector], prop : String) : A4Solution = {
     val opt = new A4Options()
     opt.solver = A4Options.SatSolver.SAT4J
     val property : Expr = CompUtil.parseOneExpression_fromString(world, "not(" + prop + ")" )
@@ -458,6 +510,11 @@ class AlloyGenerator() {
     currentConn.foreach(sig =>
       if(sig._2.nonEmpty)
         fields += sig._2.mkString("\t", ", ", " : one " + connSigs(sig._1).label + ",\n")
+    )
+
+    currentLoneConn.foreach(sig =>
+      if(sig._2.nonEmpty)
+        fields += sig._2.mkString("\t", ", ", " : lone " + connSigs(sig._1).label + ",\n")
     )
 
     if(fields.length > 2)
@@ -710,5 +767,26 @@ class AlloyGenerator() {
 
 
     model
+  }
+
+  private def getThemeFunc() : java.lang.Iterable[Func] = {
+      //ParseModel
+      world.getAllFunc
+
+      //BaseModel
+      //baseModel.getThemeFunc.asJava
+
+  }
+
+  def showViz(sol : A4Solution): Unit = {
+    try {
+      sol.writeXML("instance.xml", getThemeFunc)
+      val viz = new VizGUI(false, "instance.xml", null)
+      //load do tema
+      viz.loadThemeFile("./lib/reoalloy/model/Reo.thm")
+
+    } catch {
+      case e: Err => e.printStackTrace()
+    }
   }
 }

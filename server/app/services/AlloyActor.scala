@@ -5,7 +5,7 @@ import preo.backend.Network
 import preo.frontend.Eval
 
 import scala.collection.mutable.ListBuffer
-import reoalloy.{AlloyGenerator, Nodo}
+import reoalloy.{AlloyGenerator, Connector}
 
 
 import play.api.libs.json._
@@ -98,7 +98,7 @@ class AlloyActor(out: ActorRef) extends Actor{
         }
 
         if(sol.satisfiable()){
-          reoalloy.Main.showViz(sol)
+          generator.showViz(sol)
           "SAT"
         }
         else unsat
@@ -119,9 +119,9 @@ class AlloyActor(out: ActorRef) extends Actor{
     * @param netw
     * @return
     */
-  def NetworkToLNodo(netw:Network): List[Nodo] ={
+  def NetworkToLNodo(netw:Network): List[Connector] ={
     val prms = netw.prims
-    var lnodo : ListBuffer[Nodo] = new ListBuffer[Nodo]()
+    var lnodo : ListBuffer[Connector] = new ListBuffer[Connector]()
     val validBaseConn = Array("sync", "lossy", "drain", "fifo", "fifofull", "node", "dupl", "vdupl", "merger", "vmerger")
 
     prms.foreach( p =>
@@ -155,7 +155,7 @@ class AlloyActor(out: ActorRef) extends Actor{
         val outs = p.outs
 
 
-        val n = new Nodo(name,ins,outs)
+        val n = new Connector(name,ins,outs)
         lnodo += n
       }
     )

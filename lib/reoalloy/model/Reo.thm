@@ -20,18 +20,10 @@
    <type name="univ"/>
    <type name="S/Ord"/>
    <type name="seq/Int"/>
-   <set name="fire" type="Node"/>
    <set name="First" type="S/Ord"/>
    <set name="Next" type="S/Ord"/>
 </node>
 
-<node color="White">
-   <type name="Fifo"/>
-</node>
-
-<edge attribute="yes">
-   <relation name="buffer"> <type name="Fifo"/> <type name="Value"/> </relation>
-</edge>
 
 <node hideunconnected="yes" style="Dashed" shape="Hexagon" color="Gray">
    <type name="Lossy"/>

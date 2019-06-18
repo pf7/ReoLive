@@ -169,3 +169,15 @@ pred cantFire[s : State, n : Node]{
 	(some vm : VMerger | n = vm.i1 and some vm.i2 and vm.i2 in s.fire or
 					   n = vm.i2 and some vm.i1 and vm.i1 in s.fire)
 }
+
+fun FireNodes : State -> Node{
+	{ s : State, n : Node | n in s.fire }
+}
+
+fun EmptyFifo : State -> Fifo{
+	{ s : State, f : Fifo | no f.buffer.s }
+}
+
+fun FullFifo : State -> Fifo{
+	{ s : State, f : Fifo | some f.buffer.s }
+}

@@ -6,4 +6,4 @@ package reoalloy
   * @param entradas Nodos de entrada
   * @param saidas Nodos de saída
   */
-class Nodo(var id : String, var entradas : List[Int], var saidas : List[Int] ) {}
+class Connector(var id : String, var entradas : List[Int], var saidas : List[Int] ) {}
