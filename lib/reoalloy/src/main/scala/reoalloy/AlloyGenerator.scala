@@ -397,6 +397,9 @@ class AlloyGenerator() {
       n.get().in(nodes.call()).forAll(n)
     )
 
+    //ParseModel facts
+    world.getAllFacts.forEach(f => inst_expr = inst_expr.and(f.b))
+
     inst
   }
 

@@ -18,9 +18,12 @@ lazy val common_settings = Seq(
     "org.scalanlp" %% "breeze-natives" % "0.13.2",
     // The visualization library is distributed separately as well.
     // It depends on LGPL code
-    "org.scalanlp" %% "breeze-viz" % "0.13.2",
-    "edu.mit.csail.sdg" % "alloy" % "4.2" from "file:./lib/alloy4.2_2015-02-22.jar"
-  )
+    "org.scalanlp" %% "breeze-viz" % "0.13.2"
+    //"edu.mit.csail.sdg" % "alloy" % "4.2" from "file:./lib/alloy4.2_2015-02-22.jar"
+  ),
+  unmanagedJars in Compile ++= Seq(
+      baseDirectory.value / "../lib/alloy4.2_2015-02-22.jar"
+      )
 )
 
 

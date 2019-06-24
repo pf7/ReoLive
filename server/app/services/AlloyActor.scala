@@ -172,7 +172,7 @@ class AlloyActor(out: ActorRef) extends Actor{
            .replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
            .replaceAll("(sig|disj|open|lone|none|one|&nbsp;as&nbsp;|" +
             "set|pred|abstract|all|some|extends|iff|&nbsp;in&nbsp;|" +
-            "and|&nbsp;or&nbsp;|implies|let|not|&nbsp;no&nbsp;|else|fact|fun)",
+            "and|&nbsp;or&nbsp;|implies|let|not|&nbsp;no&nbsp;|else|fact|fun|this)",
             "<b><font color=\"#1E1EA8\">$1</font></b>")
   }
 
