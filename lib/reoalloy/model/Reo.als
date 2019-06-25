@@ -30,9 +30,9 @@ sig Drain extends Channel {}{
 	all s : State | e1 in s.fire iff e2 in s.fire
 }
 
-pred drain[sink1, sink2 : one Node, d : one Drain]{
-	sink1 = d.e1
-	sink2 = d.e2
+pred drain[src1, src2 : one Node, d : one Drain]{
+	src1 = d.e1
+	src2 = d.e2
 }
 
 sig Lossy extends Channel {}{

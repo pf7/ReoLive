@@ -90,6 +90,12 @@ class AlloyBox(progr:Box[String], prop:Box[String], errorBox:OutputArea)
 
         box
 
+      case "CHECK_SAT" =>
+        if(n_ce == 0)
+          errorBox.message("Counterexamples found, property does not hold.")
+
+        box
+
       case "CHECK_UNSAT" =>
         if(n_ce == 0)
           errorBox.message("No counterexamples found for the current scope.")

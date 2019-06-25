@@ -81,6 +81,7 @@ class AlloyActor(out: ActorRef) extends Actor{
       //if(msgContent.length > 1){
       if(msgContent("solve").as[Boolean] || msgContent("check").as[Boolean]){
         var unsat = "UNSAT"
+        var sat = "SAT"
 
         //CHECK
         //if(msgContent.length == 4) {
@@ -88,6 +89,7 @@ class AlloyActor(out: ActorRef) extends Actor{
           //sol = generator.checkProperty(reo, msgContent(2))
           sol = generator.checkProperty(reo, msgContent("prop").as[String])
           unsat = "CHECK_UNSAT"
+          sat = "CHECK_SAT"
         }
 
         //val n_sol = msgContent(1).toInt
@@ -99,7 +101,7 @@ class AlloyActor(out: ActorRef) extends Actor{
 
         if(sol.satisfiable()){
           generator.showViz(sol)
-          "SAT"
+          sat
         }
         else unsat
 

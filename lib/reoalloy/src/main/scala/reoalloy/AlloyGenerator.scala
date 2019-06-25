@@ -403,6 +403,215 @@ class AlloyGenerator() {
     inst
   }
 
+  /***
+    * Definir a instância associada ao Reo
+    * @param reo Circuito Reo composto por conetores variáveis
+    * @return
+    */
+  def getInstanceVar(reo : List[Connector]) : Sig = {
+    //val inst = new PrimSig("Instance", baseSigs("Connector").asInstanceOf[PrimSig], Attr.ONE)
+    val inst = new PrimSig("Instance", Attr.ONE)
+    val node_sig =  baseSigs("Node").oneOf()
+    val node_lone = baseSigs("Node").loneOf()
+    val node_set = baseSigs("Node").setOf()
+
+    //?
+    val conns = inst.addField("conns", baseSigs("Connector").setOf())
+    val ports = inst.addField("ports", node_set)
+
+    //Fields
+    val fields = mutable.Map[String, Sig.Field]()
+    //Source nodes
+    var in = Set[String]()
+    //Sink nodes
+    var out = Set[String]()
+
+    //K = id do conetor de base ; V = #de ocorrências na configuração especificada
+    val baseConnNr = mutable.Map[String, Int]().withDefaultValue(0)
+
+    //Representa c1 + c2 + .. + c3, para especificar conns = c_sum
+    var c_sum : Expr = NONE
+
+    //Nodos do circuito
+    var disj : List[_ <: Expr] = List()
+
+    //Auxiliares para instanceToString
+    currentOneNode = Set()
+    currentLoneNode  = Set()
+    currentConn  = mutable.Map[String, Set[String]]()
+    currentLoneConn  = mutable.Map[String, Set[String]]()
+
+    //val reo = unfoldNode(n_reo)
+
+    for(nodo <- reo){
+      //Identifica os argumentos do predicado que define o conetor 'nodo'
+      //Ex: sync[src, s, sink] => args = [src, s, sink]
+      var args : Array[Expr] = Array()
+
+
+      /*============================================ */
+      //Nodos de entrada
+      /*============================================ */
+      nodo.entradas.foreach(e => {
+        val label = "x" + e
+        //Verificar se o nodo já é um field da sig
+        if(!fields.contains(label)){
+          fields(label) = inst.addField(label, node_lone)
+            currentLoneNode += label
+
+          disj = fields(label) :: disj
+        }
+
+        //Adicionamos aos parametros
+        args = args :+ inst.join(fields(label))
+
+        //Adicionamos ao conjunto dos nodos de entrada
+        in += label
+      })
+
+      /*============================================ */
+      //Connector
+      /*============================================ */
+      //Atualizar o número de ocorrências
+      baseConnNr(nodo.id) += 1
+
+      //Adicionar aos fields de Instance
+      val conLabel = nodo.id + baseConnNr(nodo.id)
+
+      fields(conLabel) = inst.addField(conLabel, connSigs(nodo.id).loneOf())
+
+      if(currentLoneConn.exists(_._1 == nodo.id)){
+        currentLoneConn(nodo.id) += conLabel
+      } else{
+        currentLoneConn(nodo.id) = Set(conLabel)
+      }
+
+      //Adicionar aos argumentos
+      args = args :+ inst.join(fields(conLabel))
+
+      //Adicionar a lista aos conns
+      c_sum = c_sum.plus(inst.join(fields(conLabel)))
+
+      /*============================================ */
+      //Nodos de saída
+      /*============================================ */
+      nodo.saidas.foreach(e => {
+        val label = "x" + e
+        //Verificar se o nodo já é um field da sig
+        if(!fields.contains(label)){
+          fields(label) = inst.addField(label, node_lone)
+          currentLoneNode += label
+
+          disj = fields(label) :: disj
+        }
+
+        //Adicionamos aos argumentos
+        args = args :+ inst.join(fields(label))
+
+        //Adicionamos ao conjunto dos nodos de saída
+        out += label
+      })
+
+      /*============================================ */
+      //Propriedades do Connector
+      /*============================================ */
+      //Estamos em condições de especificar este conetor do circuito
+      //Lidar com variabilidade
+      val conn = fields(conLabel)
+
+      if(nodo.id != "vdupl" && nodo.id != "vmerger"){
+        inst.addFact(conn.some().implies(connPred(nodo.id).call(args:_*)))
+
+        //Existência dos conetores e seus nodos associados
+        (nodo.entradas ++ nodo.saidas).foreach(
+          vn => inst.addFact(fields("x" + vn).some().iff(conn.some()))
+        )
+      }
+      else if(nodo.id == "vdupl"){
+        //A entrada está presente, se o vdupl também estiver
+        nodo.entradas.foreach(
+          vn => inst.addFact(fields("x" + vn).some().iff(conn.some()))
+        )
+
+        //Se uma saída está presente, a outra não está
+        val o1 = fields("x" + nodo.saidas(0))
+        val o2 = fields("x" + nodo.saidas(1))
+        inst.addFact(o1.some().implies(o2.no()))
+        inst.addFact(o2.some().implies(o1.no()))
+      }
+      else{
+        //vmerger
+        //A saída está presente, se o vmerger também estiver
+        nodo.saidas.foreach(
+          vn => inst.addFact(fields("x" + vn).some().iff(conn.some()))
+        )
+
+        //Se uma entrada está presente, a outra não está
+        val i1 = fields("x" + nodo.entradas(0))
+        val i2 = fields("x" + nodo.entradas(1))
+        inst.addFact(i1.some().implies(i2.no()))
+        inst.addFact(i2.some().implies(i1.no()))
+      }
+
+
+    }
+
+    /*============================================ */
+    //Definir conns
+    /*============================================ */
+    /*val c_f = baseSigs("Connector").getFields
+    val conns = c_f.get(0)
+    val ports = c_f.get(1)*/
+
+    inst.addFact(inst.join(conns).equal(c_sum))
+
+    /*============================================ */
+    //Declarar portas
+    /*============================================ */
+    //Identificamos os boundary nodes
+    val hidden = in.intersect(out)
+    //H = I & O
+    //B = (I - H) U (O - H)
+    val boundary = in.diff(hidden).union(out.diff(hidden))
+
+    var p_sum : Expr = NONE
+    boundary.foreach(p => p_sum = p_sum.plus(inst.join(fields(p))))
+
+    inst.addFact(inst.join(ports).equal(p_sum))
+
+    //Garantir que os nodos são disjuntos
+    if(disj.size > 1)
+      inst.addFact(ExprList.makeDISJOINT(null, null, disj.asJava))
+
+    /*============================================ */
+    //Propriedades de Instance
+    /*============================================ */
+    /*val circuit = baseSigs("Circuit")
+    //Circuit.root in Instance
+    inst_expr = circuit.join(circuit.getFields.get(0)).in(inst)*/
+
+    val c = baseSigs("Connector").oneOf("c")
+    val conns_c = baseSigs("Connector").getFields.get(0)
+    val ports_c = baseSigs("Connector").getFields.get(1)
+
+    //all c : Connector | c in Instance.conns + Instance.conns.^conns
+    inst_expr = c.get().in(inst.join(conns).plus(inst.join(conns).join(conns_c.closure()))).forAll(c)
+
+    //Função nodes: Determina todos os nodos abrangidos por Instance
+    val nodes = new Func(null, "nodes", null, node_set,
+      inst.join(ports).plus(inst.join(conns).join(ports_c)).plus(inst.join(conns).join(conns_c.closure()).join(ports_c)))
+
+    //all n : Node | n in nodes
+    val n = baseSigs("Node").oneOf("n")
+    inst_expr = inst_expr.and(
+      n.get().in(nodes.call()).forAll(n)
+    )
+
+    //ParseModel facts
+    world.getAllFacts.forEach(f => inst_expr = inst_expr.and(f.b))
+
+    inst
+  }
 
   /**
     * Determina o modelo Alloy associado ao Reo.
@@ -416,7 +625,15 @@ class AlloyGenerator() {
     var N = expl_reo.flatMap(n => n.entradas ++ n.saidas).distinct.size
     if(N < 10) N = 10
 
-    val i = getInstance(expl_reo)
+    var i : Sig = null
+
+    //Se existem conetores variáveis presentes neste circuito
+    if(varNodes.nonEmpty)
+       i = getInstanceVar(expl_reo)
+      //Senão
+    else i = getInstance(expl_reo)
+
+
     currentInst = i
 
     val cmd = new Command(false, N, -1, -1, inst_expr).change(baseSigs("State"), true, N)
